@@ -1,0 +1,9 @@
+name: Add Issue to Project
+on:
+  issues:
+    types: [opened]
+jobs:
+  add-to-project:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Adding issue to project"

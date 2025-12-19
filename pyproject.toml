@@ -11,8 +11,21 @@ dependencies = [
     "pydantic>=2.12.5",
 ]
 
+[tool.uv]
+package = true
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project.scripts]
+mcp-repo-onboarding = "mcp_repo_onboarding.server:main"
+
 [dependency-groups]
 dev = [
     "pytest>=9.0.2",
     "ruff>=0.14.10",
 ]
+
+[tool.pytest.ini_options]
+addopts = "--ignore=tests/fixtures"

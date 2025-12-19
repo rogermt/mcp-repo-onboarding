@@ -1,0 +1,9 @@
+name: Add PR to Project
+on:
+  pull_request:
+    types: [opened]
+jobs:
+  add-to-project:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Adding PR to project"

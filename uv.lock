@@ -332,7 +332,7 @@ cli = [
 [[package]]
 name = "mcp-repo-onboarding"
 version = "0.1.0"
-source = { virtual = "." }
+source = { editable = "." }
 dependencies = [
     { name = "mcp", extra = ["cli"] },
     { name = "packaging" },
