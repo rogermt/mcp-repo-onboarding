@@ -1,7 +1,7 @@
 import os
 import re
 from pathlib import Path
-from typing import List, Tuple, Set
+from typing import List, Tuple
 
 from .schema import (
     RepoAnalysis, RepoAnalysisScriptGroup, CommandInfo, DocInfo, ConfigFileInfo, 
@@ -118,10 +118,14 @@ def extract_shell_scripts(all_files: List[str]) -> dict:
 def get_config_priority(path: str) -> int:
     name = Path(path).name.lower()
     
-    if name == "makefile": return 100
-    if name in ["pyproject.toml", "setup.cfg", "setup.py"]: return 90
-    if name in ["tox.ini", "noxfile.py"]: return 80
-    if name in [".pre-commit-config.yaml", ".pre-commit-config.yml"]: return 70
+    if name == "makefile":
+        return 100
+    if name in ["pyproject.toml", "setup.cfg", "setup.py"]:
+        return 90
+    if name in ["tox.ini", "noxfile.py"]:
+        return 80
+    if name in [".pre-commit-config.yaml", ".pre-commit-config.yml"]:
+        return 70
     
     if path.startswith(".github/workflows/") or path.startswith(".github\\workflows\\"):
         ci_keywords = ["ci", "test", "lint", "build", "checker", "integration", "release", "publish", "deploy"]
@@ -136,10 +140,13 @@ def get_config_priority(path: str) -> int:
 
 def get_doc_priority(path: str) -> int:
     name = Path(path).name.lower()
-    if name.startswith("readme"): return 100
-    if name.startswith("contributing"): return 100
+    if name.startswith("readme"):
+        return 100
+    if name.startswith("contributing"):
+        return 100
     # TS logic prioritized docs/index and keywords
-    if "quickstart" in name or "install" in name or "setup" in name: return 80
+    if "quickstart" in name or "install" in name or "setup" in name:
+        return 80
     return 50
 
 def analyze_repo(repo_path: str, max_files: int = 5000) -> RepoAnalysis:
@@ -200,10 +207,14 @@ def analyze_repo(repo_path: str, max_files: int = 5000) -> RepoAnalysis:
     makefile = next((c.path for c in configs if Path(c.path).name.lower() == "makefile"), None)
     if makefile:
         mk_cmds = extract_makefile_commands(root, makefile)
-        if "test" in mk_cmds: scripts.test.extend(mk_cmds["test"])
-        if "lint" in mk_cmds: scripts.lint.extend(mk_cmds["lint"])
-        if "dev" in mk_cmds: scripts.dev.extend(mk_cmds["dev"])
-        if "install" in mk_cmds: scripts.install.extend(mk_cmds["install"])
+        if "test" in mk_cmds:
+            scripts.test.extend(mk_cmds["test"])
+        if "lint" in mk_cmds:
+            scripts.lint.extend(mk_cmds["lint"])
+        if "dev" in mk_cmds:
+            scripts.dev.extend(mk_cmds["dev"])
+        if "install" in mk_cmds:
+            scripts.install.extend(mk_cmds["install"])
 
     # Shell Scripts (Fixed: This was missing)
     sh_cmds = extract_shell_scripts(all_files)
@@ -217,7 +228,6 @@ def analyze_repo(repo_path: str, max_files: int = 5000) -> RepoAnalysis:
         package_managers = []
         
         has_reqs = any(d.type == "requirements" for d in dep_files)
-        has_poetry = any(d.type == "pyproject" for d in dep_files) # Simplified detection
         
         # Env Setup
         env_instructions.append(

@@ -1,6 +1,4 @@
-import pytest
 from mcp_repo_onboarding.analysis import analyze_repo
-from mcp_repo_onboarding.schema import RepoAnalysis
 
 def test_caps_docs_and_config(temp_repo):
     """
