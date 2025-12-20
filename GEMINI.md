@@ -1,6 +1,20 @@
-# GEMINI.md — Contribution & Execution Rules (Python Version)
+## Runtime responsibilities (avoid confusion)
 
-This file defines how to work in this repo.
+- **Gemini CLI** is the runtime agent that calls MCP tools (via `mcpServers`).
+- This MCP server only performs **static analysis + safe local file I/O**.
+- The server does **not** generate prose. Gemini generates `ONBOARDING.md` content and passes it to `write_onboarding`.
+
+## Stable API / naming (must not drift)
+
+Repo/package/binary: `mcp-repo-onboarding`  
+Default onboarding file: `ONBOARDING.md`
+
+MCP tool names are a stable API and must not change:
+- `ping`
+- `analyze_repo`
+- `get_run_and_test_commands`
+- `read_onboarding`
+- `write_onboarding`
 
 ## Build & Run (uv required)
 
@@ -10,6 +24,39 @@ This project uses `uv` for dependency management.
 - **Run Tests:** `uv run pytest`
 - **Run Server:** `uv run mcp-repo-onboarding`
 - **Lint/Format:** `uv run ruff check .`
+
+### Setup for Gemini-Cli
+- **Create Directory**
+
+```bash
+mkdir .gemnini
+```
+
+- **Create JSON File**
+
+Create a file named `settings.json` inside the `.gemnini` directory with the following content:
+
+```json
+{
+  "mcpServers": {
+    "repo-onboarding": {
+      "command": "uv",
+      "args": [
+        "--directory",
+        "/home/rogermt/mcp-repo-onboarding",
+        "run",
+        "mcp-repo-onboarding"
+      ],
+      "env": {
+        "REPO_ROOT": "/home/rogermt/Paper2Code"
+      }
+    }
+  }
+}
+```
+
+
+
 
 ## Architecture
 - **Framework:** `mcp` (Official Python SDK), `FastMCP`.
@@ -22,3 +69,5 @@ This project uses `uv` for dependency management.
 ## Safety Invariants
 - No code execution (no `subprocess.run` on user code).
 - All file paths sandboxed to `REPO_ROOT` using `pathlib.Path.resolve()`.
+- The server does **not** generate prose. Gemini generates `ONBOARDING.md` content and passes it to `write_onboarding`.
+
