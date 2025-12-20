@@ -8,7 +8,7 @@ from .onboarding import write_onboarding as write_onboarding_svc
 from .schema import RunAndTestCommands
 
 # Initialize FastMCP Server
-mcp = FastMCP("mcp-repo-onboarding")
+mcp = FastMCP("repo-onboarding")
 
 @mcp.tool()
 def ping() -> str:

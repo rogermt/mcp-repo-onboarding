@@ -1,0 +1,20 @@
+You are running the Phase 5 A/B evaluation for onboarding quality.
+
+Hard rule: DO NOT use any MCP tools or MCP servers in this run.
+
+Goal: Generate an ONBOARDING.md for this repository that is accurate and copy/pastable.
+
+Rules:
+- Do not claim a Python version unless you can cite an explicit pin you found (e.g. .python-version, runtime.txt, pyproject.toml requires-python, CI config). If you did not find one, write exactly: "No Python version pin detected."
+- Do not invent run/test/lint/format/build commands. Only include a command if you can cite exactly where it came from (filename + snippet/target name).
+- If you are unsure about a command, write "Unsure" and list the exact file(s) you would check next.
+- Prefer being correct over being complete.
+
+Output format:
+1) Evidence used (bullet list of the exact files you inspected and what each contributed)
+2) ONBOARDING.md content (single Markdown document, ready to save as ONBOARDING.md)
+3) Uncertainties / follow-ups (what you could not confirm, and which file(s) to check)
+4) Token usage: <value or unknown>
+4) Token usage (if available from the UI; otherwise write "Token usage: unknown")
+
+Now produce the output.

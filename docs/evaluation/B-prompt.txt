@@ -1,0 +1,77 @@
+You are running the Phase 5 A/B evaluation for onboarding quality.
+
+Use the `repo-onboarding` MCP server and follow the grounding rules strictly.
+
+Hard rule: DO NOT inspect/read repository files directly in this run. Use only MCP tool output as evidence.
+
+Step 1 — Call MCP tools:
+1) Call `analyze_repo` with {}.
+2) Call `get_run_and_test_commands` with {}.
+
+Step 2 — Extract evidence (internal use only, do NOT include raw tool JSON in ONBOARDING.md):
+From `analyze_repo`, extract these fields for grounding your prose:
+- repoPath
+- python.pythonVersionHints
+- python.packageManagers
+- python.dependencyFiles
+- python.envSetupInstructions
+- projectLayout
+- scripts
+- testSetup
+- configurationFiles
+- docs
+- notes
+
+From `get_run_and_test_commands`, extract:
+- devCommands
+- testCommands
+- buildCommands
+
+Step 3 — Grounding rules (hard rules):
+- Python version: ONLY mention a specific version if `python.pythonVersionHints` contains it. If empty, write exactly: "No Python version pin detected."
+- Commands: ONLY include commands that appear in:
+  - `scripts.*`, or
+  - `testSetup.commands`, or
+  - `get_run_and_test_commands` arrays.
+- If those arrays are empty for a section, state: "No explicit commands detected by the analyzer." Do not invent alternatives.
+- Never present Makefile recipe internals as commands. Prefer stable `make <target>` style commands if present.
+- Generic suggestions: If a command has `description: "Generic suggestion"` or `confidence: "heuristic"`, label it as "(Generic suggestion)" in the output. Keep to 1–2 bullets max.
+
+Step 4 — Produce ONBOARDING.md (copy/pasteable):
+Write a single Markdown document that MUST start with the following exact structure:
+
+# ONBOARDING.md
+
+## Overview
+Repo path: <repoPath>
+
+Then continue with these sections (always include the headings exactly as written):
+- Environment setup
+- Install dependencies
+- Run / develop locally (if commands exist; otherwise state none detected)
+- Run tests (if commands exist; otherwise state none detected)
+- Lint / format (if commands exist; otherwise state none detected)
+- Analyzer notes (include this section ONLY if `notes` is not empty; if empty or missing, omit the section entirely; if included, render notes verbatim as bullet points)
+
+Then include three separate “files” sections grounded to the correct MCP fields (do not mix them):
+- Dependency files detected (list only from `python.dependencyFiles[*].path`)
+- Useful configuration files (list only from `configurationFiles[*].path`)
+- Useful docs (list only from `docs[*].path`)
+
+Important formatting rule:
+- Do NOT use "Repository:" as a title or heading.
+- Always use "## Overview" and "Repo path: <repoPath>" exactly as above.
+
+Step 5 — Write file (interactive mode only):
+If you are running interactively and file writing is supported, call `write_onboarding` with:
+- path: "ONBOARDING.md"
+- mode: "overwrite"
+- createBackup: true
+- content: (the ONBOARDING.md you just generated)
+
+If you are running in headless mode and `write_onboarding` causes the run to halt, SKIP the tool call and only output the ONBOARDING.md content.
+
+Step 6 — Token usage:
+At the end of your response (outside the ONBOARDING.md), write: "Token usage: <value if available, else unknown>"
+
+Now execute.

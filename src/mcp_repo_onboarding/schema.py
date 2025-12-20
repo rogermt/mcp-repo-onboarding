@@ -95,6 +95,7 @@ class WriteOnboardingResult(BaseModel):
     backupPath: Optional[str] = None
 
 class RunAndTestCommands(BaseModel):
+    """Simplified view for the get_run_and_test_commands tool."""
     devCommands: List[CommandInfo] = Field(default_factory=list)
     testCommands: List[CommandInfo] = Field(default_factory=list)
     buildCommands: List[CommandInfo] = Field(default_factory=list)

@@ -42,3 +42,7 @@ ONBOARDING.md.bak.*
 # Editor
 .vscode/
 .idea/
+
+# Local-only artifacts (not committed)
+scratch/
+*.gitingest.txt
