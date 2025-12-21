@@ -53,6 +53,16 @@ This MCP server is **static analysis + file I/O** for a single repo root; Gemini
 
 ---
 
+## Ignore Rules
+
+The analyzer applies ignore rules in this order:
+
+- **Hard ignores** are always excluded (e.g., `.git/`, `node_modules/`, `.venv/`, `venv/`, `env/`, `__pycache__/`, `dist/`, `build/`, and anything under `site-packages/`).
+- **Targeted signal files** (e.g., `pyproject.toml`, `requirements*.txt`, `tox.ini`, `Makefile`, `.github/workflows/*`) are still detected even if ignored, so onboarding signals remain reliable.
+- **Broad scanning** (e.g., listing docs/config candidates) respects the repo’s `.gitignore` to reduce noise.
+
+---
+
 ## MCP tools provided
 
 These tool names are the stable API that Gemini should call:
@@ -215,45 +225,25 @@ Prompt:
 
 ---
 
-## Phase 5 evaluation: Simple A/B protocol (decide if MCP adds value)
+### Phase 6 – Python MCP Hardening & Signal Precision
 
-Goal: compare onboarding quality **without MCP** vs **with MCP**, on the same repos.
+**Summary**
+Phase 6 focuses on tightening correctness, grounding, and signal prioritization in the Python MCP implementation following successful Phase‑5 validation. The goal is to eliminate contradictory output, reduce generic suggestions, and leverage Python‑native tooling for more precise static extraction—without increasing scope, runtime, or token usage.
 
-Use 3 repos:
-- a Python web app (Flask/FastAPI/Django)
-- a pytest + tox (or nox) library
-- a notebook-heavy repo
+**Goals**
 
-For each repo run two chats:
+* Zero contradictory analyzer output
+* Strict adherence to Phase‑5 B‑prompt contract
+* Prefer repo‑native commands over generic ones
+* Improve Python version and dependency signal accuracy
+* Keep MCP output mechanical and non‑prose
 
-### A) Baseline (no MCP server configured)
+**Non‑Goals**
 
-Prompt:
-
-> Generate an `ONBOARDING.md` for this repo (env setup, install, run, test).  
-> Only include commands you are confident exist. If unsure, say you are unsure and name the exact file(s) you would check.
-
-Record:
-- Did it invent a Python version?
-- Did it invent run/test commands?
-- Did it point to the right files?
-
-### B) With MCP server configured
-
-Prompt:
-
-> Call `analyze_repo` and `get_run_and_test_commands`.  
-> Then generate an `ONBOARDING.md`.  
-> Only include commands that appear in MCP tool output.
-
-Record:
-- Command accuracy
-- Missing-but-valuable commands (potential heuristics improvements)
-- Whether it correctly says “no explicit commands detected” when appropriate
-
-Decision rule:
-- Continue if MCP mode clearly reduces invented commands/versions and/or speeds up correct onboarding.
-- Reconsider if MCP does not improve accuracy or usefulness across the repo set.
+* No code execution
+* No dependency resolution
+* No deep architecture inference
+* No TS/JS parity work
 
 See [Phase 5 A/B Evaluation Prompts](./docs/evaluation/phase5-ab-prompts.md).
 

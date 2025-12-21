@@ -16,6 +16,19 @@ MCP tool names are a stable API and must not change:
 - `read_onboarding`
 - `write_onboarding`
 
+*ALL code changes MUST follow Test-Driven Development:**
+0.  **submit plan** overwrite /home/rogermt/mcp-repo-onboarding/docs/development/plan.md
+1.  **Write failing test FIRST** in `tests/`.
+2.  **Run test to confirm failure** (`uv run pytest`).
+3.  **Implement the fix** in `src/`.
+4.  **Run test to confirm pass** (`uv run pytest`).
+
+see /home/rogermt/mcp-repo-onboarding/docs/design/SOFTWARE_DESIGN_GUIDE.md
+
+
+
+
+
 ## Build & Run (uv required)
 
 This project uses `uv` for dependency management.
@@ -55,12 +68,10 @@ Create a file named `settings.json` inside the `.gemnini` directory with the fol
 }
 ```
 
-
-
-
 ## Architecture
 - **Framework:** `mcp` (Official Python SDK), `FastMCP`.
 - **Validation:** `pydantic`.
+- **Ignore Hndling:** [pathspec](/home/rogermt/mcp-repo-onboarding/docs/design/ignore-handling.md)
 - **Structure:**
     - `src/mcp_repo_onboarding/schema.py`: Pydantic models (API Contract).
     - `src/mcp_repo_onboarding/analysis.py`: Core logic (AST, File walking).

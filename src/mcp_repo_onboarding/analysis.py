@@ -2,6 +2,7 @@ import os
 import re
 from pathlib import Path
 from typing import List, Tuple
+import pathspec
 
 from .schema import (
     RepoAnalysis, RepoAnalysisScriptGroup, CommandInfo, DocInfo, ConfigFileInfo, 
@@ -11,14 +12,62 @@ from .schema import (
 MAX_DOCS_CAP = 10
 MAX_CONFIG_CAP = 15
 
-SKIP_DIRS = {
-    ".git", "node_modules", ".venv", "venv", "env", "__pycache__",
-    "dist", "build", ".mypy_cache", ".pytest_cache", "site-packages"
-}
+SAFETY_IGNORES = [
+    ".git/", ".venv/", "venv/", "env/", "__pycache__/", "node_modules/",
+    "site-packages/", "dist/", "build/", ".pytest_cache/", ".mypy_cache/", ".coverage"
+]
 
-def scan_repo_files(root: Path, max_files: int = 5000) -> Tuple[List[str], List[str]]:
+class IgnoreMatcher:
+    def __init__(
+        self,
+        repo_root: Path,
+        safety_ignores: List[str],
+        gitignore_patterns: List[str],
+    ) -> None:
+        self.repo_root = repo_root.resolve()
+        self.safety_ignores = [p.rstrip("/") for p in safety_ignores]
+        
+        if gitignore_patterns:
+            self._pathspec = pathspec.PathSpec.from_lines(
+                pathspec.patterns.GitWildMatchPattern, 
+                gitignore_patterns
+            )
+        else:
+            self._pathspec = None
+
+    def should_ignore(self, path: Path, is_dir: bool = False) -> bool:
+        try:
+            # Normalize to repo-root-relative POSIX style
+            resolved_path = path.resolve()
+            rel_path = resolved_path.relative_to(self.repo_root)
+            rel_path_str = str(rel_path.as_posix())
+            
+            if is_dir and not rel_path_str.endswith("/"):
+                rel_path_str += "/"
+
+            # 1. Safety ignores (always win)
+            # Check if any safety ignore pattern is a prefix of the relative path
+            for si in self.safety_ignores:
+                if f"/{si}/" in f"/{rel_path_str}":
+                    return True
+                if rel_path_str.startswith(f"{si}/") or rel_path_str == si:
+                    return True
+
+            # 2. Repo ignore rules (pathspec)
+            if self._pathspec:
+                return self._pathspec.match_file(rel_path_str)
+            
+            return False
+        except (ValueError, OSError):
+            # Fail closed -> ignore = False (per design: "No exceptions (fail closed -> ignore = False)")
+            return False
+
+    def should_descend(self, dir_path: Path) -> bool:
+        return not self.should_ignore(dir_path, is_dir=True)
+
+def scan_repo_files(root: Path, ignore: IgnoreMatcher, max_files: int = 5000) -> Tuple[List[str], List[str]]:
     """
-    Scans repo files.
+    Scans repo files using IgnoreMatcher for pruning.
     Strategy: Scan root dir FIRST (to find config files), then BFS subdirectories.
     """
     all_files: List[str] = []
@@ -29,10 +78,15 @@ def scan_repo_files(root: Path, max_files: int = 5000) -> Tuple[List[str], List[
         with os.scandir(root) as entries:
             dirs_to_visit = []
             for entry in entries:
-                if entry.name in SKIP_DIRS:
+                entry_path = Path(entry.path)
+                
+                # Check ignores (file or dir)
+                if ignore.should_ignore(entry_path, is_dir=entry.is_dir()):
                     continue
+                
                 if entry.is_dir():
-                    dirs_to_visit.append(entry.path)
+                    if ignore.should_descend(entry_path):
+                        dirs_to_visit.append(entry.path)
                 elif entry.is_file():
                     rel_path = entry.name
                     all_files.append(rel_path)
@@ -51,14 +105,17 @@ def scan_repo_files(root: Path, max_files: int = 5000) -> Tuple[List[str], List[
                     if len(all_files) >= max_files:
                         break
                     
-                    if entry.name in SKIP_DIRS:
+                    entry_path = Path(entry.path)
+                    
+                    if ignore.should_ignore(entry_path, is_dir=entry.is_dir()):
                         continue
                         
                     if entry.is_dir():
-                        queue.append(entry.path)
+                        if ignore.should_descend(entry_path):
+                            queue.append(entry.path)
                     elif entry.is_file():
                         try:
-                            rel_path = str(Path(entry.path).relative_to(root))
+                            rel_path = str(entry_path.relative_to(root))
                             all_files.append(rel_path)
                             if rel_path.endswith(".py"):
                                 py_files.append(rel_path)
@@ -151,13 +208,65 @@ def get_doc_priority(path: str) -> int:
 
 def analyze_repo(repo_path: str, max_files: int = 5000) -> RepoAnalysis:
     root = Path(repo_path).resolve()
-    all_files, py_files = scan_repo_files(root, max_files)
+    
+    # Initialize IgnoreMatcher
+    gitignore_patterns = []
+    
+    gitignore = root / ".gitignore"
+    if gitignore.is_file():
+        try:
+            with open(gitignore, 'r', encoding='utf-8') as f:
+                gitignore_patterns.extend(f.readlines())
+        except OSError:
+            pass
+
+    info_exclude = root / ".git" / "info" / "exclude"
+    if info_exclude.is_file():
+        try:
+            with open(info_exclude, 'r', encoding='utf-8') as f:
+                gitignore_patterns.extend(f.readlines())
+        except OSError:
+            pass
+
+    ignore = IgnoreMatcher(
+        repo_root=root,
+        safety_ignores=SAFETY_IGNORES,
+        gitignore_patterns=gitignore_patterns
+    )
+    
+    # --- Start of new implementation ---
+
+    # 1. Targeted scan for signal files (not blocked by gitignore)
+    targeted_files = []
+    
+    # Safety-only matcher for the targeted scan
+    safety_only_ignore = IgnoreMatcher(repo_root=root, safety_ignores=SAFETY_IGNORES, gitignore_patterns=[])
+
+    # Check for specific files at the root
+    for pattern in ["pyproject.toml", "tox.ini", "noxfile.py", "setup.py", "setup.cfg", "Makefile", ".pre-commit-config.yaml"]:
+        p = root / pattern
+        if p.is_file() and not safety_only_ignore.should_ignore(p):
+            targeted_files.append(pattern)
+
+    # Glob for requirements files and GH workflows
+    for pattern in ["requirements*.txt", ".github/workflows/*.yml"]:
+        for p in root.glob(pattern):
+            if p.is_file() and not safety_only_ignore.should_ignore(p):
+                targeted_files.append(str(p.relative_to(root)))
+
+    # 2. Broad scan for other files (respects gitignore)
+    all_other_files, py_files = scan_repo_files(root, ignore, max_files)
+
+    # Combine and unique the file lists
+    all_files = sorted(list(set(all_other_files + targeted_files)))
+    
+    # --- End of new implementation ---
     
     docs = []
     configs = []
     dep_files = []
     
-    # 1. Categorize files
+    # Categorize files
     for f in all_files:
         name = Path(f).name.lower()
         
@@ -187,7 +296,7 @@ def analyze_repo(repo_path: str, max_files: int = 5000) -> RepoAnalysis:
         elif name == "setup.py":
             dep_files.append(PythonEnvFile(path=f, type="setup.py"))
 
-    # 2. Prioritize & Cap
+    # Prioritize & Cap
     docs.sort(key=lambda x: get_doc_priority(x.path), reverse=True)
     notes = []
     
@@ -200,7 +309,7 @@ def analyze_repo(repo_path: str, max_files: int = 5000) -> RepoAnalysis:
         notes.append(f"configurationFiles list truncated to {MAX_CONFIG_CAP} entries (total={len(configs)})")
         configs = configs[:MAX_CONFIG_CAP]
 
-    # 3. Extract Commands
+    # Extract Commands
     scripts = RepoAnalysisScriptGroup()
     
     # Makefile
@@ -216,12 +325,12 @@ def analyze_repo(repo_path: str, max_files: int = 5000) -> RepoAnalysis:
         if "install" in mk_cmds:
             scripts.install.extend(mk_cmds["install"])
 
-    # Shell Scripts (Fixed: This was missing)
+    # Shell Scripts
     sh_cmds = extract_shell_scripts(all_files)
     scripts.dev.extend(sh_cmds["dev"])
     scripts.test.extend(sh_cmds["test"])
 
-    # 4. Infer Python Environment & Install Commands (Fixed: This was missing)
+    # Infer Python Environment & Install Commands
     python_info = None
     if py_files or dep_files:
         env_instructions = []
@@ -229,24 +338,8 @@ def analyze_repo(repo_path: str, max_files: int = 5000) -> RepoAnalysis:
         
         has_reqs = any(d.type == "requirements" for d in dep_files)
         
-        # Env Setup
-        env_instructions.append(
-            "Create a virtualenv: `python -m venv .venv` and activate it (`source .venv/bin/activate` on Unix, `.venv\\Scripts\\activate` on Windows)."
-        )
-        
-        # Install Commands
         if has_reqs:
             package_managers.append("pip")
-            install_cmd = "pip install -r requirements.txt"
-            env_instructions.append(f"Install dependencies with pip: `{install_cmd}`.")
-            
-            # Add to scripts.install if not already present
-            if not scripts.install:
-                scripts.install.append(CommandInfo(
-                    command=install_cmd,
-                    source="requirements.txt",
-                    confidence="derived"
-                ))
         
         python_info = PythonInfo(
             packageManagers=package_managers,
