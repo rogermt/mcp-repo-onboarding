@@ -236,16 +236,8 @@ def analyze_repo(repo_path: str, max_files: int = 5000) -> RepoAnalysis:
         # Install Commands
         if has_reqs:
             package_managers.append("pip")
-            install_cmd = "pip install -r requirements.txt"
-            # Issue #15 (Part 2): Do not duplicate install command in env_instructions
-            
-            # Add to scripts.install if not already present
-            if not scripts.install:
-                scripts.install.append(CommandInfo(
-                    command=install_cmd,
-                    source="requirements.txt",
-                    confidence="derived"
-                ))
+            # Issue #15 (Part 3): Removed 'derived' pip install command to avoid generic suggestions.
+            # We only surface install commands if explicitly found in Makefiles or scripts.
         
         python_info = PythonInfo(
             packageManagers=package_managers,

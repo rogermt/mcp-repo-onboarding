@@ -54,7 +54,7 @@ def test_shell_script_extraction(temp_repo):
 
 def test_python_env_derivation(temp_repo):
     """
-    Asserts that requirements.txt triggers install commands, but NOT generic env instructions.
+    Asserts that requirements.txt triggers signal, but NOT derived commands.
     """
     # phase3-2-tox-nox-make has requirements.txt
     repo_path = temp_repo("phase3-2-tox-nox-make")
@@ -67,15 +67,16 @@ def test_python_env_derivation(temp_repo):
     dep_paths = [d.path for d in analysis.python.dependencyFiles]
     assert "requirements.txt" in dep_paths
     
-    # Check that generic virtualenv instruction is NOT present (Issue #15 fix)
-    assert not any("virtualenv" in instr for instr in analysis.python.envSetupInstructions)
+    # Check that NO env instructions are generated (Issue #15 fix)
+    assert len(analysis.python.envSetupInstructions) == 0
     
-    # Check that install command is NOT in envSetupInstructions (to avoid duplication with Install dependencies section)
-    assert not any("pip install -r requirements.txt" in instr for instr in analysis.python.envSetupInstructions)
-    
-    # Check derived Install Scripts (It MUST be here)
+    # Check that NO derived Install Scripts are created (Issue #15 fix)
+    # searxng has no Makefile 'install' target, so scripts.install should be empty
+    # Wait, the fixture might have Makefile with install target? 
+    # phase3-2-tox-nox-make HAS a Makefile with test/lint but NO install.
     install_cmds = [c.command for c in analysis.scripts.install]
-    assert "pip install -r requirements.txt" in install_cmds
+    assert "pip install -r requirements.txt" not in install_cmds
+    assert len(analysis.scripts.install) == 0
 
 def test_config_priority_and_detection(temp_repo):
     """
