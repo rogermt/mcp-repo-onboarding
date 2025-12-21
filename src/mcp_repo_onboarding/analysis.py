@@ -238,11 +238,6 @@ def analyze_repo(repo_path: str, max_files: int = 5000) -> RepoAnalysis:
 
     # 1. Targeted scan for signal files (not blocked by gitignore)
     targeted_files = []
-    signal_patterns = [
-        "pyproject.toml", "requirements*.txt", "tox.ini", "noxfile.py", 
-        "setup.py", "setup.cfg", "Makefile", ".pre-commit-config.yaml", 
-        ".github/workflows/*.yml"
-    ]
     
     # Safety-only matcher for the targeted scan
     safety_only_ignore = IgnoreMatcher(repo_root=root, safety_ignores=SAFETY_IGNORES, gitignore_patterns=[])
