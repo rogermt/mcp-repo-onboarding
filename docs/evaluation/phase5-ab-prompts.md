@@ -63,6 +63,7 @@ You are running the Phase 5 A/B evaluation for onboarding quality.
 Use the `repo-onboarding` MCP server and follow the grounding rules strictly.
 
 Hard rule: DO NOT inspect/read repository files directly in this run. Use only MCP tool output as evidence.
+**Hard rule: DO NOT execute any shell commands, git commands, or similar external processes.**
 
 Step 1 — Call MCP tools:
 1) Call `analyze_repo` with {}.
@@ -129,7 +130,7 @@ If you are running interactively and file writing is supported, call `write_onbo
 - createBackup: true
 - content: (the ONBOARDING.md you just generated)
 
-If you are running in headless mode and `write_onboarding` causes the run to halt, SKIP the tool call and only output the ONBOARDING.md content.
+**Hard rule: If you are running in headless mode (e.g., `--yolo` or `--headless`), DO NOT call `write_onboarding` tool. Instead, only output the ONBOARDING.md content directly.**
 
 Step 6 — Token usage:
 At the end of your response (outside the ONBOARDING.md), write: "Token usage: <value if available, else unknown>"
@@ -144,3 +145,5 @@ Now execute.
 - The goal is not maximum completeness; it is accuracy, grounded commands, and compact output.
 - If MCP output does not contain commands, the correct result is to say none were detected.
 - The B run must remain auditable: tool output must be quoted before prose.
+
+

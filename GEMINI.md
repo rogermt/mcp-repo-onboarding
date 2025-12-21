@@ -17,7 +17,7 @@ MCP tool names are a stable API and must not change:
 - `write_onboarding`
 
 *ALL code changes MUST follow Test-Driven Development:**
-
+0.  **submit plan** overwrite /home/rogermt/mcp-repo-onboarding/docs/development/plan.md
 1.  **Write failing test FIRST** in `tests/`.
 2.  **Run test to confirm failure** (`uv run pytest`).
 3.  **Implement the fix** in `src/`.

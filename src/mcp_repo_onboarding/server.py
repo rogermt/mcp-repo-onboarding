@@ -2,7 +2,7 @@ import os
 from mcp.server.fastmcp import FastMCP
 from typing import Optional
 
-from .analysis import analyze_repo
+from .analysis import analyze_repo as analysis_mod_analyze_repo
 from .onboarding import read_onboarding as read_onboarding_svc
 from .onboarding import write_onboarding as write_onboarding_svc
 from .schema import RunAndTestCommands
@@ -16,7 +16,7 @@ def ping() -> str:
     return '{"ok": true, "tool": "ping"}'
 
 @mcp.tool()
-def analyze_repo_tool(path: Optional[str] = None, max_files: int = 5000) -> str:
+def analyze_repo(path: Optional[str] = None, max_files: int = 5000) -> str:
     """
     Analyze the current repository (Python-first) and return a structured summary.
     
@@ -32,7 +32,7 @@ def analyze_repo_tool(path: Optional[str] = None, max_files: int = 5000) -> str:
     else:
         target_path = repo_root
 
-    analysis = analyze_repo(target_path, max_files=max_files)
+    analysis = analysis_mod_analyze_repo(target_path, max_files=max_files)
     
     # Return JSON string via Pydantic
     return analysis.model_dump_json(exclude_none=True, indent=2)
@@ -49,7 +49,7 @@ def get_run_and_test_commands(path: Optional[str] = None) -> str:
     else:
         target_path = repo_root
 
-    analysis = analyze_repo(target_path)
+    analysis = analysis_mod_analyze_repo(target_path)
     
     # Map to RunAndTestCommands schema
     # Logic ported from deriveRunAndTestCommands in TS
