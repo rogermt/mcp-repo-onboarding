@@ -71,24 +71,26 @@ Phase 6 focuses on tightening correctness, grounding, and signal prioritization 
 
 ### 🐛 Bugs (Corrections First)
 
-#### Bug: Contradictory “No explicit commands detected” message
+#### [RESOLVED] Bug: Contradictory “No explicit commands detected” message
 
 * **Problem**: Analyzer may list a command and also state that none were detected
 * **Fix**: If commands exist, list them only; otherwise emit the fallback message
+* **Status**: Verified in Phase 5 B-prompt evaluation (see `docs/test/*/B.md`). Section headers now correctly handle conditional fallbacks.
 
 ---
 
-#### Bug: MCP output does not match B‑prompt Overview format
+#### [RESOLVED] Bug: MCP output does not match B‑prompt Overview format
 
 * **Problem**: Uses `Repository:` instead of required `Repo path:`
 * **Fix**: Enforce exact Overview header and line format
-
+* **Status**: Not an issue old results of b-run found
 ---
 
 #### Bug: Generic virtualenv instructions emitted without grounding
 
 * **Problem**: MCP emits `python -m venv .venv` without evidence
 * **Fix**: Remove generic environment setup prose from MCP output
+* **Status**: Resolved. Removed ungrounded virtualenv instructions from `analyze_repo`. Verified with regression tests.
 
 ---
 
@@ -157,6 +159,7 @@ Phase 6 focuses on tightening correctness, grounding, and signal prioritization 
 
 **Explicitly excluded**: pip, poetry install, linters, language servers, runtime imports.
 
+**Design and test fixtures are documented in:** [ignore-handling.md](docs/design/ignore-handling.md)
 ---
 
 ## Execution Order

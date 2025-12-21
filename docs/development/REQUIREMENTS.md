@@ -308,6 +308,29 @@ Goal: point developers in the right direction, not substitute for detailed proce
 
 ---
 
+### 4.4.1 Hard Rule — Environment Setup Sections (Phase-6)
+
+- **No invented commands**
+   - MCP must never emit environment setup instructions (e.g., `python -m venv .venv`, `pip install -r requirements.txt`) unless explicitly found in repository evidence.
+
+- **Evidence sources (only these are allowed)**
+   - Documentation files (`README*`, `CONTRIBUTING*`, `docs/**`)
+   - Makefile targets
+   - Tooling configs (`tox.ini`, `noxfile.py`, `pyproject.toml` with `[tool.poetry]` or `[tool.pipenv]`)
+   - Scripts referenced in `scripts/*`
+
+- **Default behavior**
+   - If no evidence exists:
+     ```
+     No explicit environment setup instructions detected by the analyzer.
+     ```
+   - Section may be omitted if no instructions exist.
+
+- **No heuristics or assumptions**
+   - MCP may not guess based on Python detection, dependency files, or common practices.
+
+---
+
 ## 5. Implementation Plan
 
 ### 5.1 Tech Stack

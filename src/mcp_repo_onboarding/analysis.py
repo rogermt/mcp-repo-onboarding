@@ -230,15 +230,14 @@ def analyze_repo(repo_path: str, max_files: int = 5000) -> RepoAnalysis:
         has_reqs = any(d.type == "requirements" for d in dep_files)
         
         # Env Setup
-        env_instructions.append(
-            "Create a virtualenv: `python -m venv .venv` and activate it (`source .venv/bin/activate` on Unix, `.venv\\Scripts\\activate` on Windows)."
-        )
+        # Issue #15: Removed generic "Create a virtualenv" instruction.
+        # Only add environment instructions if grounded in repo artifacts (future feature).
         
         # Install Commands
         if has_reqs:
             package_managers.append("pip")
             install_cmd = "pip install -r requirements.txt"
-            env_instructions.append(f"Install dependencies with pip: `{install_cmd}`.")
+            # Issue #15 (Part 2): Do not duplicate install command in env_instructions
             
             # Add to scripts.install if not already present
             if not scripts.install:

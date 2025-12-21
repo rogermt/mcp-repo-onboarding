@@ -54,7 +54,7 @@ def test_shell_script_extraction(temp_repo):
 
 def test_python_env_derivation(temp_repo):
     """
-    Asserts that requirements.txt triggers env instructions and install commands.
+    Asserts that requirements.txt triggers install commands, but NOT generic env instructions.
     """
     # phase3-2-tox-nox-make has requirements.txt
     repo_path = temp_repo("phase3-2-tox-nox-make")
@@ -67,11 +67,13 @@ def test_python_env_derivation(temp_repo):
     dep_paths = [d.path for d in analysis.python.dependencyFiles]
     assert "requirements.txt" in dep_paths
     
-    # Check Env Instructions generated
-    assert any("virtualenv" in instr for instr in analysis.python.envSetupInstructions)
-    assert any("pip install -r requirements.txt" in instr for instr in analysis.python.envSetupInstructions)
+    # Check that generic virtualenv instruction is NOT present (Issue #15 fix)
+    assert not any("virtualenv" in instr for instr in analysis.python.envSetupInstructions)
     
-    # Check derived Install Scripts
+    # Check that install command is NOT in envSetupInstructions (to avoid duplication with Install dependencies section)
+    assert not any("pip install -r requirements.txt" in instr for instr in analysis.python.envSetupInstructions)
+    
+    # Check derived Install Scripts (It MUST be here)
     install_cmds = [c.command for c in analysis.scripts.install]
     assert "pip install -r requirements.txt" in install_cmds
 

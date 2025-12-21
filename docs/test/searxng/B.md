@@ -1,52 +1,54 @@
+# ONBOARDING.md
+
 ## Overview
-Repository: /home/rogermt/searxng
+Repo path: /home/rogermt/searxng
 
-## Environment setup
-Python version: Python 3.14
-- Create a virtualenv: `python -m venv .venv` and activate it (`source .venv/bin/activate` on Unix, `.venv\Scripts\activate` on Windows).
+### Environment setup
+No Python version pin detected.
+Create a virtualenv: `python -m venv .venv` and activate it (`source .venv/bin/activate` on Unix, `.venv\Scripts\activate` on Windows).
 
-## Install dependencies
-- Install dependencies with pip: `pip install -r requirements.txt`.
+### Install dependencies
+Install dependencies with pip: `pip install -r requirements.txt`. (Generic suggestion)
 
-## Run / develop locally
-- `make run`
-
-## Run tests
-- `make test`
+### Run / develop locally
 No explicit commands detected by the analyzer.
 
-## Lint / format
-- `make format`
+### Run tests
+- `make test`
 
-## Analyzer notes
-- docs list truncated to 10 entries (total=181)
+### Lint / format
+No explicit commands detected by the analyzer.
 
-## Dependency files detected
+### Analyzer notes
+- docs list truncated to 10 entries (total=182)
+
+### Dependency files detected
 - requirements-dev.txt
-- requirements-server.txt
 - requirements.txt
 - setup.py
+- requirements-server.txt
 
-## Useful configuration files
+### Useful configuration files
 - Makefile
-- .github/workflows/checker.yml
+- setup.py
 - .github/workflows/integration.yml
+- .github/workflows/checker.yml
+- .github/workflows/documentation.yml
+- .github/workflows/security.yml
 - .github/workflows/container.yml
 - .github/workflows/data-update.yml
-- .github/workflows/documentation.yml
 - .github/workflows/l10n.yml
-- .github/workflows/security.yml
 
-## Useful docs
+### Useful docs
+- CONTRIBUTING.rst
 - README.rst
-- docs/admin/index.rst
-- docs/admin/settings/index.rst
-- docs/dev/answerers/index.rst
-- docs/dev/engines/index.rst
-- docs/dev/index.rst
-- docs/dev/plugins/index.rst
-- docs/dev/result_types/index.rst
-- docs/dev/searxng_extra/index.rst
-- docs/index.rst
+- client/simple/README.rst
+- docs/admin/installation-uwsgi.rst
+- docs/admin/installation-nginx.rst
+- docs/admin/installation-searxng.rst
+- docs/admin/installation-apache.rst
+- docs/admin/installation-granian.rst
+- docs/admin/installation.rst
+- docs/admin/installation-scripts.rst
 
- Token usage: unknown (37,558)
+Token usage: unknown (12,288)
