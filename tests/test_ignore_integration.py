@@ -1,4 +1,3 @@
-import pytest
 from pathlib import Path
 from mcp_repo_onboarding.analysis import analyze_repo
 
