@@ -59,3 +59,50 @@ Create fixture repos under `tests/fixtures/ignore_handling/` and assert IgnoreMa
 ### Definition of Done
 *   [x] All fixtures/tests pass under `npm run preflight` (or your Python equivalent test command).
 *   [x] IgnoreMatcher can be reused across traversal without rebuilding.
+
+## Story 6-02 — Integrate IgnoreMatcher into analyze_repo traversal (ignore before classification + truncation)
+**Title:** Phase 6: Apply IgnoreMatcher during analyze_repo traversal (ignore before classification, caps, and truncation)
+
+**Labels:** phase6, enhancement, analysis, correctness, performance
+
+### User Story
+As a maintainer, I want analyze_repo to apply ignore rules during traversal (before classification and truncation math), so that ignored files/dirs never affect RepoAnalysis output, ordering, caps, or truncation notes.
+
+### Scope
+*   Use IgnoreMatcher from Story 6-01 during broad filesystem walks.
+*   Ensure pruning (no descending into ignored dirs).
+*   Ensure ignored paths never reach classification.
+*   Ensure caps and “total counts” reflect post-ignore results only.
+*   Ensure determinism (stable ordering) in output.
+
+### Precedence (must match contract)
+1.  **Safety ignores** (always enforced)
+2.  **Targeted signal discovery** is not blocked by repo ignore rules:
+    *   Known “signal files” must still be detected via explicit checks even if ignored by .gitignore.
+    *   Safety ignores still apply.
+3.  **Repo ignore rules** (pathspec) apply to broad scans only.
+
+### Acceptance Criteria
+*   **Ignored paths**:
+    *   do not appear anywhere in RepoAnalysis
+    *   do not contribute to section totals
+    *   do not influence caps or truncation notes
+*   **Truncation notes** reflect post-ignore totals (e.g., “docs list truncated to 10 entries (total=181)” uses totals after ignore).
+*   **Deterministic ordering**:
+    *   traversal ordering is stable (sort dirs/files)
+    *   output lists are stable-sorted before truncation
+*   **Targeted signals** remain detectable even if ignored by .gitignore:
+    *   example signals: pyproject.toml, requirements*.txt, tox.ini, noxfile.py, setup.py, setup.cfg, Makefile, .pre-commit-config.yaml, .github/workflows/*.yml
+*   No git CLI execution and no global/user ignore sources.
+
+### Test Plan
+*   Reuse the fixture repos from Story 6-01 and run analyze_repo end-to-end.
+*   Assert:
+    *   ignored content does not appear in docs, configurationFiles, dependency lists, or language counts (where applicable)
+    *   truncation totals/caps exclude ignored files
+    *   RepoAnalysis output remains stable across runs
+
+### Definition of Done
+*   End-to-end tests prove ignore is applied before classification and truncation math.
+*   No regressions in existing repo-analysis fixtures.
+*   Output determinism confirmed by stable ordering assertions.

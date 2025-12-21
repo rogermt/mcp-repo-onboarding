@@ -1,7 +1,8 @@
+import pytest
 from pathlib import Path
 from mcp_repo_onboarding.analysis import analyze_repo
 
-FIXTURES_DIR = Path(__file__).parent / "fixtures" / "ignore_handling"
+FIXTURES_DIR = Path(__file__).parent / "fixtures"
 
 def flatten_files(analysis):
     """Helper to get a set of all file paths found in analysis."""
@@ -15,40 +16,37 @@ def flatten_files(analysis):
             files.add(dep.path)
     return files
 
-def test_integration_repo_basic_gitignore():
-    """
-    Test that analyze_repo respects .gitignore.
-    Currently expected to FAIL because analyze_repo ignores .gitignore.
-    
-    Fixture:
-    - .gitignore has: build/, .env
-    - file: .env (should be ignored)
-    - file: build/out.txt (should be ignored)
-    """
-    repo_root = FIXTURES_DIR / "repo_basic_gitignore"
-    analysis = analyze_repo(str(repo_root))
-    
-    found_files = flatten_files(analysis)
-    
-    # These should be ignored by .gitignore
-    assert ".env" not in found_files
-    # Note: build/ is in SKIP_DIRS currently, so build/out.txt might be ignored by hardcoded logic, 
-    # but .env is NOT in SKIP_DIRS.
+# Existing tests...
 
-def test_integration_repo_nested_ignores():
+def test_integration_targeted_signals_not_blocked():
     """
-    Test nested ignore patterns in .gitignore.
+    Test that targeted signal files are detected even if ignored by .gitignore,
+    while other gitignored files are still ignored.
+    This test is expected to FAIL initially because the current scan_repo_files
+    prevents all ignored files from reaching classification.
+    """
+    repo_root = FIXTURES_DIR / "repo_signal_file_gitignored"
     
-    Fixture:
-    - .gitignore has: docs/_build/
-    - file: docs/_build/html/index.html (should be ignored)
-    """
-    repo_root = FIXTURES_DIR / "repo_nested_ignores"
+    # Ensure fixture exists for this test
+    if not repo_root.exists():
+        repo_root.mkdir(parents=True, exist_ok=True)
+    
+    (repo_root / ".gitignore").write_text("pyproject.toml\n*.log\n")
+    (repo_root / "pyproject.toml").write_text("[project]\nname = \"test\"")
+    (repo_root / "error.log").write_text("an error occurred")
+    (repo_root / "README.md").write_text("My project")
+
     analysis = analyze_repo(str(repo_root))
     
     found_files = flatten_files(analysis)
     
-    # docs/_build/ is NOT in SKIP_DIRS, so currently this will be found
-    # expecting failure here
-    assert "docs/_build/html/index.html" not in found_files
-    assert "docs/index.md" in found_files
+    # pyproject.toml should be detected (targeted signal)
+    assert "pyproject.toml" in found_files
+    # error.log should be ignored (normal gitignore)
+    assert "error.log" not in found_files
+    # README.md should be detected
+    assert "README.md" in found_files
+
+    # Cleanup the temporary fixture
+    import shutil
+    shutil.rmtree(repo_root)

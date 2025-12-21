@@ -234,13 +234,44 @@ def analyze_repo(repo_path: str, max_files: int = 5000) -> RepoAnalysis:
         gitignore_patterns=gitignore_patterns
     )
     
-    all_files, py_files = scan_repo_files(root, ignore, max_files)
+    # --- Start of new implementation ---
+
+    # 1. Targeted scan for signal files (not blocked by gitignore)
+    targeted_files = []
+    signal_patterns = [
+        "pyproject.toml", "requirements*.txt", "tox.ini", "noxfile.py", 
+        "setup.py", "setup.cfg", "Makefile", ".pre-commit-config.yaml", 
+        ".github/workflows/*.yml"
+    ]
+    
+    # Safety-only matcher for the targeted scan
+    safety_only_ignore = IgnoreMatcher(repo_root=root, safety_ignores=SAFETY_IGNORES, gitignore_patterns=[])
+
+    # Check for specific files at the root
+    for pattern in ["pyproject.toml", "tox.ini", "noxfile.py", "setup.py", "setup.cfg", "Makefile", ".pre-commit-config.yaml"]:
+        p = root / pattern
+        if p.is_file() and not safety_only_ignore.should_ignore(p):
+            targeted_files.append(pattern)
+
+    # Glob for requirements files and GH workflows
+    for pattern in ["requirements*.txt", ".github/workflows/*.yml"]:
+        for p in root.glob(pattern):
+            if p.is_file() and not safety_only_ignore.should_ignore(p):
+                targeted_files.append(str(p.relative_to(root)))
+
+    # 2. Broad scan for other files (respects gitignore)
+    all_other_files, py_files = scan_repo_files(root, ignore, max_files)
+
+    # Combine and unique the file lists
+    all_files = sorted(list(set(all_other_files + targeted_files)))
+    
+    # --- End of new implementation ---
     
     docs = []
     configs = []
     dep_files = []
     
-    # 1. Categorize files
+    # Categorize files
     for f in all_files:
         name = Path(f).name.lower()
         
@@ -270,7 +301,7 @@ def analyze_repo(repo_path: str, max_files: int = 5000) -> RepoAnalysis:
         elif name == "setup.py":
             dep_files.append(PythonEnvFile(path=f, type="setup.py"))
 
-    # 2. Prioritize & Cap
+    # Prioritize & Cap
     docs.sort(key=lambda x: get_doc_priority(x.path), reverse=True)
     notes = []
     
@@ -283,7 +314,7 @@ def analyze_repo(repo_path: str, max_files: int = 5000) -> RepoAnalysis:
         notes.append(f"configurationFiles list truncated to {MAX_CONFIG_CAP} entries (total={len(configs)})")
         configs = configs[:MAX_CONFIG_CAP]
 
-    # 3. Extract Commands
+    # Extract Commands
     scripts = RepoAnalysisScriptGroup()
     
     # Makefile
@@ -299,12 +330,12 @@ def analyze_repo(repo_path: str, max_files: int = 5000) -> RepoAnalysis:
         if "install" in mk_cmds:
             scripts.install.extend(mk_cmds["install"])
 
-    # Shell Scripts (Fixed: This was missing)
+    # Shell Scripts
     sh_cmds = extract_shell_scripts(all_files)
     scripts.dev.extend(sh_cmds["dev"])
     scripts.test.extend(sh_cmds["test"])
 
-    # 4. Infer Python Environment & Install Commands (Fixed: This was missing)
+    # Infer Python Environment & Install Commands
     python_info = None
     if py_files or dep_files:
         env_instructions = []
@@ -312,15 +343,8 @@ def analyze_repo(repo_path: str, max_files: int = 5000) -> RepoAnalysis:
         
         has_reqs = any(d.type == "requirements" for d in dep_files)
         
-        # Env Setup
-        # Issue #15: Removed generic "Create a virtualenv" instruction.
-        # Only add environment instructions if grounded in repo artifacts (future feature).
-        
-        # Install Commands
         if has_reqs:
             package_managers.append("pip")
-            # Issue #15 (Part 3): Removed 'derived' pip install command to avoid generic suggestions.
-            # We only surface install commands if explicitly found in Makefiles or scripts.
         
         python_info = PythonInfo(
             packageManagers=package_managers,
