@@ -1,38 +1,61 @@
-# Plan: Eliminate Generic Virtualenv Instructions (Issue #15)
+# Phase 6: Ignore Handling & Correctness
 
-## Objective
-Remove the ungrounded `python -m venv .venv` instruction from the `analyze_repo` output. Environment setup instructions must only be emitted if grounded in repository artifacts (docs, Makefiles, etc.).
+## Story 6-01 — IgnoreMatcher infrastructure + fixtures (pathspec, no git execution)
 
-## Analysis
-Currently, `src/mcp_repo_onboarding/analysis.py` unconditionally adds a generic virtualenv creation instruction whenever Python files or dependency files are detected:
+**Title:** Phase 6: Implement IgnoreMatcher (safety + repo ignore via pathspec) with fixtures and deterministic matching
 
-```python
-# Env Setup
-env_instructions.append(
-    "Create a virtualenv: `python -m venv .venv` and activate it (`source .venv/bin/activate` on Unix, `.venv\\Scripts\\activate` on Windows)."
-)
-```
+**Status:** Completed
 
-This violates the "extract, don't advise" contract.
+**Labels:** phase6, infra, enhancement, tests, correctness
 
-## Proposed Changes
+### User Story
+As a maintainer, I want a dedicated IgnoreMatcher component that answers “should this path be ignored?” using safety ignores plus repo-local ignore rules (.gitignore and optional .git/info/exclude) via pathspec, so that ignore behavior is deterministic, fast, and does not require executing git.
 
-1.  **Modify `src/mcp_repo_onboarding/analysis.py`**:
-    *   Remove the unconditional `env_instructions.append(...)` call in `analyze_repo`.
-    *   Initialize `env_instructions` as an empty list.
-    *   (Future/Phase-6 Feature) In later iterations, we might parse `README.md` or `CONTRIBUTING.md` for specific setup steps, but for now, **silence is correct** if no explicit instruction is found.
+### Scope
+*   [x] Create the IgnoreMatcher module/class.
+*   [x] Load/compile ignore rules once per run.
+*   [x] Provide should_ignore() / should_descend() APIs.
+*   [x] Add fixture repos and unit tests for ignore behavior.
 
-2.  **Update Tests (`tests/test_analysis.py`)**:
-    *   Update `test_python_env_derivation` to **assert that the generic instruction is NOT present**.
-    *   Ensure that `pip install` instructions derived from `requirements.txt` are still preserved (as those are grounded in the file existence).
+### Precedence (must implement exactly inside IgnoreMatcher)
+1.  **Safety ignores** (always enforced, never overridable)
+2.  **Repo ignore rules** (pathspec, repo-root .gitignore + optional .git/info/exclude)
+    *   (Integration of “targeted signals not blocked” is Story 6-02.)
 
-## Verification Plan
+### Acceptance Criteria
+*   [x] **Safety ignores** always exclude their subtrees (e.g., `.git/`, `.venv/`, `venv/`, `__pycache__/`, `node_modules/`, any `site-packages/`, `dist/`, `build/`, `.pytest_cache/`, `.mypy_cache/`, `.coverage`).
+*   [x] **Repo ignore rules**:
+    *   read from repo root `.gitignore` and optional `.git/info/exclude`
+    *   use GitWildMatchPattern semantics
+    *   paths are normalized to repo-root-relative POSIX style
+    *   directory checks treat directories with a trailing `/`
+*   [x] **No git CLI usage** and no global/user gitignore sources.
+*   [x] **Deterministic behavior**:
+    *   given the same inputs, ignore results are stable.
+*   [x] **Failure handling**:
+    *   missing/unreadable ignore files → treat as empty repo ignore rules (safety only)
+    *   invalid patterns → skipped (non-fatal)
+*   [x] **No filesystem mutation**.
 
-1.  **Reproduction**: Run `uv run pytest tests/test_analysis.py` (expect failure after change if tests aren't updated, or verifying current behavior first).
-2.  **Implementation**: Apply the changes to `analysis.py`.
-3.  **Validation**: Update and run `tests/test_analysis.py`.
-    *   Check `searxng` fixture (or similar) to ensure `envSetupInstructions` is empty or only contains grounded steps.
-4.  **Regression Check**: Ensure other fields (`dependencyFiles`, `install` commands) remain correct.
+### Test Plan (fixtures required)
+Create fixture repos under `tests/fixtures/ignore_handling/` and assert IgnoreMatcher decisions:
 
-## Outcome
-The `analyze_repo` tool will no longer invent environment setup steps. This aligns with Phase 6 correctness goals.
+*   [x] `repo_no_gitignore`
+    *   includes `.venv/`, `build/`
+    *   safety ignores exclude both.
+*   [x] `repo_basic_gitignore`
+    *   `.gitignore` ignores `build/` and `.env`
+    *   verify those are ignored; docs and requirements included.
+*   [x] `repo_safety_override`
+    *   `.gitignore` contains `!.venv/`
+    *   `.venv/` remains ignored (safety wins).
+*   [x] `repo_nested_ignores_root_only`
+    *   `.gitignore` contains `docs/_build/`
+    *   deep paths under that tree are ignored.
+*   [x] `repo_env_path_false_positive`
+    *   includes `local/py3/lib/python3.13/site-packages/...`
+    *   ensure `site-packages` subtree is ignored via safety ignores.
+
+### Definition of Done
+*   [x] All fixtures/tests pass under `npm run preflight` (or your Python equivalent test command).
+*   [x] IgnoreMatcher can be reused across traversal without rebuilding.

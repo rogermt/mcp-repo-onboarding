@@ -308,7 +308,7 @@ Goal: point developers in the right direction, not substitute for detailed proce
 
 ---
 
-### 4.4.1 Hard Rule — Environment Setup Sections (Phase-6)
+## 4.4 Hard Rule — Environment Setup Sections 
 
 - **No invented commands**
    - MCP must never emit environment setup instructions (e.g., `python -m venv .venv`, `pip install -r requirements.txt`) unless explicitly found in repository evidence.
@@ -328,6 +328,18 @@ Goal: point developers in the right direction, not substitute for detailed proce
 
 - **No heuristics or assumptions**
    - MCP may not guess based on Python detection, dependency files, or common practices.
+
+---
+
+## 4.5 Gitignore-aware scanning precedence
+
+  - **Repo scanning** uses three layers of filtering, in this strict order:
+
+    - **Hard ignores (always enforced):** The analyzer must always ignore known noise/env/vendor directories (e.g., `.git/`, `node_modules/`, `.venv/`, `venv/`, `__pycache__/`, `dist/`, `build/`, and any path containing `site-packages/`). Hard ignores are invariants and must not be overridden by ignore negations.
+
+    - **Targeted signal discovery (not blocked by ignore rules):** The analyzer must detect and parse “known signal files” via explicit checks (e.g., `pyproject.toml`, `requirements*.txt`, `tox.ini`, `noxfile.py`, `setup.py`, `setup.cfg`, `Makefile`, `.pre-commit-config.yaml`, `.github/workflows/*.yml`). These targeted reads must not be suppressed by `.gitignore`, since they are required to produce grounded, high-signal output.
+
+    - **Broad scan filtering (gitignore-aware):** Any broad filesystem walk (e.g., enumerating docs/config candidates, language counts, fallback discovery) must respect repo-local ignore patterns from `.gitignore` (and optionally `.git/info/exclude`). Global/user gitignore configuration must not be used, to keep analyzer output deterministic across machines.
 
 ---
 
