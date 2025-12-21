@@ -4,20 +4,20 @@
 BASE_DIR="/home/rogermt"
 
 # Define repositories and their clone URLs/branches
-# Format: "REPO_NAME:CLONE_URL:BRANCH"
+# Format: "REPO_NAME|CLONE_URL|BRANCH"
 REPOS=(
-    "searxng:https://github.com/searxng/searxng.git:main"
-    "imgix-python:https://github.com/imgix/imgix-python.git:main"
-    "Paper2Code:https://github.com/rogermt/Paper2Code.git:feature/litellm-support"
-    "DeepCode:https://github.com/rogermt/DeepCode.git:main"
+    "searxng|https://github.com/searxng/searxng.git|main"
+    "imgix-python|https://github.com/imgix/imgix-python.git|main"
+    "Paper2Code|https://github.com/rogermt/Paper2Code.git|feature/litellm-support"
+    "DeepCode|https://github.com/rogermt/DeepCode.git|main"
 )
 
 echo "Starting teardown and re-cloning of repositories in ${BASE_DIR}..."
 echo ""
 
 for REPO_INFO in "${REPOS[@]}"; do
-    # Parse REPO_INFO into name, URL, and branch
-    IFS=':' read -r REPO_NAME CLONE_URL BRANCH <<< "${REPO_INFO}"
+    # Parse REPO_INFO into name, URL, and branch using '|' as delimiter
+    IFS='|' read -r REPO_NAME CLONE_URL BRANCH <<< "${REPO_INFO}"
     REPO_PATH="${BASE_DIR}/${REPO_NAME}"
 
     echo "Processing repository: ${REPO_NAME}"
