@@ -10,6 +10,8 @@ REPOS=(
     "imgix-python|https://github.com/imgix/imgix-python.git|main"
     "Paper2Code|https://github.com/rogermt/Paper2Code.git|feature/litellm-support"
     "DeepCode|https://github.com/rogermt/DeepCode.git|main"
+    "wagtail|https://github.com/wagtail/wagtail.git|main"
+    "connexion|https://github.com/spec-first/connexion.git|main"
 )
 
 echo "Starting teardown and re-cloning of repositories in ${BASE_DIR}..."

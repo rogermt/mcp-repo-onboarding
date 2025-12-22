@@ -4,7 +4,7 @@
 B_PROMPT_SOURCE="$(pwd)/docs/evaluation/B-prompt.txt"
 
 # Target repositories (relative to your home directory)
-REPOS=("searxng" "imgix-python" "Paper2Code")
+REPOS=("searxng" "imgix-python" "Paper2Code" "wagtail" "connexion")
 
 echo "Starting updates for specified repositories..."
 echo "Using B-prompt source: ${B_PROMPT_SOURCE}"

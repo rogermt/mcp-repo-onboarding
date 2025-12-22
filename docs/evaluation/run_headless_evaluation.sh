@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-repos=(searxng Paper2Code imgix-python)
+repos=(searxng Paper2Code imgix-python wagtail connexion)
 export prompt="Follow instructions in file: .gemini/B-prompt.txt"
 orig_dir="$PWD"
 
