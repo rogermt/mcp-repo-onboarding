@@ -38,7 +38,8 @@ htmlcov/
 
 # MCP Repo Onboarding Specific
 ONBOARDING.md.bak.*
-!tests/fixtures/repo-with-site-packages/lib/
+!tests/fixtures/
+!tests/fixtures/**
 
 # Editor
 .vscode/
