@@ -3,6 +3,7 @@
 from mcp_repo_onboarding.describers import MakefileDescriber
 from mcp_repo_onboarding.schema import ConfigFileInfo
 
+
 def test_makefile_describer():
     """
     Tests the MakefileDescriber strategy.
@@ -11,4 +12,7 @@ def test_makefile_describer():
     describer = MakefileDescriber()
     mock_file = ConfigFileInfo(path="Makefile", type="makefile")
     described_file = describer.describe(mock_file)
-    assert described_file.description == "Primary task runner for development and build orchestration."
+    assert (
+        described_file.description
+        == "Primary task runner for development and build orchestration."
+    )

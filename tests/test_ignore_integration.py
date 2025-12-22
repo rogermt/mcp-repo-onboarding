@@ -3,6 +3,7 @@ from mcp_repo_onboarding.analysis import analyze_repo
 
 FIXTURES_DIR = Path(__file__).parent / "fixtures"
 
+
 def flatten_files(analysis):
     """Helper to get a set of all file paths found in analysis."""
     files = set()
@@ -15,7 +16,9 @@ def flatten_files(analysis):
             files.add(dep.path)
     return files
 
+
 # Existing tests...
+
 
 def test_integration_targeted_signals_not_blocked():
     """
@@ -25,20 +28,20 @@ def test_integration_targeted_signals_not_blocked():
     prevents all ignored files from reaching classification.
     """
     repo_root = FIXTURES_DIR / "repo_signal_file_gitignored"
-    
+
     # Ensure fixture exists for this test
     if not repo_root.exists():
         repo_root.mkdir(parents=True, exist_ok=True)
-    
+
     (repo_root / ".gitignore").write_text("pyproject.toml\n*.log\n")
-    (repo_root / "pyproject.toml").write_text("[project]\nname = \"test\"")
+    (repo_root / "pyproject.toml").write_text('[project]\nname = "test"')
     (repo_root / "error.log").write_text("an error occurred")
     (repo_root / "README.md").write_text("My project")
 
     analysis = analyze_repo(str(repo_root))
-    
+
     found_files = flatten_files(analysis)
-    
+
     # pyproject.toml should be detected (targeted signal)
     assert "pyproject.toml" in found_files
     # error.log should be ignored (normal gitignore)
@@ -48,4 +51,5 @@ def test_integration_targeted_signals_not_blocked():
 
     # Cleanup the temporary fixture
     import shutil
+
     shutil.rmtree(repo_root)
