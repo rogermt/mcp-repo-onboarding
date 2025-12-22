@@ -29,111 +29,75 @@ Use this run to see what Gemini produces without MCP grounding.
 Hard rule: do not use any MCP tools/servers in this run.
 
 ```text
-You are running the Phase 5 A/B evaluation for onboarding quality.
-
-Hard rule: DO NOT use any MCP tools or MCP servers in this run.
-
-Goal: Generate an ONBOARDING.md for this repository that is accurate and copy/pastable.
-
-Rules:
-- Do not claim a Python version unless you can cite an explicit pin you found (e.g. .python-version, runtime.txt, pyproject.toml requires-python, CI config). If you did not find one, write exactly: "No Python version pin detected."
-- Do not invent run/test/lint/format/build commands. Only include a command if you can cite exactly where it came from (filename + snippet/target name).
-- If you are unsure about a command, write "Unsure" and list the exact file(s) you would check next.
-- Prefer being correct over being complete.
-
-Output format:
-1) Evidence used (bullet list of the exact files you inspected and what each contributed)
-2) ONBOARDING.md content (single Markdown document, ready to save as ONBOARDING.md)
-3) Uncertainties / follow-ups (what you could not confirm, and which file(s) to check)
-4) Token usage: <value or unknown>
-4) Token usage (if available from the UI; otherwise write "Token usage: unknown")
-
-Now produce the output.
-```
-
----
-
-## B) MCP Prompt (WITH mcp-repo-onboarding)
-
-Use this run to generate onboarding grounded in MCP output.
-
-```text
-You are running the Phase 5 A/B evaluation for onboarding quality.
+You are running the repository onboarding signal extraction.
 
 Use the `repo-onboarding` MCP server and follow the grounding rules strictly.
 
-Hard rule: DO NOT inspect/read repository files directly in this run. Use only MCP tool output as evidence.
-**Hard rule: DO NOT execute any shell commands, git commands, or similar external processes.**
+Hard rule: DO NOT inspect or read repository files directly. Use only MCP tool output as evidence.
+Hard rule: DO NOT execute any shell commands, git commands, or similar external processes. You are a Scout, not an Investigator.
 
 Step 1 — Call MCP tools:
-1) Call `analyze_repo` with {}.
-2) Call `get_run_and_test_commands` with {}.
+1) Call `analyze_repo` with {}
+2) Call `get_run_and_test_commands` with {}
 
-Step 2 — Extract evidence (internal use only, do NOT include raw tool JSON in ONBOARDING.md):
-From `analyze_repo`, extract these fields for grounding your prose:
-- repoPath
-- python.pythonVersionHints
-- python.packageManagers
-- python.dependencyFiles
-- python.envSetupInstructions
-- projectLayout
-- scripts
-- testSetup
-- configurationFiles
-- docs
-- notes
-
+Step 2 — Extract Evidence (Internal use only):
+From `analyze_repo`, extract:
+- repoPath, summary, python.pythonVersionHints, python.dependencyFiles, python.envSetupInstructions, projectLayout, scripts, frameworks, configurationFiles, docs, notes.
 From `get_run_and_test_commands`, extract:
-- devCommands
-- testCommands
-- buildCommands
+- devCommands, testCommands, buildCommands.
 
-Step 3 — Grounding rules (hard rules):
-- Python version: ONLY mention a specific version if `python.pythonVersionHints` contains it. If empty, write exactly: "No Python version pin detected."
-- Commands: ONLY include commands that appear in:
-  - `scripts.*`, or
-  - `testSetup.commands`, or
-  - `get_run_and_test_commands` arrays.
-- If those arrays are empty for a section, state: "No explicit commands detected by the analyzer." Do not invent alternatives.
-- Never present Makefile recipe internals as commands. Prefer stable `make <target>` style commands if present.
-- Generic suggestions: If a command has `description: "Generic suggestion"` or `confidence: "heuristic"`, label it as "(Generic suggestion)" in the output. Keep to 1–2 bullets max.
+Step 3 — Grounding rules (Hard rules):
+- Python version: ONLY mention a specific version if `python.pythonVersionHints` contains it. If empty, say: "No Python version pin detected."
+- Environment setup: If `python.pythonVersionHints` is empty and no explicit venv commands are detected, you MAY provide a standard (Generic suggestion) venv snippet:
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+```
+- Commands: ONLY include commands that appear in `scripts.*`, `testSetup.commands`, or `get_run_and_test_commands`.
+- Signal Provenance: Use the `description` and `evidence` fields from the JSON to explain why a command or framework was detected.
+- Never present Makefile recipe internals as commands.
+- Confidence: If a command/signal has `confidence: "heuristic"`, label it as "(Generic suggestion)". Keep to 1–2 bullets max per section.
 
 Step 4 — Produce ONBOARDING.md (copy/pasteable):
-Write a single Markdown document that MUST start with the following exact structure:
+Bullet points in the documnet ALWAYS use * or an asterix
+The document MUST start exactly like this:
 
 # ONBOARDING.md
 
 ## Overview
 Repo path: <repoPath>
 
-Then continue with these sections (always include the headings exactly as written):
-- Environment setup
-- Install dependencies
-- Run / develop locally (if commands exist; otherwise state none detected)
-- Run tests (if commands exist; otherwise state none detected)
-- Lint / format (if commands exist; otherwise state none detected)
-- Analyzer notes (include this section ONLY if `notes` is not empty; if empty or missing, omit the section entirely; if included, render notes verbatim as bullet points)
+(Include the verbatim 'summary' from analyze_repo here if present)
 
-Then include three separate “files” sections grounded to the correct MCP fields (do not mix them):
-- Dependency files detected (list only from `python.dependencyFiles[*].path`)
-- Useful configuration files (list only from `configurationFiles[*].path`)
-- Useful docs (list only from `docs[*].path`)
+Continue with these headings exactly:
+## Environment setup (Include Python version here)
+## Install dependencies
+## Run / develop locally (If commands exist; otherwise "No explicit commands detected.")
+## Run tests (If commands exist; otherwise "No explicit commands detected.")
+## Lint / format (If commands exist; otherwise "No explicit commands detected.")
 
-Important formatting rule:
-- Do NOT use "Repository:" as a title or heading.
-- Always use "## Overview" and "Repo path: <repoPath>" exactly as above.
+Section routing rule (hard rule):
 
-Step 5 — Write file (interactive mode only):
-If you are running interactively and file writing is supported, call `write_onboarding` with:
+- Only put venv/activation commands in Environment setup (e.g., python -m venv, source .venv/..., activate).
+- Only put package install commands in Install dependencies (e.g., any line containing pip install, poetry install, uv pip install, conda env create).
+- If a pip install ... command is present anywhere in the extracted MCP evidence, you MUST NOT output “No explicit install commands detected.”
+
+## Analyzer notes (Include ONLY if `notes` is not empty. List verbatim as bullet points.)
+
+## Dependency files detected (List `python.dependencyFiles[*].path`)
+## Useful configuration files (List `configurationFiles[*].path` and include their `description` if present)
+## Useful docs (List `docs[*].path` and include their `description` if present)
+
+Step 5 — Write file:
+If file writing is supported, call `write_onboarding` with:
 - path: "ONBOARDING.md"
 - mode: "overwrite"
-- createBackup: true
 - content: (the ONBOARDING.md you just generated)
 
-**Hard rule: If you are running in headless mode (e.g., `--yolo` or `--headless`), DO NOT call `write_onboarding` tool. Instead, only output the ONBOARDING.md content directly.**
+Hard rule: If you are running in headless mode (e.g., --yolo or --headless), DO NOT call write_onboarding. Output the Markdown content directly.
 
 Step 6 — Token usage:
-At the end of your response (outside the ONBOARDING.md), write: "Token usage: <value if available, else unknown>"
+At the end of your response, write: "Token usage: <value if available, else unknown>"
 
 Now execute.
 ```

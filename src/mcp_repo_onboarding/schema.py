@@ -1,6 +1,7 @@
 from typing import List, Optional, Literal
 from pydantic import BaseModel, Field
 
+
 class CommandInfo(BaseModel):
     command: str
     source: str
@@ -8,21 +9,27 @@ class CommandInfo(BaseModel):
     description: Optional[str] = None
     confidence: Optional[Literal["detected", "derived", "heuristic"]] = None
 
+
 class LanguageStat(BaseModel):
     name: str
     fileCount: int
     approxLines: Optional[int] = None
 
+
 class PythonEnvFile(BaseModel):
     path: str
-    type: str # pyproject, requirements, etc.
+    type: str  # pyproject, requirements, etc.
     toolGuess: Optional[str] = None
+    description: Optional[str] = None
+
 
 class PythonInfo(BaseModel):
     pythonVersionHints: List[str] = Field(default_factory=list)
     packageManagers: List[str] = Field(default_factory=list)
     dependencyFiles: List[PythonEnvFile] = Field(default_factory=list)
     envSetupInstructions: List[str] = Field(default_factory=list)
+    installInstructions: List[str] = Field(default_factory=list)
+
 
 class ProjectLayout(BaseModel):
     sourceDirs: List[str] = Field(default_factory=list)
@@ -30,9 +37,11 @@ class ProjectLayout(BaseModel):
     hasSrcLayout: bool = False
     notablePackages: List[str] = Field(default_factory=list)
 
+
 class FrameworkInfo(BaseModel):
     name: str
     detectionReason: str
+
 
 class TestSetup(BaseModel):
     framework: Optional[str] = None
@@ -43,22 +52,27 @@ class TestSetup(BaseModel):
     toxConfigPath: Optional[str] = None
     noxConfigPath: Optional[str] = None
 
+
 class ConfigFileInfo(BaseModel):
     path: str
     type: str
     description: Optional[str] = None
+
 
 class DeploymentHint(BaseModel):
     type: str
     path: str
     notes: Optional[str] = None
 
+
 class DocInfo(BaseModel):
     path: str
     type: str
 
+
 class GitInfo(BaseModel):
     isGitRepo: bool
+
 
 class RepoAnalysisScriptGroup(BaseModel):
     dev: List[CommandInfo] = Field(default_factory=list)
@@ -68,6 +82,7 @@ class RepoAnalysisScriptGroup(BaseModel):
     format: List[CommandInfo] = Field(default_factory=list)
     install: List[CommandInfo] = Field(default_factory=list)
     other: List[CommandInfo] = Field(default_factory=list)
+
 
 class RepoAnalysis(BaseModel):
     repoPath: str
@@ -83,19 +98,23 @@ class RepoAnalysis(BaseModel):
     gitInfo: Optional[GitInfo] = None
     notes: List[str] = Field(default_factory=list)
 
+
 class OnboardingDocument(BaseModel):
     exists: bool
     path: str
     content: Optional[str] = None
     sizeBytes: Optional[int] = None
 
+
 class WriteOnboardingResult(BaseModel):
     path: str
     bytesWritten: int
     backupPath: Optional[str] = None
 
+
 class RunAndTestCommands(BaseModel):
     """Simplified view for the get_run_and_test_commands tool."""
+
     devCommands: List[CommandInfo] = Field(default_factory=list)
     testCommands: List[CommandInfo] = Field(default_factory=list)
     buildCommands: List[CommandInfo] = Field(default_factory=list)

@@ -5,6 +5,9 @@ repos=(searxng Paper2Code imgix-python)
 export prompt="Follow instructions in file: .gemini/B-prompt.txt"
 orig_dir="$PWD"
 
+echo " "
+echo " "
+
 # First loop: run gemini with pushd/popd
 for repo in "${repos[@]}"; do
   echo "=== Running gemini for $repo ==="
@@ -32,4 +35,6 @@ for repo in "${repos[@]}"; do
   fi
 done
 
-cd "$orig_dir"
+echo " "
+echo " "
+
