@@ -17,12 +17,14 @@ class PythonEnvFile(BaseModel):
     path: str
     type: str # pyproject, requirements, etc.
     toolGuess: Optional[str] = None
+    description: Optional[str] = None
 
 class PythonInfo(BaseModel):
     pythonVersionHints: List[str] = Field(default_factory=list)
     packageManagers: List[str] = Field(default_factory=list)
     dependencyFiles: List[PythonEnvFile] = Field(default_factory=list)
     envSetupInstructions: List[str] = Field(default_factory=list)
+    installInstructions: List[str] = Field(default_factory=list)
 
 class ProjectLayout(BaseModel):
     sourceDirs: List[str] = Field(default_factory=list)
