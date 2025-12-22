@@ -1,15 +1,25 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-if [ "$#" -gt 0 ]; then
-  repos=("$@")
-else
-  repos=(searxng Paper2Code imgix-python wagtail connexion)
+# This script runs the evaluation for specific repositories (up to 3).
+# Usage: ./run_specific_repos.sh repo1 repo2 repo3
+
+if [ "$#" -eq 0 ]; then
+  echo "Usage: $0 repo1 [repo2] [repo3]"
+  exit 1
 fi
+
+if [ "$#" -gt 3 ]; then
+  echo "Error: Maximum 3 repositories allowed."
+  exit 1
+fi
+
+repos=($@)
 export prompt="Follow instructions in file: .gemini/B-prompt.txt"
 orig_dir="$PWD"
 
 echo " "
+echo "=== Running evaluation for: ${repos[*]} ==="
 echo " "
 
 # First loop: run gemini with pushd/popd
@@ -40,5 +50,5 @@ for repo in "${repos[@]}"; do
 done
 
 echo " "
+echo "=== Evaluation complete ==="
 echo " "
-
