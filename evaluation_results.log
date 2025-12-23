@@ -1,0 +1,128 @@
+
+=== Running evaluation for: connexion ===
+Logging to: evaluation_results.log
+
+=== Running gemini for connexion ===
+YOLO mode is enabled. All tool calls will be automatically approved.
+Loaded cached credentials.
+[STARTUP] StartupProfiler.flush() called with 9 phases
+[STARTUP] Recording metric for phase: cli_startup duration: 1931.6079769999997
+[STARTUP] Recording metric for phase: load_settings duration: 4.262733999999909
+[STARTUP] Recording metric for phase: migrate_settings duration: 2.922386999999617
+[STARTUP] Recording metric for phase: parse_arguments duration: 40.51932599999964
+[STARTUP] Recording metric for phase: load_cli_config duration: 74.53564399999959
+[STARTUP] Recording metric for phase: initialize_app duration: 1794.8332279999995
+[STARTUP] Recording metric for phase: authenticate duration: 1570.8509439999998
+[STARTUP] Recording metric for phase: discover_tools duration: 9.71104799999921
+[STARTUP] Recording metric for phase: initialize_mcp_clients duration: 2185.1247729999995
+```markdown
+# ONBOARDING.md
+
+## Overview
+Repo path: /home/rogermt/connexion
+
+## Environment
+Python version: 3.12
+(Generic suggestion) venv snippet:
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+```
+
+## Install dependencies
+* `pip install .`
+
+## Run / develop locally
+No explicit commands detected.
+
+## Run tests
+* `tox` (source: tox.ini)
+
+## Lint / format
+* `tox -e flake8` (source: tox.ini)
+
+## Analyzer notes
+* docs list truncated to 10 entries (total=42)
+
+## Dependency files detected
+* examples/frameworks/requirements.txt
+* examples/jwt/requirements.txt
+* examples/sqlalchemy/requirements.txt
+* pyproject.toml
+
+## Useful configuration files
+* tox.ini: Test environment orchestrator (tox).
+* .pre-commit-config.yaml: Pre-commit hooks configuration (code quality automation).
+* .github/workflows/pipeline.yml: CI/CD automation workflow.
+* .github/workflows/release.yml: CI/CD automation workflow.
+
+## Useful docs
+* README.md
+* examples/apikey/README.rst
+* examples/basicauth/README.rst
+* examples/enforcedefaults/README.rst
+* examples/frameworks/README.rst
+* examples/helloworld/README.rst
+* examples/helloworld_async/README.rst
+* examples/jwt/README.rst
+* examples/methodresolver/README.rst
+* examples/oauth2/README.rst
+```
+Token usage: unknown
+Waiting 30 seconds for rate limits...
+
+=== Showing ONBOARDING.md for connexion ===
+=== Repo: connexion ===
+# ONBOARDING.md
+
+## Overview
+Repo path: /home/rogermt/connexion
+
+## Environment
+Python version: 3.12
+(Generic suggestion) venv snippet:
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+```
+
+## Install dependencies
+* `pip install .`
+
+## Run / develop locally
+No explicit commands detected.
+
+## Run tests
+* `tox` (source: tox.ini)
+
+## Lint / format
+* `tox -e flake8` (source: tox.ini)
+
+## Analyzer notes
+* docs list truncated to 10 entries (total=42)
+
+## Dependency files detected
+* examples/frameworks/requirements.txt
+* examples/jwt/requirements.txt
+* examples/sqlalchemy/requirements.txt
+* pyproject.toml
+
+## Useful configuration files
+* tox.ini: Test environment orchestrator (tox).
+* .pre-commit-config.yaml: Pre-commit hooks configuration (code quality automation).
+* .github/workflows/pipeline.yml: CI/CD automation workflow.
+* .github/workflows/release.yml: CI/CD automation workflow.
+
+## Useful docs
+* README.md
+* examples/apikey/README.rst
+* examples/basicauth/README.rst
+* examples/enforcedefaults/README.rst
+* examples/frameworks/README.rst
+* examples/helloworld/README.rst
+* examples/helloworld_async/README.rst
+* examples/jwt/README.rst
+* examples/methodresolver/README.rst
+* examples/oauth2/README.rst
+
+=== Evaluation complete ===

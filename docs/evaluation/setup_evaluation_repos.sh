@@ -15,7 +15,7 @@ for REPO_NAME in "${REPOS[@]}"; do
     REPO_PATH="/home/rogermt/${REPO_NAME}"
     GEMINI_DIR="${REPO_PATH}/.gemini"
     SETTINGS_FILE="${GEMINI_DIR}/settings.json"
-    
+
     # Corrected destination for B-prompt.txt: inside .gemini folder
     B_PROMPT_DEST_DIR="${GEMINI_DIR}"
     B_PROMPT_DEST_FILE="${B_PROMPT_DEST_DIR}/B-prompt.txt"

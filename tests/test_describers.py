@@ -13,6 +13,5 @@ def test_makefile_describer():
     mock_file = ConfigFileInfo(path="Makefile", type="makefile")
     described_file = describer.describe(mock_file)
     assert (
-        described_file.description
-        == "Primary task runner for development and build orchestration."
+        described_file.description == "Primary task runner for development and build orchestration."
     )

@@ -29,8 +29,8 @@ Note: The **Gemini CLI `mcpServers` key** (e.g. `"repo-onboarding"`) is user-con
 
 Phase 5 pivots the product objective from “generate great ONBOARDING.md automatically” to:
 
-1) Produce **high-signal, grounded extraction output** (commands + setup signals) that is safe and non-misleading.  
-2) Provide **token-saving** structured output for Gemini (measured in A/B evaluation).  
+1) Produce **high-signal, grounded extraction output** (commands + setup signals) that is safe and non-misleading.
+2) Provide **token-saving** structured output for Gemini (measured in A/B evaluation).
 3) Keep `ONBOARDING.md` read/write tools, but treat prose generation as optional and secondary to extractor quality.
 
 This pivot is driven by A/B results: MCP mode saves tokens, but utility suffers when extraction is noisy (e.g., Makefile recipe internals), polluted by env/vendor directories (e.g., `site-packages`), or misses common patterns (e.g., `scripts/*.sh`).
@@ -308,7 +308,7 @@ Goal: point developers in the right direction, not substitute for detailed proce
 
 ---
 
-## 4.4 Hard Rule — Environment Setup Sections 
+## 4.4 Hard Rule — Environment Setup Sections
 
 - **No invented commands**
    - MCP must never emit environment setup instructions (e.g., `python -m venv .venv`, `pip install -r requirements.txt`) unless explicitly found in repository evidence.

@@ -1,22 +1,29 @@
 import os
 import re
 from pathlib import Path
-from typing import List, Tuple, Dict
 
 import pathspec
 
+from .describers import COMMAND_DESCRIBER_REGISTRY, FILE_DESCRIBER_REGISTRY
 from .schema import (
+    CommandInfo,
+    ConfigFileInfo,
+    DocInfo,
+    ProjectLayout,
+    PythonEnvFile,
+    PythonInfo,
     RepoAnalysis,
     RepoAnalysisScriptGroup,
-    CommandInfo,
-    DocInfo,
-    ConfigFileInfo,
-    ProjectLayout,
     TestSetup,
-    PythonInfo,
-    PythonEnvFile,
 )
-from .describers import FILE_DESCRIBER_REGISTRY, COMMAND_DESCRIBER_REGISTRY
+
+"""
+Analysis module for scanning and interpreting repository structure.
+
+This module provides functionality to walk the file system, respect gitignore rules,
+extract commands from configuration files (Makefile, tox.ini), and identify
+key project metadata.
+"""
 
 # Reference: docs/design/SOFTWARE_DESIGN_GUIDE.md#1.3-domain-driven-design-ddd-approach
 # Separate registries for Config and Dependency files to ensure strict classification.
@@ -64,15 +71,26 @@ SAFETY_IGNORES = [
 
 
 class IgnoreMatcher:
+    """Matches paths against a set of ignore patterns."""
+
     def __init__(
         self,
         repo_root: Path,
-        safety_ignores: List[str],
-        gitignore_patterns: List[str],
+        safety_ignores: list[str],
+        gitignore_patterns: list[str],
     ) -> None:
+        """
+        Initialize the IgnoreMatcher.
+
+        Args:
+            repo_root: The root directory of the repository.
+            safety_ignores: List of patterns to always ignore for safety.
+            gitignore_patterns: List of patterns from .gitignore.
+        """
         self.repo_root = repo_root.resolve()
         self.safety_ignores = [p.rstrip("/") for p in safety_ignores]
 
+        self._pathspec: pathspec.PathSpec | None
         if gitignore_patterns:
             self._pathspec = pathspec.PathSpec.from_lines(
                 pathspec.patterns.GitWildMatchPattern, gitignore_patterns
@@ -81,6 +99,16 @@ class IgnoreMatcher:
             self._pathspec = None
 
     def should_ignore(self, path: Path, is_dir: bool = False) -> bool:
+        """
+        Check if a path should be ignored.
+
+        Args:
+            path: The path to check.
+            is_dir: Whether the path matches a directory.
+
+        Returns:
+            True if the path should be ignored, False otherwise.
+        """
         try:
             resolved_path = path.resolve()
             rel_path = resolved_path.relative_to(self.repo_root)
@@ -103,14 +131,36 @@ class IgnoreMatcher:
             return False
 
     def should_descend(self, dir_path: Path) -> bool:
+        """
+        Check if the scanner should descend into a directory.
+
+        Args:
+            dir_path: The directory path.
+
+        Returns:
+            True if the directory should be entered, False if ignored.
+        """
         return not self.should_ignore(dir_path, is_dir=True)
 
 
 def scan_repo_files(
-    root: Path, ignore: IgnoreMatcher, max_files: int = 5000
-) -> Tuple[List[str], List[str]]:
-    all_files: List[str] = []
-    py_files: List[str] = []
+    root: Path,
+    ignore: IgnoreMatcher,
+    max_files: int = 5000,
+) -> tuple[list[str], list[str]]:
+    """
+    Scan the repository for files, respecting ignore rules.
+
+    Args:
+        root: The root directory to scan.
+        ignore: The IgnoreMatcher instance.
+        max_files: Maximum number of files to return.
+
+    Returns:
+        A tuple containing a list of all file paths and a list of Python file paths.
+    """
+    all_files: list[str] = []
+    py_files: list[str] = []
 
     try:
         with os.scandir(root) as entries:
@@ -165,11 +215,19 @@ def scan_repo_files(
     return all_files, py_files
 
 
-def extract_makefile_commands(
-    root: Path, makefile_path: str
-) -> Dict[str, List[CommandInfo]]:
+def extract_makefile_commands(root: Path, makefile_path: str) -> dict[str, list[CommandInfo]]:
+    """
+    Extract commands from a Makefile.
+
+    Args:
+        root: The repository root path.
+        makefile_path: Relative path to the Makefile.
+
+    Returns:
+        A dictionary mapping categories (test, dev, etc.) to lists of CommandInfo objects.
+    """
     # Reference: docs/design/SOFTWARE_DESIGN_GUIDE.md#3.3-functional-programming-emphasis
-    commands = {}
+    commands: dict[str, list[CommandInfo]] = {}
     try:
         content = (root / makefile_path).read_text(encoding="utf-8", errors="ignore")
     except OSError:
@@ -198,14 +256,10 @@ def extract_makefile_commands(
                 if target in target_mapping:
                     category = target_mapping[target]
                     command_str = f"make {target}"
-                    cmd_info = CommandInfo(
-                        command=command_str, source=f"{makefile_path}:{target}"
-                    )
+                    cmd_info = CommandInfo(command=command_str, source=f"{makefile_path}:{target}")
 
                     if command_str in COMMAND_DESCRIBER_REGISTRY:
-                        cmd_info = COMMAND_DESCRIBER_REGISTRY[command_str].describe(
-                            cmd_info
-                        )
+                        cmd_info = COMMAND_DESCRIBER_REGISTRY[command_str].describe(cmd_info)
 
                     if category not in commands:
                         commands[category] = []
@@ -214,8 +268,7 @@ def extract_makefile_commands(
 
 
 def _is_safe_description(line: str) -> bool:
-    """Checks if a comment line is a safe, non-command-like description."""
-
+    """Check if a comment line is a safe, non-command-like description."""
     line = line.strip()
 
     # Rule: Reject env var exports, assignments, or command-like lines
@@ -252,13 +305,21 @@ def _is_safe_description(line: str) -> bool:
     return True
 
 
-def extract_shell_scripts(all_files: List[str], repo_root: Path) -> dict:
-    commands = {"dev": [], "test": []}
+def extract_shell_scripts(all_files: list[str], repo_root: Path) -> dict[str, list[CommandInfo]]:
+    """
+    Find and analyze shell scripts in the scripts/ directory.
+
+    Args:
+        all_files: List of all file paths in the repo.
+        repo_root: Path to the repository root.
+
+    Returns:
+        Dictionary mapping categories to lists of CommandInfo.
+    """
+    commands: dict[str, list[CommandInfo]] = {"dev": [], "test": []}
 
     script_files = [
-        f
-        for f in all_files
-        if f.replace("\\", "/").startswith("scripts/") and f.endswith(".sh")
+        f for f in all_files if f.replace("\\", "/").startswith("scripts/") and f.endswith(".sh")
     ]
 
     for script in script_files:
@@ -267,7 +328,7 @@ def extract_shell_scripts(all_files: List[str], repo_root: Path) -> dict:
 
         description = None
         try:
-            with open(repo_root / script, "r", encoding="utf-8", errors="ignore") as f:
+            with open(repo_root / script, encoding="utf-8", errors="ignore") as f:
                 for line in f:
                     line = line.strip()
 
@@ -302,8 +363,18 @@ def extract_shell_scripts(all_files: List[str], repo_root: Path) -> dict:
     return commands
 
 
-def extract_tox_commands(repo_root: Path, tox_path: str) -> dict:
-    commands = {"test": [], "lint": []}
+def extract_tox_commands(repo_root: Path, tox_path: str) -> dict[str, list[CommandInfo]]:
+    """
+    Extract commands from tox.ini.
+
+    Args:
+        repo_root: Repository root path.
+        tox_path: Relative path to tox.ini.
+
+    Returns:
+        Dictionary mapping categories to CommandInfo lists.
+    """
+    commands: dict[str, list[CommandInfo]] = {"test": [], "lint": []}
     try:
         content = (repo_root / tox_path).read_text(encoding="utf-8", errors="ignore")
     except OSError:
@@ -325,7 +396,16 @@ def extract_tox_commands(repo_root: Path, tox_path: str) -> dict:
     return commands
 
 
-def detect_workflow_python_version(repo_root: Path) -> List[str]:
+def detect_workflow_python_version(repo_root: Path) -> list[str]:
+    """
+    Detect Python versions specified in GitHub Actions workflows.
+
+    Args:
+        repo_root: Repository root path.
+
+    Returns:
+        List of detected Python versions (e.g., "3.11").
+    """
     versions = set()
     workflows_dir = repo_root / ".github" / "workflows"
     if not workflows_dir.is_dir():
@@ -334,24 +414,29 @@ def detect_workflow_python_version(repo_root: Path) -> List[str]:
     for wf in workflows_dir.glob("*.yml"):
         try:
             content = wf.read_text(encoding="utf-8", errors="ignore")
-            env_matches = re.findall(
-                r'PYTHON_VERSION:\s*["\\]?([\d\.]+)["\\]?', content
-            )
+            env_matches = re.findall(r'PYTHON_VERSION:\s*["\\]?([\d\.]+)["\\]?', content)
             versions.update(env_matches)
 
-            step_matches = re.findall(
-                r'python-version:\s*["\\]?([\d\.]+)["\\]?', content
-            )
+            step_matches = re.findall(r'python-version:\s*["\\]?([\d\.]+)["\\]?', content)
             for v in step_matches:
                 if not v.startswith("$"):
                     versions.add(v)
         except OSError:
             continue
 
-    return sorted(list(versions))
+    return sorted(versions)
 
 
 def get_config_priority(path: str) -> int:
+    """
+    Determine the priority of a configuration file for display.
+
+    Args:
+        path: Path to the configuration file.
+
+    Returns:
+        Priority score (higher is better).
+    """
     name = Path(path).name.lower()
     if name == "makefile":
         return 100
@@ -367,6 +452,15 @@ def get_config_priority(path: str) -> int:
 
 
 def get_doc_priority(path: str) -> int:
+    """
+    Determine the priority of a documentation file.
+
+    Args:
+        path: Path to the doc file.
+
+    Returns:
+        Priority score (higher is better).
+    """
     name = Path(path).name.lower()
     if name.startswith("readme"):
         return 100
@@ -378,13 +472,23 @@ def get_doc_priority(path: str) -> int:
 
 
 def analyze_repo(repo_path: str, max_files: int = 5000) -> RepoAnalysis:
+    """
+    Analyze the repository and return a structured report.
+
+    Args:
+        repo_path: Path to the repository to analyze.
+        max_files: Maximum files to scan (default: 5000).
+
+    Returns:
+        RepoAnalysis object containing collected metadata.
+    """
     root = Path(repo_path).resolve()
 
     gitignore_patterns = []
     gitignore = root / ".gitignore"
     if gitignore.is_file():
         try:
-            with open(gitignore, "r", encoding="utf-8") as f:
+            with open(gitignore, encoding="utf-8") as f:
                 gitignore_patterns.extend(f.readlines())
         except OSError:
             pass
@@ -423,7 +527,7 @@ def analyze_repo(repo_path: str, max_files: int = 5000) -> RepoAnalysis:
     all_other_files, py_files = scan_repo_files(root, ignore, max_files)
 
     # 3. Combine and categorize
-    all_files = sorted(list(set(all_other_files + targeted_files)))
+    all_files = sorted(set(all_other_files + targeted_files))
 
     docs = []
     configs = []
@@ -477,9 +581,7 @@ def analyze_repo(repo_path: str, max_files: int = 5000) -> RepoAnalysis:
     docs.sort(key=lambda x: get_doc_priority(x.path), reverse=True)
     notes = []
     if len(docs) > MAX_DOCS_CAP:
-        notes.append(
-            f"docs list truncated to {MAX_DOCS_CAP} entries (total={len(docs)})"
-        )
+        notes.append(f"docs list truncated to {MAX_DOCS_CAP} entries (total={len(docs)})")
         docs = docs[:MAX_DOCS_CAP]
 
     configs.sort(key=lambda x: get_config_priority(x.path), reverse=True)
@@ -491,9 +593,7 @@ def analyze_repo(repo_path: str, max_files: int = 5000) -> RepoAnalysis:
 
     # 5. Extract Commands
     scripts = RepoAnalysisScriptGroup()
-    makefile = next(
-        (c.path for c in configs if Path(c.path).name.lower() == "makefile"), None
-    )
+    makefile = next((c.path for c in configs if Path(c.path).name.lower() == "makefile"), None)
     if makefile:
         mk_cmds = extract_makefile_commands(root, makefile)
         for category, cmd_list in mk_cmds.items():
@@ -504,9 +604,7 @@ def analyze_repo(repo_path: str, max_files: int = 5000) -> RepoAnalysis:
     scripts.dev.extend(sh_cmds["dev"])
     scripts.test.extend(sh_cmds["test"])
 
-    tox_ini = next(
-        (c.path for c in configs if Path(c.path).name.lower() == "tox.ini"), None
-    )
+    tox_ini = next((c.path for c in configs if Path(c.path).name.lower() == "tox.ini"), None)
     if tox_ini:
         tox_cmds = extract_tox_commands(root, tox_ini)
         scripts.test.extend(tox_cmds["test"])
@@ -528,7 +626,9 @@ def analyze_repo(repo_path: str, max_files: int = 5000) -> RepoAnalysis:
         ):
             package_managers.append("pip")  # Default to pip for setuptools
 
-        env_setup_instructions = []  # This will be for venv creation, etc. (currently empty)
+        env_setup_instructions: list[
+            str
+        ] = []  # This will be for venv creation, etc. (currently empty)
         install_instructions = []
 
         if "pip" in package_managers:
@@ -552,9 +652,7 @@ def analyze_repo(repo_path: str, max_files: int = 5000) -> RepoAnalysis:
 
         # Sort dependencyFiles to prioritize requirements.txt
         # Reference: User request "requirements.txt appearing at the bottom of dependency list which is wrong"
-        python_info.dependencyFiles.sort(
-            key=lambda d: 0 if d.path == "requirements.txt" else 1
-        )
+        python_info.dependencyFiles.sort(key=lambda d: 0 if d.path == "requirements.txt" else 1)
 
     return RepoAnalysis(
         repoPath=str(root),

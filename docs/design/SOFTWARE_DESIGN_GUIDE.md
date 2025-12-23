@@ -5,13 +5,13 @@ This document defines the design principles and process for building
 
 We follow a 7‑step plan:
 
-1. Define What You’re Building  
-2. Design the User Experience  
-3. Understand the Technical Needs  
-4. Implement Testing and Security Measures  
-5. Plan the Work  
-6. Identify Ripple Effects  
-7. Understand the Broader Context  
+1. Define What You’re Building
+2. Design the User Experience
+3. Understand the Technical Needs
+4. Implement Testing and Security Measures
+5. Plan the Work
+6. Identify Ripple Effects
+7. Understand the Broader Context
 
 Everything we implement (including code stubs) should align with this guide.
 
@@ -71,7 +71,7 @@ We treat this as a small domain with a few clear concepts:
 
 **Bounded Contexts:**
 
-- **Analysis Context**  
+- **Analysis Context**
   - Pure logic that walks the repo and infers:
     - Python env
     - Dependencies
@@ -80,11 +80,11 @@ We treat this as a small domain with a few clear concepts:
     - Test setup
   - Output: `RepoAnalysis`.
 
-- **Onboarding Context**  
+- **Onboarding Context**
   - Reading/writing `ONBOARDING.md`.
   - No business rules about *what* goes into the doc; just I/O and safety.
 
-- **MCP Interface Context**  
+- **MCP Interface Context**
   - Adapts domain logic to MCP tools.
   - Translates:
     - MCP tool calls → domain service calls.

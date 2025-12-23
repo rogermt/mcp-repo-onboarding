@@ -2,6 +2,17 @@ You are running the repository onboarding signal extraction.
 
 Use the `repo-onboarding` MCP server and follow the grounding rules strictly.
 
+Provenance toggle (default: hidden)
+Configuration:
+SHOW_PROVENANCE = False
+
+Rules:
+**Signal Provenance (hard rule):**
+- Use the `description` field from the MCP JSON to explain why a command or detected item matters.
+- If `SHOW_PROVENANCE` is true, append `(source: <source>)` using the exact `source` value from MCP output.
+- If `SHOW_PROVENANCE` is false, omit the source entirely (do not print `source:` or `evidence:` anywhere in ONBOARDING.md).
+
+
 Hard rule: DO NOT inspect or read repository files directly. Use only MCP tool output as evidence.
 Hard rule: DO NOT execute any shell commands, git commands, or similar external processes. You are a Scout, not an Investigator.
 
@@ -23,12 +34,17 @@ python3 -m venv .venv
 source .venv/bin/activate
 ```
 - Commands: ONLY include commands that appear in `scripts.*`, `testSetup.commands`, or `get_run_and_test_commands`.
-- Signal Provenance: Use the `description` and `evidence` fields from the JSON to explain why a command or framework was detected.
+- Signal Provenance: Use the `description` field from the JSON to explain why a command or framework was detected. If SHOW_PROVENANCE is true, append (source: <source>). If SHOW_PROVENANCE is false, omit the source entirely.
 - Never present Makefile recipe internals as commands.
 - Confidence: If a command/signal has `confidence: "heuristic"`, label it as "(Generic suggestion)". Keep to 1–2 bullets max per section.
 
 Step 4 — Produce ONBOARDING.md (copy/pasteable):
 Bullet points in the documnet ALWAYS use * or an asterix
+**Heading rule (hard rule):**
+- Use the heading exactly: `## Environment setup` (do not write `## Environment` and do not add parentheses like `(Python 3.14)` in the heading).
+- The first line under `## Environment setup` must be the Python version statement:
+  - If `python.pythonVersionHints` is non-empty: `Python version: <value>`
+  - If empty: `No Python version pin detected.`
 The document MUST start exactly like this:
 
 # ONBOARDING.md
@@ -54,7 +70,7 @@ Section routing rule (hard rule):
 ## Analyzer notes (Include ONLY if `notes` is not empty. List verbatim as bullet points.)
 
 ## Dependency files detected (List `python.dependencyFiles[*].path`)
-## Useful configuration files (List `configurationFiles[*].path` and include their `description` if present)
+## Useful configuration files (List `configurationFiles[*].path` and include their `description` if present. If SHOW_PROVENANCE is true, append (source: <path>))
 ## Useful docs (List `docs[*].path` and include their `description` if present)
 
 Step 5 — Write file:

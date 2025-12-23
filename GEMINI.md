@@ -6,7 +6,7 @@
 
 ## Stable API / naming (must not drift)
 
-Repo/package/binary: `mcp-repo-onboarding`  
+Repo/package/binary: `mcp-repo-onboarding`
 Default onboarding file: `ONBOARDING.md`
 
 MCP tool names are a stable API and must not change:
@@ -81,4 +81,3 @@ Create a file named `settings.json` inside the `.gemnini` directory with the fol
 - No code execution (no `subprocess.run` on user code).
 - All file paths sandboxed to `REPO_ROOT` using `pathlib.Path.resolve()`.
 - The server does **not** generate prose. Gemini generates `ONBOARDING.md` content and passes it to `write_onboarding`.
-

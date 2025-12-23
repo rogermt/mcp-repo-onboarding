@@ -1,7 +1,9 @@
-import pytest
 import shutil
 import tempfile
 from pathlib import Path
+
+import pytest
+
 from mcp_repo_onboarding.onboarding import write_onboarding
 
 
