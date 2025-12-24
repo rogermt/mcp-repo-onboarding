@@ -243,7 +243,7 @@ def get_config_priority(path: str) -> int:
 
 ---
 
-## Proposed Issue: Add Error Scenario Test Coverage
+## Issue #36: Add Error Scenario Test Coverage
 
 **Title:** Add comprehensive error scenario test coverage
 
@@ -284,7 +284,7 @@ Current tests focus on happy paths. Need tests for error scenarios and edge case
 
 ---
 
-## Proposed Issue: Extract Configuration to Dedicated Module
+## Issue #37: Extract Configuration to Dedicated Module
 
 **Title:** Extract magic numbers and configuration to dedicated config module
 
@@ -390,7 +390,7 @@ dependencies = [
 
 ---
 
-## Proposed Issue: Improve Error Response Handling in Server
+## Issue #38: Improve Error Response Handling in Server
 
 **Title:** Use Pydantic models for error responses instead of manual JSON
 
@@ -446,7 +446,7 @@ except ValueError as e:
 
 ---
 
-## Proposed Issue: Add Performance Benchmarks and Caching
+## Issue #39: Add Performance Benchmarks and Caching
 
 **Title:** Add performance benchmarks and optional caching layer
 
@@ -475,7 +475,7 @@ No performance benchmarks or caching for repeated analysis operations.
 
 ---
 
-## Proposed Issue: Enhance Security with Symbolic Link Protection
+## Issue #40: Enhance Security with Symbolic Link Protection
 
 **Title:** Add symbolic link detection and protection
 
@@ -518,14 +518,14 @@ Current path sandboxing doesn't protect against symbolic link attacks.
 
 ### Medium Priority (Do Soon) 🟡
 4. Issue #35: Add Comprehensive Docstrings
-5. Proposed Issue: Add Error Scenario Tests
-6. Proposed Issue: Extract Configuration Module
+5. Issue #36: Add Error Scenario Tests
+6. Issue #37: Extract Configuration Module
 7. Proposed Issue: Dependency Upper Bounds
-8. Proposed Issue: Improve Error Responses
-10. Proposed Issue: Symbolic Link Protection
+8. Issue #38: Improve Error Responses
+10. Issue #40: Symbolic Link Protection
 
 ### Low Priority (Nice to Have) 🟢
-9. Proposed Issue: Performance Benchmarks
+9. Issue #39: Performance Benchmarks
 
 ---
 
