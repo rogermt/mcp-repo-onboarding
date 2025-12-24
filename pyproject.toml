@@ -24,7 +24,7 @@ mcp-repo-onboarding = "mcp_repo_onboarding.server:main"
 [dependency-groups]
 dev = [
     "pytest>=9.0.2,<10.0.0",
-    "pytest-cov>=6.0.0,<7.0.0",
+    "pytest-cov>=6.0.0,<8.0.0",
     "ruff>=0.14.10,<1.0.0",
     "mypy>=1.13.0,<2.0.0",
     "pre-commit>=4.0.0,<5.0.0",
