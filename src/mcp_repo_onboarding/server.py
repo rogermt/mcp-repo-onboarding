@@ -8,7 +8,7 @@ from .analysis import analyze_repo as analysis_mod_analyze_repo
 from .config import DEFAULT_MAX_FILES
 from .onboarding import read_onboarding as read_onboarding_svc
 from .onboarding import write_onboarding as write_onboarding_svc
-from .schema import RunAndTestCommands
+from .schema import ErrorResponse, RunAndTestCommands
 
 """
 MCP Server implementation for Repo Onboarding.
@@ -128,7 +128,9 @@ def write_onboarding(
     repo_root = os.environ.get("REPO_ROOT", os.getcwd())
 
     if content is None:
-        return '{"error": "Content is required"}'
+        return ErrorResponse(
+            error="Content is required", error_code="INVALID_ARGUMENT"
+        ).model_dump_json()
 
     try:
         result = write_onboarding_svc(
@@ -141,7 +143,9 @@ def write_onboarding(
         return result.model_dump_json(exclude_none=True, indent=2)
     except ValueError as e:
         logger.error(f"Error writing onboarding file: {e}")
-        return f'{{"error": "{str(e)}"}}'
+        return ErrorResponse(
+            error=str(e), error_code="INVALID_ARGUMENT", details={"path": path}
+        ).model_dump_json()
 
 
 def main() -> None:

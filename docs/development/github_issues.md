@@ -439,10 +439,10 @@ except ValueError as e:
 - [x] `analyze_repo` function length significantly reduced
 - [x] No logic changes (refactor only)
 - [x] Tests pass
-- [ ] Error response models defined
-- [ ] All error responses use models
-- [ ] Error codes documented
-- [ ] Tests for error responses
+- [x] Error response models defined
+- [x] All error responses use models
+- [x] Error codes documented
+- [x] Tests for error responses
 
 ---
 

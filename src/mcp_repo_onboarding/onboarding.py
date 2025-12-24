@@ -94,8 +94,11 @@ def write_onboarding(
         WriteOnboardingResult containing write details.
 
     Raises:
-        ValueError: If mode is 'create' and file already exists.
+        ValueError: If mode is invalid or if mode is 'create' and file already exists.
     """
+    if mode not in ("overwrite", "append", "create"):
+        raise ValueError(f"Invalid mode: {mode}. Must be 'overwrite', 'append', or 'create'")
+
     target = resolve_path_inside_repo(repo_root, path)
     backup_path = None
 
