@@ -6,7 +6,7 @@ from pathlib import Path
 from mcp_repo_onboarding.analysis import analyze_repo
 
 
-def create_large_repo(root: Path, file_count: int, depth: int):
+def create_large_repo(root: Path, file_count: int, depth: int) -> None:
     """Create a dummy repo with many files."""
     root.mkdir(parents=True, exist_ok=True)
 
@@ -21,7 +21,7 @@ def create_large_repo(root: Path, file_count: int, depth: int):
             create_large_repo(root / f"dir_{i}", file_count // 5, depth - 1)
 
 
-def run_benchmark():
+def run_benchmark() -> None:
     with tempfile.TemporaryDirectory() as temp_dir:
         repo_root = Path(temp_dir)
         print("Generating synthetic large repo...")

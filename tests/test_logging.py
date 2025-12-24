@@ -1,9 +1,13 @@
 import logging
+import os
+from collections.abc import Callable
+from pathlib import Path
+from typing import Any
 
 from mcp_repo_onboarding.analysis import analyze_repo
 
 
-def test_permission_error_logs_warning(temp_repo, caplog):
+def test_permission_error_logs_warning(temp_repo: Callable[[str], Path], caplog: Any) -> None:
     """Verify that permission errors during analysis log a warning instead of just passing."""
     repo_path = temp_repo("logging-scenarios")
     secret_dir = repo_path / "secret"
@@ -20,7 +24,6 @@ def test_permission_error_logs_warning(temp_repo, caplog):
 
     # Setup logging capture
     caplog.set_level(logging.WARNING, logger="mcp_repo_onboarding")
-    import os
     # Force an OSError against a file we know is READ, not just scanned.
     # scan_repo_files doesn't read file content, but extract_makefile_commands does.
     # But wait, test_config_read_error_logs_warning tests Makefile specifically.
@@ -42,13 +45,11 @@ def test_permission_error_logs_warning(temp_repo, caplog):
         os.chmod(subdir, 0o777)
 
 
-def test_config_read_error_logs_warning(temp_repo, caplog):
+def test_config_read_error_logs_warning(temp_repo: Callable[[str], Path], caplog: Any) -> None:
     """Verify that failing to read a makefile logs a warning."""
     repo_path = temp_repo("logging-scenarios")
     makefile = repo_path / "Makefile"
     makefile.write_text("test:")
-
-    import os
 
     if hasattr(os, "chmod"):
         os.chmod(makefile, 0o000)

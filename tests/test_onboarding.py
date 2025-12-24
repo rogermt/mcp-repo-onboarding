@@ -7,7 +7,7 @@ import pytest
 from mcp_repo_onboarding.onboarding import write_onboarding
 
 
-def test_write_overwrite_backup():
+def test_write_overwrite_backup() -> None:
     """
     Asserts that overwriting creates a .bak file.
     """
@@ -36,7 +36,7 @@ def test_write_overwrite_backup():
         shutil.rmtree(temp_dir)
 
 
-def test_sandbox_security():
+def test_sandbox_security() -> None:
     """
     Asserts that writing outside repo root is forbidden.
     """

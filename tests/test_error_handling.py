@@ -1,11 +1,13 @@
 import os
+from collections.abc import Callable
+from pathlib import Path
 
 import pytest
 
 from mcp_repo_onboarding.analysis import analyze_repo
 
 
-def test_permission_denied_file(temp_repo):
+def test_permission_denied_file(temp_repo: Callable[[str], Path]) -> None:
     """Test that analysis gracefully handles files with no read permissions."""
     repo_path = temp_repo("error-scenarios")
     secret_file = repo_path / "secret.txt"
@@ -27,7 +29,7 @@ def test_permission_denied_file(temp_repo):
         os.chmod(secret_file, 0o777)
 
 
-def test_permission_denied_directory(temp_repo):
+def test_permission_denied_directory(temp_repo: Callable[[str], Path]) -> None:
     """Test that analysis gracefully handles directories with no read/execute permissions."""
     repo_path = temp_repo("error-scenarios")
     secret_dir = repo_path / "secret_dir"
@@ -46,7 +48,7 @@ def test_permission_denied_directory(temp_repo):
         os.chmod(secret_dir, 0o777)
 
 
-def test_invalid_utf8_makefile(temp_repo):
+def test_invalid_utf8_makefile(temp_repo: Callable[[str], Path]) -> None:
     """Test processing a Makefile with invalid UTF-8 sequences."""
     repo_path = temp_repo("error-scenarios")
     makefile = repo_path / "Makefile"
@@ -62,7 +64,7 @@ def test_invalid_utf8_makefile(temp_repo):
     # dependent on how replace/ignore errors works.
 
 
-def test_invalid_utf8_shell_script(temp_repo):
+def test_invalid_utf8_shell_script(temp_repo: Callable[[str], Path]) -> None:
     """Test processing a shell script with invalid UTF-8 sequences."""
     repo_path = temp_repo("error-scenarios")
     scripts_dir = repo_path / "scripts"
@@ -77,7 +79,7 @@ def test_invalid_utf8_shell_script(temp_repo):
     # Verify we didn't crash
 
 
-def test_symlink_loop(temp_repo):
+def test_symlink_loop(temp_repo: Callable[[str], Path]) -> None:
     """Test that analysis doesn't get stuck in infinite recursion with symlink loops."""
     repo_path = temp_repo("error-scenarios")
 

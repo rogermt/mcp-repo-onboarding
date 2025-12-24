@@ -1,32 +1,38 @@
+from collections.abc import Callable
+from pathlib import Path
+
 from mcp_repo_onboarding.analysis import analyze_repo
+from mcp_repo_onboarding.schema import CommandInfo, RepoAnalysis
 
 
-def _notes_str(analysis) -> str:
+def _notes_str(analysis: RepoAnalysis) -> str:
     notes = analysis.notes or []
     return " ".join(notes)
 
 
-def _paths_config(analysis) -> set[str]:
-    return {c.path for c in (analysis.configurationFiles or [])}
+def _paths_config(analysis: RepoAnalysis) -> set[str]:
+    configs = analysis.configurationFiles or []
+    return {c.path for c in configs}
 
 
-def _paths_docs(analysis) -> set[str]:
-    return {d.path for d in (analysis.docs or [])}
+def _paths_docs(analysis: RepoAnalysis) -> set[str]:
+    docs = analysis.docs or []
+    return {d.path for d in docs}
 
 
-def _paths_deps(analysis) -> set[str]:
+def _paths_deps(analysis: RepoAnalysis) -> set[str]:
     if analysis.python is None or analysis.python.dependencyFiles is None:
         return set()
     return {d.path for d in (analysis.python.dependencyFiles or [])}
 
 
-def _commands(group) -> list[str]:
+def _commands(group: list[CommandInfo] | None) -> list[str]:
     if not group:
         return []
     return [c.command for c in group]
 
 
-def test_caps_docs_and_config(temp_repo):
+def test_caps_docs_and_config(temp_repo: Callable[[str], Path]) -> None:
     repo_path = temp_repo("excessive-docs-configs")
     analysis = analyze_repo(repo_path=str(repo_path))
 
@@ -41,7 +47,7 @@ def test_caps_docs_and_config(temp_repo):
     assert "Makefile" in config_paths
 
 
-def test_makefile_targets_only_no_recipe_internals(temp_repo):
+def test_makefile_targets_only_no_recipe_internals(temp_repo: Callable[[str], Path]) -> None:
     repo_path = temp_repo("makefile-with-recipes")
     analysis = analyze_repo(repo_path=str(repo_path))
 
@@ -55,7 +61,7 @@ def test_makefile_targets_only_no_recipe_internals(temp_repo):
     assert "container/" not in joined
 
 
-def test_shell_script_extraction_and_description(temp_repo):
+def test_shell_script_extraction_and_description(temp_repo: Callable[[str], Path]) -> None:
     repo_path = temp_repo("repo-with-scripts")
     # Overwrite the file to ensure a safe description exists for the base test
     (repo_path / "scripts" / "run.sh").write_text(
@@ -87,7 +93,9 @@ def test_shell_script_extraction_and_description(temp_repo):
         assert "Safe description" in c.description
 
 
-def test_dependency_files_do_not_appear_in_configuration_files(temp_repo):
+def test_dependency_files_do_not_appear_in_configuration_files(
+    temp_repo: Callable[[str], Path],
+) -> None:
     repo_path = temp_repo("phase3-2-tox-nox-make")
     analysis = analyze_repo(repo_path=str(repo_path))
 
@@ -104,7 +112,7 @@ def test_dependency_files_do_not_appear_in_configuration_files(temp_repo):
     assert configs.isdisjoint(docs)
 
 
-def test_tox_and_tox_lint_commands_are_emitted(temp_repo):
+def test_tox_and_tox_lint_commands_are_emitted(temp_repo: Callable[[str], Path]) -> None:
     repo_path = temp_repo("imgix-python-tox-lint")
     analysis = analyze_repo(repo_path=str(repo_path))
 
@@ -120,7 +128,7 @@ def test_tox_and_tox_lint_commands_are_emitted(temp_repo):
         assert cmd.description.strip() != ""
 
 
-def test_weak_pytest_repo_does_not_emit_pytest_command(temp_repo):
+def test_weak_pytest_repo_does_not_emit_pytest_command(temp_repo: Callable[[str], Path]) -> None:
     repo_path = temp_repo("repo-with-weak-pytest")
     analysis = analyze_repo(repo_path=str(repo_path))
 
@@ -139,7 +147,7 @@ def test_weak_pytest_repo_does_not_emit_pytest_command(temp_repo):
     assert "pytest" not in all_cmds
 
 
-def test_site_packages_never_leaks_into_output(temp_repo):
+def test_site_packages_never_leaks_into_output(temp_repo: Callable[[str], Path]) -> None:
     repo_path = temp_repo("repo-with-site-packages")
     analysis = analyze_repo(repo_path=str(repo_path))
 
@@ -151,7 +159,7 @@ def test_site_packages_never_leaks_into_output(temp_repo):
         assert "site-packages" not in p
 
 
-def test_python_pin_detected_from_workflow_env(temp_repo):
+def test_python_pin_detected_from_workflow_env(temp_repo: Callable[[str], Path]) -> None:
     repo_path = temp_repo("workflow-python-pin-env")
     analysis = analyze_repo(repo_path=str(repo_path))
 
@@ -160,7 +168,7 @@ def test_python_pin_detected_from_workflow_env(temp_repo):
     assert "3.14" in hints
 
 
-def test_setuptools_files_are_dependencies_not_config(temp_repo):
+def test_setuptools_files_are_dependencies_not_config(temp_repo: Callable[[str], Path]) -> None:
     repo_path = temp_repo("imgix-python-config-priority")
     analysis = analyze_repo(repo_path=str(repo_path))
 
@@ -172,7 +180,7 @@ def test_setuptools_files_are_dependencies_not_config(temp_repo):
     assert len(deps) > 0
 
 
-def test_imgix_python_has_dependencies(temp_repo):
+def test_imgix_python_has_dependencies(temp_repo: Callable[[str], Path]) -> None:
     repo_path = temp_repo("imgix-python-tox-lint")
     analysis = analyze_repo(repo_path=str(repo_path))
 
@@ -181,7 +189,7 @@ def test_imgix_python_has_dependencies(temp_repo):
     assert "setup.py" in deps
 
 
-def test_requirements_never_in_config(temp_repo):
+def test_requirements_never_in_config(temp_repo: Callable[[str], Path]) -> None:
     repo_path = temp_repo("phase3-2-tox-nox-make")
     analysis = analyze_repo(repo_path=str(repo_path))
 
@@ -189,12 +197,13 @@ def test_requirements_never_in_config(temp_repo):
     assert "requirements.txt" not in configs
 
 
-def test_requirements_prioritized_in_deps(temp_repo):
+def test_requirements_prioritized_in_deps(temp_repo: Callable[[str], Path]) -> None:
     repo_path = temp_repo("phase3-2-tox-nox-make")
     (repo_path / "setup.py").write_text("from setuptools import setup; setup()")
 
     analysis = analyze_repo(repo_path=str(repo_path))
 
+    assert analysis.python is not None
     dep_paths = [d.path for d in analysis.python.dependencyFiles]
     assert "requirements.txt" in dep_paths
     assert "setup.py" in dep_paths
@@ -202,7 +211,7 @@ def test_requirements_prioritized_in_deps(temp_repo):
     assert dep_paths[0] == "requirements.txt"
 
 
-def test_env_install_instructions_separation(temp_repo):
+def test_env_install_instructions_separation(temp_repo: Callable[[str], Path]) -> None:
     repo_path = temp_repo("phase3-2-tox-nox-make")
 
     analysis = analyze_repo(repo_path=str(repo_path))
@@ -213,7 +222,7 @@ def test_env_install_instructions_separation(temp_repo):
     assert len(analysis.python.installInstructions) > 0
 
 
-def test_script_description_rejects_command_like_comments(temp_repo):
+def test_script_description_rejects_command_like_comments(temp_repo: Callable[[str], Path]) -> None:
     repo_path = temp_repo("repo-with-scripts")
 
     # Scenario 1: Bad comment, then good comment. Should pick the good one.
@@ -237,7 +246,7 @@ def test_script_description_rejects_command_like_comments(temp_repo):
     assert setup_cmd.description == "Run repo script entrypoint."
 
 
-def test_script_description_rejects_decorative_comments(temp_repo):
+def test_script_description_rejects_decorative_comments(temp_repo: Callable[[str], Path]) -> None:
     repo_path = temp_repo("repo-with-scripts")
 
     # Scenario 1: Decorative comment, then good comment. Should pick the good one.
@@ -264,7 +273,7 @@ echo 'running'""")
     assert setup_cmd.description == "Run repo script entrypoint."
 
 
-def test_script_description_header_only_scan(temp_repo):
+def test_script_description_header_only_scan(temp_repo: Callable[[str], Path]) -> None:
     repo_path = temp_repo("repo-with-scripts")
 
     # Scenario 1: Good comment in header, bad comment after code.
@@ -295,7 +304,7 @@ echo "running tests"
     assert test_cmd.description == "Run repo script entrypoint."
 
 
-def test_command_source_always_populated(temp_repo):
+def test_command_source_always_populated(temp_repo: Callable[[str], Path]) -> None:
     # Test Makefile
     repo_path = temp_repo("makefile-with-recipes")
     analysis = analyze_repo(str(repo_path))

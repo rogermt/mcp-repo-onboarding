@@ -1,26 +1,27 @@
 import shutil
 import tempfile
+from collections.abc import Callable, Generator
 from pathlib import Path
 
 import pytest
 
 
 @pytest.fixture
-def fixtures_root():
+def fixtures_root() -> Path:
     """Returns the path to the static fixtures directory."""
     return Path(__file__).parent / "fixtures"
 
 
 @pytest.fixture
-def temp_repo(fixtures_root):
+def temp_repo(fixtures_root: Path) -> Generator[Callable[[str], Path], None, None]:
     """
     Factory fixture.
     Usage: repo_path = temp_repo("fixture_name")
     Returns a Path object to a temporary copy of the fixture.
     """
-    created_dirs = []
+    created_dirs: list[str] = []
 
-    def _create_temp_repo(fixture_name):
+    def _create_temp_repo(fixture_name: str) -> Path:
         source = fixtures_root / fixture_name
         if not source.exists():
             raise FileNotFoundError(f"Fixture {fixture_name} not found at {source}")

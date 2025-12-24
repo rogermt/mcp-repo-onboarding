@@ -13,7 +13,7 @@ from mcp_repo_onboarding.analysis import (
 )
 
 
-def test_extract_shell_scripts_has_proper_type_hints():
+def test_extract_shell_scripts_has_proper_type_hints() -> None:
     """Verify extract_shell_scripts has proper return type hint.
 
     The function should return Dict[str, List[CommandInfo]], not just 'dict'.
@@ -23,13 +23,13 @@ def test_extract_shell_scripts_has_proper_type_hints():
 
     # Check that it's a Dict type (not just 'dict')
     return_type = hints["return"]
-    assert hasattr(return_type, "__origin__"), (
-        "Return type should be a generic Dict, not plain dict"
-    )
+    assert hasattr(
+        return_type, "__origin__"
+    ), "Return type should be a generic Dict, not plain dict"
     assert return_type.__origin__ == dict, "Return type should be Dict"
 
 
-def test_extract_tox_commands_has_proper_type_hints():
+def test_extract_tox_commands_has_proper_type_hints() -> None:
     """Verify extract_tox_commands has proper return type hint.
 
     The function should return Dict[str, List[CommandInfo]], not just 'dict'.
@@ -39,13 +39,13 @@ def test_extract_tox_commands_has_proper_type_hints():
 
     # Check that it's a Dict type (not just 'dict')
     return_type = hints["return"]
-    assert hasattr(return_type, "__origin__"), (
-        "Return type should be a generic Dict, not plain dict"
-    )
+    assert hasattr(
+        return_type, "__origin__"
+    ), "Return type should be a generic Dict, not plain dict"
     assert return_type.__origin__ == dict, "Return type should be Dict"
 
 
-def test_extract_makefile_commands_has_proper_type_hints():
+def test_extract_makefile_commands_has_proper_type_hints() -> None:
     """Verify extract_makefile_commands has proper return type hint.
 
     This should already be correct, but we test it for completeness.
@@ -55,7 +55,7 @@ def test_extract_makefile_commands_has_proper_type_hints():
 
     # Check that it's a Dict type
     return_type = hints["return"]
-    assert hasattr(return_type, "__origin__"), (
-        "Return type should be a generic Dict, not plain dict"
-    )
+    assert hasattr(
+        return_type, "__origin__"
+    ), "Return type should be a generic Dict, not plain dict"
     assert return_type.__origin__ == dict, "Return type should be Dict"

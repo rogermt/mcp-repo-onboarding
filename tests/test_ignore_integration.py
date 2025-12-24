@@ -1,11 +1,12 @@
 from pathlib import Path
 
 from mcp_repo_onboarding.analysis import analyze_repo
+from mcp_repo_onboarding.schema import RepoAnalysis
 
 FIXTURES_DIR = Path(__file__).parent / "fixtures"
 
 
-def flatten_files(analysis):
+def flatten_files(analysis: RepoAnalysis) -> set[str]:
     """Helper to get a set of all file paths found in analysis."""
     files = set()
     for doc in analysis.docs:
@@ -21,7 +22,7 @@ def flatten_files(analysis):
 # Existing tests...
 
 
-def test_integration_targeted_signals_not_blocked():
+def test_integration_targeted_signals_not_blocked() -> None:
     """
     Test that targeted signal files are detected even if ignored by .gitignore,
     while other gitignored files are still ignored.

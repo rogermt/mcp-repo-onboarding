@@ -4,7 +4,7 @@ from mcp_repo_onboarding.describers import MakefileDescriber
 from mcp_repo_onboarding.schema import ConfigFileInfo
 
 
-def test_makefile_describer():
+def test_makefile_describer() -> None:
     """
     Tests the MakefileDescriber strategy.
     This test will FAIL until the describers are implemented.
