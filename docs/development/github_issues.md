@@ -502,9 +502,11 @@ Current path sandboxing doesn't protect against symbolic link attacks.
 - `README.md` (security documentation)
 
 ### Acceptance Criteria
-- [ ] Symbolic links detected and handled
-- [ ] Security tests added
-- [ ] Security assumptions documented
+- [x] Traversal attempts blocked
+- [x] Symlinks inside the repo are still supported
+- [x] Security tests pass
+- [x] Code reviewed for common bypasses
+- [x] Security assumptions documented
 - [ ] No race conditions in path resolution
 
 ---

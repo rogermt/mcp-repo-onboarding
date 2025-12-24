@@ -61,7 +61,8 @@ class IgnoreMatcher:
 
             return False
         except (ValueError, OSError):
-            return False
+            # If path resolution fails or is outside the repository root, ignore it for safety.
+            return True
 
     def should_descend(self, dir_path: Path) -> bool:
         """
