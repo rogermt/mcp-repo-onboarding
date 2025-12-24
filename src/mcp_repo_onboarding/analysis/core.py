@@ -1,5 +1,6 @@
 import logging
 from pathlib import Path
+from typing import Any
 
 from ..config import (
     DEFAULT_MAX_FILES,
@@ -24,6 +25,7 @@ from ..schema import (
 from .extractors import (
     detect_workflow_python_version,
     extract_makefile_commands,
+    extract_pyproject_metadata,
     extract_shell_scripts,
     extract_tox_commands,
 )
@@ -195,17 +197,37 @@ def _aggregate_scripts(
 def _infer_python_environment(
     root: Path, py_files: list[str], dep_files: list[PythonEnvFile]
 ) -> PythonInfo | None:
+    # 1. GitHub Workflows
     workflow_versions = detect_workflow_python_version(root)
+
+    # 2. pyproject.toml (tomllib)
+    pyproject_metadata: dict[str, Any] = {
+        "python_version": None,
+        "package_managers": [],
+        "build_backend": None,
+    }
+    pyproject_file = next(
+        (d.path for d in dep_files if Path(d.path).name == "pyproject.toml"), None
+    )
+    if pyproject_file:
+        pyproject_metadata = extract_pyproject_metadata(root, pyproject_file)
+
     has_python_files = bool(py_files)
     has_dep_files = bool(dep_files)
 
-    if has_python_files or has_dep_files or workflow_versions:
-        package_managers = []
+    if (
+        has_python_files
+        or has_dep_files
+        or workflow_versions
+        or pyproject_metadata["python_version"]
+    ):
+        package_managers: list[str] = list(pyproject_metadata["package_managers"])
         if any(d.path.startswith("requirements") for d in dep_files) or any(
             Path(d.path).name.lower() in ["setup.py", "setup.cfg", "pyproject.toml"]
             for d in dep_files
         ):
-            package_managers.append("pip")
+            if "pip" not in package_managers:
+                package_managers.append("pip")
 
         env_setup_instructions: list[str] = []
         install_instructions = []
@@ -226,7 +248,16 @@ def _infer_python_environment(
             dependencyFiles=dep_files,
             envSetupInstructions=env_setup_instructions,
             installInstructions=install_instructions,
-            pythonVersionHints=workflow_versions,
+            pythonVersionHints=sorted(
+                set(
+                    workflow_versions
+                    + (
+                        [pyproject_metadata["python_version"]]
+                        if pyproject_metadata["python_version"]
+                        else []
+                    )
+                )
+            ),
         )
 
         python_info.dependencyFiles.sort(key=lambda d: 0 if d.path == "requirements.txt" else 1)

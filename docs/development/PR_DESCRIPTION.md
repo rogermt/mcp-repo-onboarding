@@ -1,13 +1,12 @@
-# Title: Comprehensive Code Quality, Security, and Modular Refactoring
+# Title: Exclude Binary and Asset Files from Documentation (Issue #50)
 
 ## Summary
 
-This PR implements a comprehensive upgrade to the `mcp-repo-onboarding` analysis engine, transforming it into a modular, type-safe, and highly performant package. These changes include a full refactoring of the analysis core, strict type enforcement, security hardening against symbolic link attacks, and centralized configuration.
+This PR implements a robust filtering system for the documentation analyzer to prevent non-human-readable files (images, PDFs, assets) from cluttering the documentation report and consuming capacity slots.
 
 ## Related issues
 
-- Closes PR #41
-- Addresses quality issues #32, #33, #34, #35, #36, #37, #38, #39, #40, #42, #50
+- Closes #50, #10
 
 ## Changes
 
@@ -17,32 +16,25 @@ This PR implements a comprehensive upgrade to the `mcp-repo-onboarding` analysis
 
 ### Key Changes:
 
-- **Modular Refactoring**: Refactored the monolithic `analysis.py` into a structured package `src/mcp_repo_onboarding/analysis/` with specialized modules for scanning, extraction, and heuristics.
-- **Security Hardening**: Implemented symbolic link traversal protection and added dependency upper bounds to `pyproject.toml`.
-- **Quality Enforcement**: Enabled strict mypy mode, added comprehensive type hints, and configured blocking pre-commit hooks (ruff, mypy).
-- **Performance**: Optimized core scanning paths, achieving ~0.17s for 8,100 files, and added a benchmarking suite.
-- **Documentation Signal**: Implemented binary/asset exclusion (Issue #50) to prevent images, PDFs, and web assets from consuming documentation slots.
-- **Reliability**: Replaced silent failures with structured logging and standardized server error responses via Pydantic models.
+- **Extension-Based Filtering**: Implemented a comprehensive denylist of 22+ binary and asset extensions (PNG, JPG, PDF, CSS, JS, etc.) in `config.py`.
+- **pyproject.toml Parsing (Issue #10)**: Replaced regex-based scanning with robust TOML parsing using `tomllib` for accurate Python version and package manager detection.
+- **Location-Specific Sensitivity**: Inside the `docs/` folder, the analyzer now strict-allows only `.md`, `.rst`, `.txt`, and `.adoc` formats.
+- **Enhanced Heuristics**: Improved documentation prioritization—`getting_started` and `quickstart` are now prioritized (score 90), while `admin` guides are deprioritized (score 40).
+- **Corrected Truncation Logic**: The truncation notes now report totals based *after* filtering, ensuring accurate counts for the user.
 
 ## How to test
 
-Steps used to verify this PR:
+Verify the filtering logic using the new test suite:
 
 ```bash
-# Run full test suite (44 tests passing)
+# Run the dedicated doc filtering tests
+uv run pytest tests/test_doc_filtering.py
+
+# Verify the full suite remains stable
 uv run pytest
-
-# Verify type safety
-uv run mypy src/mcp_repo_onboarding
-
-# Verify security scan
-uv run pip-audit
-
-# Run performance benchmark
-uv run python benchmarks/benchmark_large_repo.py
 ```
 
-Tested against multiple synthetic large repositories and fixture sets.
+Tested with a new fixture `tests/fixtures/docs-with-binaries` containing various asset types.
 
 ## Checklist
 

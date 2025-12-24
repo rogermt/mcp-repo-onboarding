@@ -1,7 +1,10 @@
 import logging
 import re
+import tomllib
 from pathlib import Path
+from typing import Any
 
+from ..config import KNOWN_PACKAGE_MANAGERS
 from ..describers import COMMAND_DESCRIBER_REGISTRY
 from ..schema import CommandInfo
 
@@ -205,3 +208,54 @@ def detect_workflow_python_version(repo_root: Path) -> list[str]:
             continue
 
     return sorted(versions)
+
+
+def extract_pyproject_metadata(repo_root: Path, pyproject_path: str) -> dict[str, Any]:
+    """
+    Extract metadata from pyproject.toml using tomllib.
+
+    Args:
+        repo_root: The repository root path.
+        pyproject_path: Relative path to pyproject.toml.
+
+    Returns:
+        A dictionary containing extracted metadata (python_version, package_managers, build_backend).
+    """
+    metadata: dict[str, Any] = {
+        "python_version": None,
+        "package_managers": [],
+        "build_backend": None,
+    }
+
+    try:
+        content = (repo_root / pyproject_path).read_text(encoding="utf-8", errors="ignore")
+        data = tomllib.loads(content)
+
+        # 1. Python Version Hints
+        project = data.get("project", {})
+        metadata["python_version"] = project.get("requires-python")
+
+        # 2. Build Backend
+        build_system = data.get("build-system", {})
+        metadata["build_backend"] = build_system.get("build-backend")
+
+        # 3. Package Manager Detection
+        tools = data.get("tool", {})
+        backend = str(metadata["build_backend"] or "")
+        pm_list: list[str] = metadata["package_managers"]
+
+        for key, manager in KNOWN_PACKAGE_MANAGERS.items():
+            # Check if manager is explicitly in [tool.X]
+            if key in tools:
+                if manager not in pm_list:
+                    pm_list.append(manager)
+
+            # Check if manager is mentioned in build-backend
+            if key in backend.lower():
+                if manager not in pm_list:
+                    pm_list.append(manager)
+
+    except Exception as e:
+        logger.warning(f"Failed to parse pyproject.toml at {pyproject_path}: {e}")
+
+    return metadata
