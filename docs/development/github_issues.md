@@ -147,9 +147,9 @@ Several functions are missing return type hints, and mypy is not configured in s
 - `pyproject.toml` (enable strict mode)
 
 ### Acceptance Criteria
-- [ ] All functions have complete type hints
-- [ ] mypy strict mode enabled
-- [ ] All mypy errors resolved
+- [x] All functions have complete type hints
+- [x] mypy strict mode enabled
+- [x] All mypy errors resolved
 - [x] CI enforces type checking
 
 ---
