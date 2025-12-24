@@ -4,6 +4,8 @@ from pathlib import Path
 from ..config import (
     DEFAULT_MAX_FILES,
     DEPENDENCY_FILE_TYPES,
+    DOC_EXCLUDED_EXTENSIONS,
+    DOC_HUMAN_EXTENSIONS,
     MAX_CONFIG_CAP,
     MAX_DOCS_CAP,
     SAFETY_IGNORES,
@@ -89,11 +91,30 @@ def _categorize_files(
         name = f_path.split("/")[-1].lower() if "/" in f_path else f_path.lower()
 
         # Docs
-        if (
+        is_doc_candidate = (
             name.startswith("readme")
             or name.startswith("contributing")
             or f_path.startswith("docs/")
-        ):
+        )
+
+        if is_doc_candidate:
+            suffix = Path(f_path).suffix.lower()
+
+            # Exception: Always include top-level README/CONTRIBUTING regardless of extension
+            is_top_level_readme = (
+                name.startswith("readme") or name.startswith("contributing")
+            ) and "/" not in f_path
+
+            if not is_top_level_readme:
+                # Rule A: Exclude binary/asset extensions entirely
+                if suffix in DOC_EXCLUDED_EXTENSIONS:
+                    continue
+
+                # Rule B: Specific allowlist under docs/
+                if f_path.startswith("docs/"):
+                    if suffix not in DOC_HUMAN_EXTENSIONS:
+                        continue
+
             docs.append(DocInfo(path=f_path, type="doc"))
             continue
 

@@ -40,6 +40,13 @@ def get_doc_priority(path: str) -> int:
         return 100
     if name.startswith("contributing"):
         return 100
-    if "quickstart" in name or "install" in name or "setup" in name:
-        return 80
+    if (
+        "getting_started" in path.lower()
+        or "quickstart" in path.lower()
+        or "install" in name
+        or "setup" in name
+    ):
+        return 90
+    if "admin" in path.lower():
+        return 40
     return 50

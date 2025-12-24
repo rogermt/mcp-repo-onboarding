@@ -554,6 +554,30 @@ Dependencies have no upper bounds, risking breaking changes from major updates.
 - [x] Security scanning in CI
 - [x] Documentation on dependency updates
 
+## Issue #50: Binary/Asset Exclusion for Documentation
+
+**Title:** Exclude binary and non-human asset files from documentation list
+
+**Labels:** `enhancement`, `priority: medium`, `quality`
+
+**Description:**
+
+Currently, binary files (images, PDFs) and assets (CSS, JS) can be categorized as documentation if they reside in the `docs/` folder or have "readme" in their name, consuming the `MAX_DOCS_CAP`.
+
+### Proposed Solution
+1. Create a denylist of binary/asset extensions in `config.py`.
+2. Implement filtering in `_categorize_files` to skip these extensions.
+3. Allowlist specific human-readable extensions (.md, .rst, .txt, .adoc) for files within `docs/`.
+4. Ensure top-level README/CONTRIBUTING are always included.
+5. Enhance documentation prioritization heuristics.
+
+### Acceptance Criteria
+- [x] Binary files (.png, .jpg, .pdf, etc.) excluded from `docs`.
+- [x] Non-human assets (.css, .js) excluded from `docs`.
+- [x] Truncation totals only reflect human-readable docs.
+- [x] README remains high priority.
+- [x] Tests verify filtering and prioritization.
+
 ---
 
 ## Priority Summary
@@ -574,6 +598,7 @@ Dependencies have no upper bounds, risking breaking changes from major updates.
 ### Low Priority (Nice to Have) 🟢
 9. Issue #39: Performance Benchmarks ✅
 11. Issue #41: Document Defaults in Prompt Text ✅
+12. Issue #50: Binary/Asset Exclusion for Documentation ✅
 
 ---
 
