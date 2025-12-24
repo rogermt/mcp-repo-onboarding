@@ -50,3 +50,36 @@ DEPENDENCY_FILE_TYPES = {
     "setup.py",
     "setup.cfg",
 }
+# Extensions to exclude from documentation entirely
+DOC_EXCLUDED_EXTENSIONS = {
+    ".png",
+    ".jpg",
+    ".jpeg",
+    ".gif",
+    ".webp",
+    ".svg",
+    ".ico",
+    ".pdf",
+    ".zip",
+    ".tar",
+    ".gz",
+    ".7z",
+    ".woff",
+    ".woff2",
+    ".ttf",
+    ".otf",
+    ".mp4",
+    ".mov",
+    ".mp3",
+    ".css",
+    ".js",
+    ".map",
+}
+
+# Extensions considered "human documentation" under docs/ directory
+DOC_HUMAN_EXTENSIONS = {
+    ".md",
+    ".rst",
+    ".txt",
+    ".adoc",
+}
