@@ -32,13 +32,13 @@ def scan_repo_files(
             dirs_to_visit = []
             for entry in sorted_entries:
                 entry_path = Path(entry.path)
+                is_dir = entry.is_dir()
 
-                if ignore.should_ignore(entry_path, is_dir=entry.is_dir()):
+                if ignore.should_ignore(entry_path, is_dir=is_dir):
                     continue
 
-                if entry.is_dir():
-                    if ignore.should_descend(entry_path):
-                        dirs_to_visit.append(entry.path)
+                if is_dir:
+                    dirs_to_visit.append(entry.path)
                 elif entry.is_file():
                     rel_path = entry.name
                     all_files.append(rel_path)
@@ -59,13 +59,13 @@ def scan_repo_files(
                         break
 
                     entry_path = Path(entry.path)
+                    is_dir = entry.is_dir()
 
-                    if ignore.should_ignore(entry_path, is_dir=entry.is_dir()):
+                    if ignore.should_ignore(entry_path, is_dir=is_dir):
                         continue
 
-                    if entry.is_dir():
-                        if ignore.should_descend(entry_path):
-                            queue.append(entry.path)
+                    if is_dir:
+                        queue.append(entry.path)
                     elif entry.is_file():
                         try:
                             rel_path = str(entry_path.relative_to(root))

@@ -50,11 +50,8 @@ def _setup_ignore_matcher(root: Path) -> IgnoreMatcher:
     )
 
 
-def _perform_targeted_scan(root: Path, safety_ignores: list[str]) -> list[str]:
+def _perform_targeted_scan(root: Path, ignore: IgnoreMatcher) -> list[str]:
     targeted_files = []
-    safety_only_ignore = IgnoreMatcher(
-        repo_root=root, safety_ignores=safety_ignores, gitignore_patterns=[]
-    )
 
     for pattern in [
         "pyproject.toml",
@@ -66,12 +63,12 @@ def _perform_targeted_scan(root: Path, safety_ignores: list[str]) -> list[str]:
         ".pre-commit-config.yaml",
     ]:
         p = root / pattern
-        if p.is_file() and not safety_only_ignore.should_ignore(p):
+        if p.is_file() and not ignore.should_ignore(p):
             targeted_files.append(p.name)
 
     for pattern in ["requirements*.txt", ".github/workflows/*.yml"]:
         for p in root.glob(pattern):
-            if p.is_file() and not safety_only_ignore.should_ignore(p):
+            if p.is_file() and not ignore.should_ignore(p):
                 targeted_files.append(str(p.relative_to(root)))
     return targeted_files
 
@@ -85,7 +82,7 @@ def _categorize_files(
     notes: list[str] = []
 
     for f_path in all_files:
-        name = Path(f_path).name.lower()
+        name = f_path.split("/")[-1].lower() if "/" in f_path else f_path.lower()
 
         # Docs
         if (
@@ -229,7 +226,7 @@ def analyze_repo(repo_path: str, max_files: int = DEFAULT_MAX_FILES) -> RepoAnal
     ignore = _setup_ignore_matcher(root)
 
     # 1. Targeted scan
-    targeted_files = _perform_targeted_scan(root, SAFETY_IGNORES)
+    targeted_files = _perform_targeted_scan(root, ignore)
 
     # 2. Broad scan
     all_other_files, py_files = scan_repo_files(root, ignore, max_files)

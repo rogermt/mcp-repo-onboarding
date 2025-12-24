@@ -31,28 +31,34 @@ def run_benchmark() -> None:
         # create_large_repo(root, 100, 2)
 
         start_gen = time.time()
-        # Generates structure
-        create_large_repo(repo_root, 200, 1)  # simple depth 1
-        # root: 200 files.
-        # 5 subdirs, each 40 files. Total 200 + 200 = 400. Too small.
-
-        # Adjust: linear generation for control
-        for i in range(2000):
+        # Generates structure: 5000 text files, 2000 python files, 100 config files
+        # total ~7100 files
+        for i in range(5000):
             (repo_root / f"data_{i}.txt").write_text("x" * 100)
 
-        for i in range(500):
+        for i in range(2000):
             (repo_root / f"src_{i}.py").write_text("import os")
 
-        for i in range(20):
+        # Create some nested dirs
+        for d in range(10):
+            subdir = repo_root / f"nested_{d}"
+            subdir.mkdir()
+            for f in range(100):
+                (subdir / f"doc_{f}.md").write_text("documentation")
+
+        for i in range(50):
             (repo_root / f"Makefile_{i}").write_text("test:\n\techo test")
+            (repo_root / f"tox_{i}.ini").write_text("[tox]\nenvlist = py39")
 
         print(f"Generation took {time.time() - start_gen:.2f}s")
+        print(f"Total files: {sum(1 for _ in repo_root.rglob('*') if _.is_file())}")
 
         print("Running analysis benchmark...")
         times = []
         for _ in range(5):
             start = time.perf_counter()
-            analyze_repo(str(repo_root))
+            # Use max_files=10000 to ensure everything is scanned
+            analyze_repo(str(repo_root), max_files=10000)
             end = time.perf_counter()
             times.append(end - start)
 
