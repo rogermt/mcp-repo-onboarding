@@ -2,21 +2,6 @@ from pathlib import Path
 
 import pathspec
 
-SAFETY_IGNORES = [
-    ".git/",
-    ".venv/",
-    "venv/",
-    "env/",
-    "__pycache__/",
-    "node_modules/",
-    "site-packages/",
-    "dist/",
-    "build/",
-    ".pytest_cache/",
-    ".mypy_cache/",
-    ".coverage",
-]
-
 
 class IgnoreMatcher:
     """Matches paths against a set of ignore patterns."""

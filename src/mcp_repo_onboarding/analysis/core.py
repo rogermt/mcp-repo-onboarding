@@ -1,6 +1,13 @@
 import logging
 from pathlib import Path
 
+from ..config import (
+    DEFAULT_MAX_FILES,
+    DEPENDENCY_FILE_TYPES,
+    MAX_CONFIG_CAP,
+    MAX_DOCS_CAP,
+    SAFETY_IGNORES,
+)
 from ..describers import FILE_DESCRIBER_REGISTRY
 from ..schema import (
     ConfigFileInfo,
@@ -20,34 +27,9 @@ from .extractors import (
 )
 from .prioritization import get_config_priority, get_doc_priority
 from .scanning import scan_repo_files
-from .structs import SAFETY_IGNORES, IgnoreMatcher
+from .structs import IgnoreMatcher
 
 logger = logging.getLogger(__name__)
-
-CONFIG_FILE_TYPES = {
-    "makefile",
-    "tox.ini",
-    "noxfile.py",
-    ".pre-commit-config.yaml",
-    ".pre-commit-config.yml",
-    "pytest.ini",
-    "pytest.cfg",
-    "pyproject.toml",
-    "setup.cfg",
-    "setup.py",
-}
-
-DEPENDENCY_FILE_TYPES = {
-    "requirements.txt",
-    "requirements-dev.txt",
-    "requirements-server.txt",
-    "pyproject.toml",
-    "setup.py",
-    "setup.cfg",
-}
-
-MAX_DOCS_CAP = 10
-MAX_CONFIG_CAP = 15
 
 
 def _setup_ignore_matcher(root: Path) -> IgnoreMatcher:
@@ -231,13 +213,13 @@ def _infer_python_environment(
     return None
 
 
-def analyze_repo(repo_path: str, max_files: int = 5000) -> RepoAnalysis:
+def analyze_repo(repo_path: str, max_files: int = DEFAULT_MAX_FILES) -> RepoAnalysis:
     """
     Analyze the repository and return a structured report.
 
     Args:
         repo_path: Path to the repository to analyze.
-        max_files: Maximum files to scan (default: 5000).
+        max_files: Maximum files to scan (default: DEFAULT_MAX_FILES).
 
     Returns:
         RepoAnalysis object containing collected metadata.

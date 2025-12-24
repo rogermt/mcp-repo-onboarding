@@ -334,10 +334,10 @@ class AnalysisConfig:
 - Update `src/mcp_repo_onboarding/analysis/core.py` (and other analysis modules)
 
 ### Acceptance Criteria
-- [ ] All configuration in dedicated module
-- [ ] No magic numbers in code
-- [ ] Configuration is type-safe
-- [ ] Easy to modify for testing
+- [x] All configuration in dedicated module
+- [x] No magic numbers in code
+- [x] Configuration is type-safe
+- [x] Easy to modify for testing
 
 ---
 
@@ -509,6 +509,26 @@ Current path sandboxing doesn't protect against symbolic link attacks.
 
 ---
 
+## Proposed Issue: Document Defaults in Prompt Text
+
+**Title:** Define and document defaults in evaluation prompt text
+
+**Labels:** `documentation`, `priority: low`, `prompt-engineering`
+
+**Description:**
+
+The prompt text in `docs/evaluation/B-prompt.txt` does not explicitly document the default values used by the analysis (e.g., `MAX_DOCS_CAP`, `max_files`).
+
+### Proposed Solution
+1. Review `src/mcp_repo_onboarding/config.py` (once created) for default values.
+2. Update `docs/evaluation/B-prompt.txt` to clearly state these defaults.
+
+### Acceptance Criteria
+- [ ] Defaults documented in `B-prompt.txt`
+- [ ] Consistent with code values
+
+---
+
 ## Priority Summary
 
 ### High Priority (Do First) 🔴
@@ -526,6 +546,7 @@ Current path sandboxing doesn't protect against symbolic link attacks.
 
 ### Low Priority (Nice to Have) 🟢
 9. Issue #39: Performance Benchmarks
+11. Proposed Issue: Document Defaults in Prompt Text
 
 ---
 

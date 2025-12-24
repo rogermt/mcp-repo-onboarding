@@ -1,3 +1,4 @@
+from ..config import SAFETY_IGNORES
 from .core import analyze_repo
 from .extractors import (
     detect_workflow_python_version,
@@ -6,7 +7,7 @@ from .extractors import (
     extract_tox_commands,
 )
 from .scanning import scan_repo_files
-from .structs import SAFETY_IGNORES, IgnoreMatcher
+from .structs import IgnoreMatcher
 
 __all__ = [
     "analyze_repo",
