@@ -7,7 +7,7 @@ This PR implements a comprehensive upgrade to the `mcp-repo-onboarding` analysis
 ## Related issues
 
 - Closes PR #41
-- Addresses quality issues #32, #33, #34, #35, #36, #37, #38, #39, #40, #42
+- Addresses quality issues #32, #33, #34, #35, #36, #37, #38, #39, #40, #42, #50
 
 ## Changes
 
@@ -21,6 +21,7 @@ This PR implements a comprehensive upgrade to the `mcp-repo-onboarding` analysis
 - **Security Hardening**: Implemented symbolic link traversal protection and added dependency upper bounds to `pyproject.toml`.
 - **Quality Enforcement**: Enabled strict mypy mode, added comprehensive type hints, and configured blocking pre-commit hooks (ruff, mypy).
 - **Performance**: Optimized core scanning paths, achieving ~0.17s for 8,100 files, and added a benchmarking suite.
+- **Documentation Signal**: Implemented binary/asset exclusion (Issue #50) to prevent images, PDFs, and web assets from consuming documentation slots.
 - **Reliability**: Replaced silent failures with structured logging and standardized server error responses via Pydantic models.
 
 ## How to test
