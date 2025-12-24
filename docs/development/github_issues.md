@@ -511,7 +511,7 @@ Current path sandboxing doesn't protect against symbolic link attacks.
 
 ---
 
-## Proposed Issue: Document Defaults in Prompt Text
+## Issue #41: Document Defaults in Prompt Text
 
 **Title:** Define and document defaults in evaluation prompt text
 
@@ -522,33 +522,58 @@ Current path sandboxing doesn't protect against symbolic link attacks.
 The prompt text in `docs/evaluation/B-prompt.txt` does not explicitly document the default values used by the analysis (e.g., `MAX_DOCS_CAP`, `max_files`).
 
 ### Proposed Solution
-1. Review `src/mcp_repo_onboarding/config.py` (once created) for default values.
-2. Update `docs/evaluation/B-prompt.txt` to clearly state these defaults.
+1. Review `src/mcp_repo_onboarding/config.py` for default values.
+2. Update `docs/evaluation/B-prompt.txt` and `docs/evaluation/phase5-ab-prompts.md` to clearly state these defaults.
 
 ### Acceptance Criteria
-- [ ] Defaults documented in `B-prompt.txt`
-- [ ] Consistent with code values
+- [x] Defaults documented in `B-prompt.txt`
+- [x] Defaults synced to `phase5-ab-prompts.md`
+- [x] Consistent with code values
+
+---
+
+## Issue #42: Add Dependency Upper Bounds and Security Scanning
+
+**Title:** Add dependency upper bounds and security scanning
+
+**Labels:** `dependencies`, `priority: medium`, `security`
+
+**Description:**
+
+Dependencies have no upper bounds, risking breaking changes from major updates.
+
+### Proposed Solution
+1. Add upper bounds for major versions in `pyproject.toml`.
+2. Set up Dependabot or Renovate.
+3. Add security scanning with `pip-audit`.
+4. Add dependency update workflow.
+
+### Acceptance Criteria
+- [x] All dependencies have upper bounds
+- [x] Dependabot configured
+- [x] Security scanning in CI
+- [x] Documentation on dependency updates
 
 ---
 
 ## Priority Summary
 
 ### High Priority (Do First) 🔴
-1. Issue #32: Add Comprehensive Error Logging
-2. Issue #33: Add Complete Type Hints
-3. Issue #34: Refactor `analyze_repo` Function
+1. Issue #32: Add Comprehensive Error Logging ✅
+2. Issue #33: Add Complete Type Hints ✅
+3. Issue #34: Refactor `analyze_repo` Function ✅
 
 ### Medium Priority (Do Soon) 🟡
-4. Issue #35: Add Comprehensive Docstrings
-5. Issue #36: Add Error Scenario Tests
-6. Issue #37: Extract Configuration Module
-7. Proposed Issue: Dependency Upper Bounds
-8. Issue #38: Improve Error Responses
-10. Issue #40: Symbolic Link Protection
+4. Issue #35: Add Comprehensive Docstrings ✅
+5. Issue #36: Add Error Scenario Tests ✅
+6. Issue #37: Extract Configuration Module ✅
+7. Issue #42: Dependency Upper Bounds ✅
+8. Issue #38: Improve Error Responses ✅
+10. Issue #40: Symbolic Link Protection ✅
 
 ### Low Priority (Nice to Have) 🟢
-9. Issue #39: Performance Benchmarks
-11. Proposed Issue: Document Defaults in Prompt Text
+9. Issue #39: Performance Benchmarks ✅
+11. Issue #41: Document Defaults in Prompt Text ✅
 
 ---
 
