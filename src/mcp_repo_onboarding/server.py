@@ -1,7 +1,9 @@
+import logging
 import os
 
 from mcp.server.fastmcp import FastMCP
 
+from . import configure_logging
 from .analysis import analyze_repo as analysis_mod_analyze_repo
 from .onboarding import read_onboarding as read_onboarding_svc
 from .onboarding import write_onboarding as write_onboarding_svc
@@ -15,11 +17,13 @@ This module defines the MCP tools exposed by the server.
 
 # Initialize FastMCP Server
 mcp = FastMCP("repo-onboarding")
+logger = logging.getLogger(__name__)
 
 
 @mcp.tool()
 def ping() -> str:
     """Sanity check: returns a small JSON payload to verify MCP connectivity."""
+    logger.debug("Ping tool called")
     return '{"ok": true, "tool": "ping"}'
 
 
@@ -40,6 +44,7 @@ def analyze_repo(path: str | None = None, max_files: int = 5000) -> str:
     target_path = os.path.join(repo_root, path) if path else repo_root
 
     analysis = analysis_mod_analyze_repo(target_path, max_files=max_files)
+    logger.info(f"Analyzed repo at {target_path}")
 
     # Return JSON string via Pydantic
     return analysis.model_dump_json(exclude_none=True, indent=2)
@@ -134,11 +139,14 @@ def write_onboarding(
         )
         return result.model_dump_json(exclude_none=True, indent=2)
     except ValueError as e:
+        logger.error(f"Error writing onboarding file: {e}")
         return f'{{"error": "{str(e)}"}}'
 
 
 def main() -> None:
     """Entry point for the MCP server."""
+    configure_logging()
+    logger.info("Starting mcp-repo-onboarding server")
     mcp.run()
 
 

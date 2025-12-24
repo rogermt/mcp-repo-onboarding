@@ -1,3 +1,4 @@
+import logging
 import os
 import re
 from pathlib import Path
@@ -16,6 +17,8 @@ from .schema import (
     RepoAnalysisScriptGroup,
     TestSetup,
 )
+
+logger = logging.getLogger(__name__)
 
 """
 Analysis module for scanning and interpreting repository structure.
@@ -180,7 +183,8 @@ def scan_repo_files(
                     all_files.append(rel_path)
                     if rel_path.endswith(".py"):
                         py_files.append(rel_path)
-    except OSError:
+    except OSError as e:
+        logger.warning(f"Error scanning directory {root}: {e}")
         return [], []
 
     queue = dirs_to_visit
@@ -207,9 +211,11 @@ def scan_repo_files(
                             all_files.append(rel_path)
                             if rel_path.endswith(".py"):
                                 py_files.append(rel_path)
-                        except ValueError:
+                        except ValueError as e:
+                            logger.debug(f"Skipping invalid path {entry_path}: {e}")
                             continue
-        except OSError:
+        except OSError as e:
+            logger.warning(f"Error scanning subdirectory {current_dir}: {e}")
             continue
 
     return all_files, py_files
@@ -230,7 +236,8 @@ def extract_makefile_commands(root: Path, makefile_path: str) -> dict[str, list[
     commands: dict[str, list[CommandInfo]] = {}
     try:
         content = (root / makefile_path).read_text(encoding="utf-8", errors="ignore")
-    except OSError:
+    except OSError as e:
+        logger.warning(f"Failed to read Makefile at {makefile_path}: {e}")
         return {}
 
     # Improved regex to handle multiple targets per line (e.g., 'install uninstall:')
@@ -341,7 +348,8 @@ def extract_shell_scripts(all_files: list[str], repo_root: Path) -> dict[str, li
                         if _is_safe_description(candidate):
                             description = candidate
                             break  # Found the first safe description, stop.
-        except OSError:
+        except OSError as e:
+            logger.debug(f"Could not read script {script}: {e}")
             pass
 
         cmd_info = CommandInfo(
@@ -377,7 +385,8 @@ def extract_tox_commands(repo_root: Path, tox_path: str) -> dict[str, list[Comma
     commands: dict[str, list[CommandInfo]] = {"test": [], "lint": []}
     try:
         content = (repo_root / tox_path).read_text(encoding="utf-8", errors="ignore")
-    except OSError:
+    except OSError as e:
+        logger.warning(f"Failed to read tox.ini at {tox_path}: {e}")
         return commands
 
     commands["test"].append(
@@ -421,7 +430,8 @@ def detect_workflow_python_version(repo_root: Path) -> list[str]:
             for v in step_matches:
                 if not v.startswith("$"):
                     versions.add(v)
-        except OSError:
+        except OSError as e:
+            logger.debug(f"Failed to read workflow {wf}: {e}")
             continue
 
     return sorted(versions)
@@ -490,7 +500,8 @@ def analyze_repo(repo_path: str, max_files: int = 5000) -> RepoAnalysis:
         try:
             with open(gitignore, encoding="utf-8") as f:
                 gitignore_patterns.extend(f.readlines())
-        except OSError:
+        except OSError as e:
+            logger.warning(f"Failed to read .gitignore at {gitignore}: {e}")
             pass
 
     ignore = IgnoreMatcher(
