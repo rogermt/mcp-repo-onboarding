@@ -178,6 +178,3 @@ Phase 6 focuses on tightening correctness, grounding, and signal prioritization 
 * No generic prose emitted from MCP tools
 * Python MCP contract is stable and documented
 * Ready to plan TS/JS Phase 7 without revisiting Python foundations
-
-
-

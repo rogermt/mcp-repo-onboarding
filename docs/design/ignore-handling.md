@@ -600,5 +600,3 @@ This issue is **done** when:
 * Ignore logic is impossible to bypass accidentally
 * Truncation math is post-ignore
 * No performance regression observed
-
-

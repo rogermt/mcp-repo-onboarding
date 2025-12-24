@@ -223,22 +223,16 @@ def test_script_description_rejects_command_like_comments(temp_repo):
     )
 
     analysis = analyze_repo(str(repo_path))
-    run_cmd = next(
-        (c for c in (analysis.scripts.dev or []) if c.name == "run.sh"), None
-    )
+    run_cmd = next((c for c in (analysis.scripts.dev or []) if c.name == "run.sh"), None)
     assert run_cmd is not None
     assert run_cmd.description == "This is a good description."
 
     # Scenario 2: Only bad comments. Should use fallback.
     script_path_2 = repo_path / "scripts" / "setup.sh"
-    script_path_2.write_text(
-        "#!/bin/bash\n# export BAD_VAR=true\n# FOO=bar\necho 'running'"
-    )
+    script_path_2.write_text("#!/bin/bash\n# export BAD_VAR=true\n# FOO=bar\necho 'running'")
 
     analysis = analyze_repo(str(repo_path))
-    setup_cmd = next(
-        (c for c in (analysis.scripts.dev or []) if c.name == "setup.sh"), None
-    )
+    setup_cmd = next((c for c in (analysis.scripts.dev or []) if c.name == "setup.sh"), None)
     assert setup_cmd is not None
     assert setup_cmd.description == "Run repo script entrypoint."
 
@@ -253,22 +247,19 @@ def test_script_description_rejects_decorative_comments(temp_repo):
     )
 
     analysis = analyze_repo(str(repo_path))
-    run_cmd = next(
-        (c for c in (analysis.scripts.dev or []) if c.name == "run.sh"), None
-    )
+    run_cmd = next((c for c in (analysis.scripts.dev or []) if c.name == "run.sh"), None)
     assert run_cmd is not None
     assert run_cmd.description == "This is a good description."
 
     # Scenario 2: Only decorative comments. Should use fallback.
     script_path_2 = repo_path / "scripts" / "setup.sh"
-    script_path_2.write_text(
-        "#!/bin/bash\n# -------- CONFIG --------\n# ====================\necho 'running'"
-    )
+    script_path_2.write_text("""#!/bin/bash
+# -------- CONFIG --------
+# ====================
+echo 'running'""")
 
     analysis = analyze_repo(str(repo_path))
-    setup_cmd = next(
-        (c for c in (analysis.scripts.dev or []) if c.name == "setup.sh"), None
-    )
+    setup_cmd = next((c for c in (analysis.scripts.dev or []) if c.name == "setup.sh"), None)
     assert setup_cmd is not None
     assert setup_cmd.description == "Run repo script entrypoint."
 
@@ -286,9 +277,7 @@ echo "running tests"
 """)
 
     analysis = analyze_repo(str(repo_path))
-    test_cmd = next(
-        (c for c in (analysis.scripts.test or []) if c.name == "test.sh"), None
-    )
+    test_cmd = next((c for c in (analysis.scripts.test or []) if c.name == "test.sh"), None)
     assert test_cmd is not None
     assert test_cmd.description == "This is the real description in the header."
 
@@ -301,8 +290,29 @@ set -e
 echo "running tests"
 """)
     analysis = analyze_repo(str(repo_path))
-    test_cmd = next(
-        (c for c in (analysis.scripts.test or []) if c.name == "test.sh"), None
-    )
+    test_cmd = next((c for c in (analysis.scripts.test or []) if c.name == "test.sh"), None)
     assert test_cmd is not None
     assert test_cmd.description == "Run repo script entrypoint."
+
+
+def test_command_source_always_populated(temp_repo):
+    # Test Makefile
+    repo_path = temp_repo("makefile-with-recipes")
+    analysis = analyze_repo(str(repo_path))
+    for cmd in analysis.scripts.test or []:
+        assert cmd.source is not None
+        assert "Makefile" in cmd.source
+
+    # Test Tox
+    repo_path = temp_repo("imgix-python-tox-lint")
+    analysis = analyze_repo(str(repo_path))
+    for cmd in (analysis.scripts.test or []) + (analysis.scripts.lint or []):
+        assert cmd.source is not None
+        assert "tox.ini" in cmd.source
+
+    # Test Scripts
+    repo_path = temp_repo("repo-with-scripts")
+    analysis = analyze_repo(str(repo_path))
+    for cmd in (analysis.scripts.dev or []) + (analysis.scripts.test or []):
+        assert cmd.source is not None
+        assert "scripts/" in cmd.source

@@ -39,4 +39,3 @@ If applicable, mention specific fixture repos or real-world repos you tested on.
 - [ ] `npm test` passes locally.
 - [ ] I’ve added or updated tests for any new behavior.
 ```
-

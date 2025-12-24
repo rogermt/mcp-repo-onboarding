@@ -1,4 +1,5 @@
 from pathlib import Path
+
 from mcp_repo_onboarding.analysis import IgnoreMatcher
 
 # Pure Unit Tests - No Filesystem Access

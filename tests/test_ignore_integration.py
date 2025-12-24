@@ -1,4 +1,5 @@
 from pathlib import Path
+
 from mcp_repo_onboarding.analysis import analyze_repo
 
 FIXTURES_DIR = Path(__file__).parent / "fixtures"

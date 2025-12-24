@@ -1,5 +1,6 @@
-from mcp_repo_onboarding.analysis import analyze_repo
 from pathlib import Path
+
+from mcp_repo_onboarding.analysis import analyze_repo
 
 # This test file will be used to test the end-to-end integration
 # of the description metadata. It is expected to fail until the implementation is complete.
@@ -23,19 +24,12 @@ def test_description_metadata_in_repo_analysis():
     analysis = analyze_repo(str(repo_root))
 
     # 1. Configuration File Description
-    makefile = next(
-        (c for c in analysis.configurationFiles if c.path == "Makefile"), None
-    )
+    makefile = next((c for c in analysis.configurationFiles if c.path == "Makefile"), None)
     assert makefile is not None, "Makefile not found in configurationFiles"
-    assert (
-        makefile.description
-        == "Primary task runner for development and build orchestration."
-    )
+    assert makefile.description == "Primary task runner for development and build orchestration."
 
     # 2. Command Description
-    test_cmd = next(
-        (s for s in analysis.scripts.test if s.command == "make test"), None
-    )
+    test_cmd = next((s for s in analysis.scripts.test if s.command == "make test"), None)
     assert test_cmd is not None, "'make test' not found in scripts.test"
     assert test_cmd.description == "Run the test suite via Makefile target."
 

@@ -1,120 +1,157 @@
-from typing import List, Optional, Literal
+from typing import Literal
+
 from pydantic import BaseModel, Field
+
+"""
+Pydantic schemas for the MCP Repo Onboarding API.
+
+These models define the structure of data exchanged between the MCP server and client.
+"""
 
 
 class CommandInfo(BaseModel):
+    """Information about a detected command."""
+
     command: str
     source: str
-    name: Optional[str] = None
-    description: Optional[str] = None
-    confidence: Optional[Literal["detected", "derived", "heuristic"]] = None
+    name: str | None = None
+    description: str | None = None
+    confidence: Literal["detected", "derived", "heuristic"] | None = None
 
 
 class LanguageStat(BaseModel):
+    """Statistics about a programming language in the repo."""
+
     name: str
     fileCount: int
-    approxLines: Optional[int] = None
+    approxLines: int | None = None
 
 
 class PythonEnvFile(BaseModel):
+    """Information about a Python environment/dependency file."""
+
     path: str
     type: str  # pyproject, requirements, etc.
-    toolGuess: Optional[str] = None
-    description: Optional[str] = None
+    toolGuess: str | None = None
+    description: str | None = None
 
 
 class PythonInfo(BaseModel):
-    pythonVersionHints: List[str] = Field(default_factory=list)
-    packageManagers: List[str] = Field(default_factory=list)
-    dependencyFiles: List[PythonEnvFile] = Field(default_factory=list)
-    envSetupInstructions: List[str] = Field(default_factory=list)
-    installInstructions: List[str] = Field(default_factory=list)
+    """Aggregated information about the Python environment."""
+
+    pythonVersionHints: list[str] = Field(default_factory=list)
+    packageManagers: list[str] = Field(default_factory=list)
+    dependencyFiles: list[PythonEnvFile] = Field(default_factory=list)
+    envSetupInstructions: list[str] = Field(default_factory=list)
+    installInstructions: list[str] = Field(default_factory=list)
 
 
 class ProjectLayout(BaseModel):
-    sourceDirs: List[str] = Field(default_factory=list)
-    testDirs: List[str] = Field(default_factory=list)
+    """Information about the project directory structure."""
+
+    sourceDirs: list[str] = Field(default_factory=list)
+    testDirs: list[str] = Field(default_factory=list)
     hasSrcLayout: bool = False
-    notablePackages: List[str] = Field(default_factory=list)
+    notablePackages: list[str] = Field(default_factory=list)
 
 
 class FrameworkInfo(BaseModel):
+    """Information about a detected framework."""
+
     name: str
     detectionReason: str
 
 
 class TestSetup(BaseModel):
-    framework: Optional[str] = None
-    locations: Optional[List[str]] = None
-    commands: Optional[List[CommandInfo]] = None
+    """Information about the test configuration."""
+
+    framework: str | None = None
+    locations: list[str] | None = None
+    commands: list[CommandInfo] | None = None
     usesTox: bool = False
     usesNox: bool = False
-    toxConfigPath: Optional[str] = None
-    noxConfigPath: Optional[str] = None
+    toxConfigPath: str | None = None
+    noxConfigPath: str | None = None
 
 
 class ConfigFileInfo(BaseModel):
+    """Information about a configuration file."""
+
     path: str
     type: str
-    description: Optional[str] = None
+    description: str | None = None
 
 
 class DeploymentHint(BaseModel):
+    """Hint about deployment configuration."""
+
     type: str
     path: str
-    notes: Optional[str] = None
+    notes: str | None = None
 
 
 class DocInfo(BaseModel):
+    """Information about a documentation file."""
+
     path: str
     type: str
 
 
 class GitInfo(BaseModel):
+    """Information about git status."""
+
     isGitRepo: bool
 
 
 class RepoAnalysisScriptGroup(BaseModel):
-    dev: List[CommandInfo] = Field(default_factory=list)
-    start: List[CommandInfo] = Field(default_factory=list)
-    test: List[CommandInfo] = Field(default_factory=list)
-    lint: List[CommandInfo] = Field(default_factory=list)
-    format: List[CommandInfo] = Field(default_factory=list)
-    install: List[CommandInfo] = Field(default_factory=list)
-    other: List[CommandInfo] = Field(default_factory=list)
+    """Grouped scripts found in the repository."""
+
+    dev: list[CommandInfo] = Field(default_factory=list)
+    start: list[CommandInfo] = Field(default_factory=list)
+    test: list[CommandInfo] = Field(default_factory=list)
+    lint: list[CommandInfo] = Field(default_factory=list)
+    format: list[CommandInfo] = Field(default_factory=list)
+    install: list[CommandInfo] = Field(default_factory=list)
+    other: list[CommandInfo] = Field(default_factory=list)
 
 
 class RepoAnalysis(BaseModel):
+    """Top-level analysis result for a repository."""
+
     repoPath: str
-    languages: List[LanguageStat] = Field(default_factory=list)
-    python: Optional[PythonInfo] = None
+    languages: list[LanguageStat] = Field(default_factory=list)
+    python: PythonInfo | None = None
     projectLayout: ProjectLayout = Field(default_factory=ProjectLayout)
     scripts: RepoAnalysisScriptGroup = Field(default_factory=RepoAnalysisScriptGroup)
-    frameworks: List[FrameworkInfo] = Field(default_factory=list)
+    frameworks: list[FrameworkInfo] = Field(default_factory=list)
     testSetup: TestSetup = Field(default_factory=TestSetup)
-    configurationFiles: List[ConfigFileInfo] = Field(default_factory=list)
-    deploymentHints: List[DeploymentHint] = Field(default_factory=list)
-    docs: List[DocInfo] = Field(default_factory=list)
-    gitInfo: Optional[GitInfo] = None
-    notes: List[str] = Field(default_factory=list)
+    configurationFiles: list[ConfigFileInfo] = Field(default_factory=list)
+    deploymentHints: list[DeploymentHint] = Field(default_factory=list)
+    docs: list[DocInfo] = Field(default_factory=list)
+    gitInfo: GitInfo | None = None
+    notes: list[str] = Field(default_factory=list)
 
 
 class OnboardingDocument(BaseModel):
+    """Representation of the ONBOARDING.md file."""
+
     exists: bool
     path: str
-    content: Optional[str] = None
-    sizeBytes: Optional[int] = None
+    content: str | None = None
+    sizeBytes: int | None = None
 
 
 class WriteOnboardingResult(BaseModel):
+    """Result of a write operation."""
+
     path: str
     bytesWritten: int
-    backupPath: Optional[str] = None
+    backupPath: str | None = None
 
 
 class RunAndTestCommands(BaseModel):
     """Simplified view for the get_run_and_test_commands tool."""
 
-    devCommands: List[CommandInfo] = Field(default_factory=list)
-    testCommands: List[CommandInfo] = Field(default_factory=list)
-    buildCommands: List[CommandInfo] = Field(default_factory=list)
+    devCommands: list[CommandInfo] = Field(default_factory=list)
+    testCommands: list[CommandInfo] = Field(default_factory=list)
+    buildCommands: list[CommandInfo] = Field(default_factory=list)

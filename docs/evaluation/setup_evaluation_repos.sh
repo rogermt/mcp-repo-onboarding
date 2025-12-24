@@ -4,7 +4,7 @@
 B_PROMPT_SOURCE="$(pwd)/docs/evaluation/B-prompt.txt"
 
 # Target repositories (relative to your home directory)
-REPOS=("searxng" "imgix-python" "Paper2Code")
+REPOS=("searxng" "imgix-python" "Paper2Code" "wagtail" "connexion")
 
 echo "Starting updates for specified repositories..."
 echo "Using B-prompt source: ${B_PROMPT_SOURCE}"
@@ -15,7 +15,7 @@ for REPO_NAME in "${REPOS[@]}"; do
     REPO_PATH="/home/rogermt/${REPO_NAME}"
     GEMINI_DIR="${REPO_PATH}/.gemini"
     SETTINGS_FILE="${GEMINI_DIR}/settings.json"
-    
+
     # Corrected destination for B-prompt.txt: inside .gemini folder
     B_PROMPT_DEST_DIR="${GEMINI_DIR}"
     B_PROMPT_DEST_FILE="${B_PROMPT_DEST_DIR}/B-prompt.txt"

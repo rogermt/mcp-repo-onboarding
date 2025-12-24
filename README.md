@@ -14,7 +14,7 @@ Important clarity:
 - This MCP server only performs **static analysis + safe local file I/O**.
 - **The server does not generate prose**; Gemini generates `ONBOARDING.md` content and passes it to `write_onboarding`.
 
-> Status: Python-first MVP implementation is complete (Phases 1–4).  
+> Status: Python-first MVP implementation is complete (Phases 1–4).
 > Phase 5 (validation/CI/distribution + A/B evaluation) is in progress.
 
 ---
@@ -179,7 +179,7 @@ Once published to npm with a `bin` entry:
 
 Prompt:
 
-> Use the `repo-onboarding` MCP server.  
+> Use the `repo-onboarding` MCP server.
 > Call `ping` with `{}` and show me the raw result.
 
 ### Grounding rules (important)
@@ -193,34 +193,34 @@ To avoid drift:
 
 Prompt:
 
-> Use the `repo-onboarding` MCP server.  
-> Call `analyze_repo` on this repo, then summarize (grounded in the tool output):  
-> – How to set up the Python environment  
-> – How to install dependencies  
-> – Where the tests live and how to run them  
-> – Any dev / lint / format commands you find  
+> Use the `repo-onboarding` MCP server.
+> Call `analyze_repo` on this repo, then summarize (grounded in the tool output):
+> – How to set up the Python environment
+> – How to install dependencies
+> – Where the tests live and how to run them
+> – Any dev / lint / format commands you find
 > Also quote the exact `pythonVersionHints` and `dependencyFiles` arrays before summarizing.
 
 ### Get commands only
 
 Prompt:
 
-> Use the `repo-onboarding` MCP server.  
-> Call `get_run_and_test_commands`.  
+> Use the `repo-onboarding` MCP server.
+> Call `get_run_and_test_commands`.
 > Quote the returned arrays, then tell me how to run dev (if any), how to run tests, and any build commands.
 
 ### Generate `ONBOARDING.md`
 
 Prompt:
 
-> Using the `repo-onboarding` MCP server, create an `ONBOARDING.md` for this repo.  
-> 1) Call `analyze_repo` and `get_run_and_test_commands`.  
-> 2) Then call `write_onboarding` with `mode: "create"` to write a guide that explains:  
-> – Environment setup  
-> – Installing dependencies  
-> – Running the app in dev (if detectable)  
-> – Running tests (if detectable)  
-> – Lint/format commands (if detectable)  
+> Using the `repo-onboarding` MCP server, create an `ONBOARDING.md` for this repo.
+> 1) Call `analyze_repo` and `get_run_and_test_commands`.
+> 2) Then call `write_onboarding` with `mode: "create"` to write a guide that explains:
+> – Environment setup
+> – Installing dependencies
+> – Running the app in dev (if detectable)
+> – Running tests (if detectable)
+> – Lint/format commands (if detectable)
 > Make sure every claimed command is present in MCP tool output, or clearly labeled as a generic suggestion.
 
 ---
@@ -285,6 +285,12 @@ Set:
 Logs must go to **stderr** (stdout is reserved for MCP protocol transport).
 
 ---
+
+## Command Provenance
+
+The analyzer captures the source of each command (e.g., `Makefile`, `tox.ini`, or a specific script path). By default, this "provenance" is hidden in the generated `ONBOARDING.md` for a cleaner experience.
+
+For debugging or auditing, you can enable provenance rendering by setting `SHOW_PROVENANCE = true` in the `.gemini/B-prompt.txt` configuration block. When enabled, commands and configuration files will include a `(source: ...)` annotation.
 
 ## License
 

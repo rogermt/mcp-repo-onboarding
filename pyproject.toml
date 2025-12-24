@@ -24,8 +24,62 @@ mcp-repo-onboarding = "mcp_repo_onboarding.server:main"
 [dependency-groups]
 dev = [
     "pytest>=9.0.2",
+    "pytest-cov>=6.0.0",
     "ruff>=0.14.10",
+    "mypy>=1.13.0",
+    "pre-commit>=4.0.0",
 ]
 
 [tool.pytest.ini_options]
 addopts = "--ignore=tests/fixtures"
+testpaths = ["tests"]
+
+[tool.coverage.run]
+source = ["src"]
+omit = ["tests/*", "*/site-packages/*"]
+
+[tool.coverage.report]
+fail_under = 80
+show_missing = true
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = [
+    "E",      # pycodestyle errors
+    "W",      # pycodestyle warnings
+    "F",      # pyflakes
+    "I",      # isort
+    "N",      # pep8-naming
+    "UP",     # pyupgrade
+    "B",      # flake8-bugbear
+    "C4",     # flake8-comprehensions
+    "SIM",    # flake8-simplify
+]
+ignore = [
+    "E501",   # Line too long (handled by formatter)
+    "N815",   # mixedCase variable in class scope (Pydantic models use camelCase for API)
+    "SIM102", # Nested if statements (intentional for readability with comments)
+    "B904",   # raise from within except (intentional for cleaner error messages)
+    "E721",   # Type comparison using == (needed for runtime type checking in tests)
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["S101"]  # Allow assert in tests
+
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false  # Start lenient, will enable later
+ignore_missing_imports = true

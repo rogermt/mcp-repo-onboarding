@@ -95,7 +95,7 @@
 │ 93 python -m pip install build                                                                                       │
 │ 94 python -m build                                                                                                   │
 │ 95 ```                                                                                                               │
-│ 96 (Cited from: `.github/workflows/pypi-publish.yml`, "Build release distributions" step)  
+│ 96 (Cited from: `.github/workflows/pypi-publish.yml`, "Build release distributions" step)
 
 ✦ 1) Evidence used (bullet list of the exact files you inspected and what each contributed)
    * README.md: Provided Python version pin (3.13), run commands for installed package, web interface, and CLI
