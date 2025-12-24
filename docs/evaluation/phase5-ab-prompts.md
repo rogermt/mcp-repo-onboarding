@@ -42,11 +42,6 @@ Analyzer Limits:
 - MAX_DOCS_CAP = 10 (Maximum docs returned)
 - MAX_CONFIG_CAP = 15 (Maximum config files returned)
 
-Analyzer Limits:
-- DEFAULT_MAX_FILES = 5000 (Maximum files scanned)
-- MAX_DOCS_CAP = 10 (Maximum docs returned)
-- MAX_CONFIG_CAP = 15 (Maximum config files returned)
-
 Rules:
 **Signal Provenance (hard rule):**
 - Use the `description` field from the MCP JSON to explain why a command or detected item matters.
