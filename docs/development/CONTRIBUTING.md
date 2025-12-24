@@ -63,7 +63,7 @@ Tests use [pytest](https://docs.pytest.org/). We rely on fixtures under `tests/f
 ## Repository structure (high level)
 
 - `src/mcp_repo_onboarding/schema.py` – Pydantic models (`RepoAnalysis`, `CommandInfo`, etc.).
-- `src/mcp_repo_onboarding/analysis.py` – Python repo analysis logic.
+- `src/mcp_repo_onboarding/analysis/` – Python repo analysis package (core logic).
 - `src/mcp_repo_onboarding/onboarding.py` – ONBOARDING.md read/write operations.
 - `src/mcp_repo_onboarding/server.py` – FastMCP server wiring and tool implementations.
 - `tests` – unit and integration tests, plus repo fixtures.

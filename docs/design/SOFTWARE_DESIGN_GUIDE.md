@@ -209,7 +209,7 @@ We’ll keep a clear separation of concerns.
 
 - `src/mcp_repo_onboarding/schema.py`
   - Pydantic models.
-- `src/mcp_repo_onboarding/analysis.py`
+- `src/mcp_repo_onboarding/analysis/` (Package)
   - Logic that builds a `RepoAnalysis` from the filesystem.
 - `src/mcp_repo_onboarding/onboarding.py`
   - Read/write `ONBOARDING.md`.

@@ -1,3 +1,4 @@
+import logging
 import shutil
 import time
 from pathlib import Path
@@ -9,6 +10,8 @@ Onboarding module for reading and writing the ONBOARDING.md file.
 
 This module provides safe file operations restricted to the repository root.
 """
+
+logger = logging.getLogger(__name__)
 
 
 def resolve_path_inside_repo(repo_root: str, sub_path: str) -> Path:
@@ -34,7 +37,8 @@ def resolve_path_inside_repo(repo_root: str, sub_path: str) -> Path:
     # Python 3.9+ method to check containment
     try:
         target.relative_to(root)
-    except ValueError:
+    except ValueError as e:
+        logger.warning(f"Path resolution error: {e}")
         raise ValueError(f"Path {sub_path} escapes repo root {repo_root}")
 
     return target
@@ -63,8 +67,9 @@ def read_onboarding(repo_root: str, path: str = "ONBOARDING.md") -> OnboardingDo
             content=content,
             sizeBytes=len(content.encode("utf-8")),
         )
-    except Exception:
+    except Exception as e:
         # Fallback for permission errors etc
+        logger.error(f"Failed to read onboarding file {path}: {e}")
         return OnboardingDocument(exists=False, path=path)
 
 
@@ -89,8 +94,11 @@ def write_onboarding(
         WriteOnboardingResult containing write details.
 
     Raises:
-        ValueError: If mode is 'create' and file already exists.
+        ValueError: If mode is invalid or if mode is 'create' and file already exists.
     """
+    if mode not in ("overwrite", "append", "create"):
+        raise ValueError(f"Invalid mode: {mode}. Must be 'overwrite', 'append', or 'create'")
+
     target = resolve_path_inside_repo(repo_root, path)
     backup_path = None
 

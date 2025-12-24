@@ -8,7 +8,7 @@ from mcp_repo_onboarding.analysis import analyze_repo
 FIXTURES_DIR = Path(__file__).parent / "fixtures"
 
 
-def test_description_metadata_in_repo_analysis():
+def test_description_metadata_in_repo_analysis() -> None:
     """
     Asserts that high-signal files and commands have their 'description' field populated.
     This test will FAIL until the describers and registry are integrated.
@@ -34,6 +34,7 @@ def test_description_metadata_in_repo_analysis():
     assert test_cmd.description == "Run the test suite via Makefile target."
 
     # 3. Dependency File Description
+    assert analysis.python is not None
     reqs_file = next(
         (d for d in analysis.python.dependencyFiles if d.path == "requirements.txt"),
         None,

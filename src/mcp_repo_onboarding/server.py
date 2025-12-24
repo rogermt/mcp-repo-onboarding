@@ -1,11 +1,14 @@
+import logging
 import os
 
 from mcp.server.fastmcp import FastMCP
 
+from . import configure_logging
 from .analysis import analyze_repo as analysis_mod_analyze_repo
+from .config import DEFAULT_MAX_FILES
 from .onboarding import read_onboarding as read_onboarding_svc
 from .onboarding import write_onboarding as write_onboarding_svc
-from .schema import RunAndTestCommands
+from .schema import ErrorResponse, RunAndTestCommands
 
 """
 MCP Server implementation for Repo Onboarding.
@@ -15,16 +18,18 @@ This module defines the MCP tools exposed by the server.
 
 # Initialize FastMCP Server
 mcp = FastMCP("repo-onboarding")
+logger = logging.getLogger(__name__)
 
 
 @mcp.tool()
 def ping() -> str:
     """Sanity check: returns a small JSON payload to verify MCP connectivity."""
+    logger.debug("Ping tool called")
     return '{"ok": true, "tool": "ping"}'
 
 
 @mcp.tool()
-def analyze_repo(path: str | None = None, max_files: int = 5000) -> str:
+def analyze_repo(path: str | None = None, max_files: int = DEFAULT_MAX_FILES) -> str:
     """
     Analyze the current repository (Python-first) and return a structured summary.
 
@@ -40,6 +45,7 @@ def analyze_repo(path: str | None = None, max_files: int = 5000) -> str:
     target_path = os.path.join(repo_root, path) if path else repo_root
 
     analysis = analysis_mod_analyze_repo(target_path, max_files=max_files)
+    logger.info(f"Analyzed repo at {target_path}")
 
     # Return JSON string via Pydantic
     return analysis.model_dump_json(exclude_none=True, indent=2)
@@ -122,7 +128,9 @@ def write_onboarding(
     repo_root = os.environ.get("REPO_ROOT", os.getcwd())
 
     if content is None:
-        return '{"error": "Content is required"}'
+        return ErrorResponse(
+            error="Content is required", error_code="INVALID_ARGUMENT"
+        ).model_dump_json()
 
     try:
         result = write_onboarding_svc(
@@ -134,11 +142,16 @@ def write_onboarding(
         )
         return result.model_dump_json(exclude_none=True, indent=2)
     except ValueError as e:
-        return f'{{"error": "{str(e)}"}}'
+        logger.error(f"Error writing onboarding file: {e}")
+        return ErrorResponse(
+            error=str(e), error_code="INVALID_ARGUMENT", details={"path": path}
+        ).model_dump_json()
 
 
 def main() -> None:
     """Entry point for the MCP server."""
+    configure_logging()
+    logger.info("Starting mcp-repo-onboarding server")
     mcp.run()
 
 

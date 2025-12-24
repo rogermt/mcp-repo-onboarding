@@ -81,3 +81,5 @@ Create a file named `settings.json` inside the `.gemnini` directory with the fol
 - No code execution (no `subprocess.run` on user code).
 - All file paths sandboxed to `REPO_ROOT` using `pathlib.Path.resolve()`.
 - The server does **not** generate prose. Gemini generates `ONBOARDING.md` content and passes it to `write_onboarding`.
+
+latest critical issues: /home/rogermt/mcp-repo-onboarding/docs/development/github_issues.md

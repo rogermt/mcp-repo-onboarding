@@ -5,7 +5,7 @@ from mcp_repo_onboarding.analysis import IgnoreMatcher
 # Pure Unit Tests - No Filesystem Access
 
 
-def test_safety_ignores_only():
+def test_safety_ignores_only() -> None:
     """Test that safety ignores work without any gitignore patterns."""
     repo_root = Path("/tmp/repo")
     matcher = IgnoreMatcher(
@@ -24,7 +24,7 @@ def test_safety_ignores_only():
     assert not matcher.should_ignore(repo_root / "README.md")
 
 
-def test_gitignore_patterns():
+def test_gitignore_patterns() -> None:
     """Test that gitignore patterns are respected."""
     repo_root = Path("/tmp/repo")
     matcher = IgnoreMatcher(
@@ -44,7 +44,7 @@ def test_gitignore_patterns():
     assert not matcher.should_ignore(repo_root / "src/app.py")
 
 
-def test_safety_overrides_gitignore_whitelist():
+def test_safety_overrides_gitignore_whitelist() -> None:
     """Test that safety ignores cannot be overridden by gitignore whitelist."""
     repo_root = Path("/tmp/repo")
     matcher = IgnoreMatcher(
@@ -56,7 +56,7 @@ def test_safety_overrides_gitignore_whitelist():
     assert matcher.should_ignore(repo_root / ".venv/bin/python")
 
 
-def test_should_descend_optimization():
+def test_should_descend_optimization() -> None:
     """Test should_descend returns False for ignored directories."""
     repo_root = Path("/tmp/repo")
     matcher = IgnoreMatcher(

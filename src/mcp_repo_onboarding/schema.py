@@ -155,3 +155,11 @@ class RunAndTestCommands(BaseModel):
     devCommands: list[CommandInfo] = Field(default_factory=list)
     testCommands: list[CommandInfo] = Field(default_factory=list)
     buildCommands: list[CommandInfo] = Field(default_factory=list)
+
+
+class ErrorResponse(BaseModel):
+    """Standardized error response for MCP tools."""
+
+    error: str
+    error_code: str
+    details: dict[str, object] | None = None

@@ -4,7 +4,7 @@ This file contains GitHub issues that can be created manually. Each issue is for
 
 ---
 
-## Issue 11: Fix Remaining Code Quality Issues and Add Complete Type Hints
+## Proposed Issue: Fix Remaining Code Quality Issues and Add Complete Type Hints
 
 **Title:** Fix remaining code quality issues and add complete type hints
 
@@ -58,7 +58,7 @@ def test_extract_tox_commands_has_proper_type_hints():
 - Coverage remains >80%
 
 ### Files to Update
-- `src/mcp_repo_onboarding/analysis.py` (lines 255, 305)
+- `src/mcp_repo_onboarding/analysis/extractors.py`
 - `tests/test_type_hints.py` (create new)
 
 ### Acceptance Criteria
@@ -72,7 +72,7 @@ def test_extract_tox_commands_has_proper_type_hints():
 
 ---
 
-## Issue 1: Add Comprehensive Error Logging
+## Issue #32: Add Comprehensive Error Logging
 
 **Title:** Add comprehensive error logging throughout the codebase
 
@@ -112,14 +112,14 @@ except OSError as e:
 ```
 
 ### Acceptance Criteria
-- [ ] Logging configured in all modules
-- [ ] All exception handlers log errors with context
-- [ ] No silent failures in production code
-- [ ] Tests verify logging behavior
+- [x] Logging configured in all modules
+- [x] All exception handlers log errors with context
+- [x] No silent failures in production code
+- [x] Tests verify logging behavior
 
 ---
 
-## Issue 2: Add Complete Type Hints and Enable mypy Strict Mode
+## Issue #33: Add Complete Type Hints and Enable mypy Strict Mode
 
 **Title:** Add complete type hints and enable mypy strict mode
 
@@ -147,14 +147,14 @@ Several functions are missing return type hints, and mypy is not configured in s
 - `pyproject.toml` (enable strict mode)
 
 ### Acceptance Criteria
-- [ ] All functions have complete type hints
-- [ ] mypy strict mode enabled
-- [ ] All mypy errors resolved
-- [ ] CI enforces type checking
+- [x] All functions have complete type hints
+- [x] mypy strict mode enabled
+- [x] All mypy errors resolved
+- [x] CI enforces type checking
 
 ---
 
-## Issue 3: Refactor `analyze_repo` Function to Reduce Complexity
+## Issue #34: Refactor `analyze_repo` Function to Reduce Complexity
 
 **Title:** Refactor `analyze_repo` function to reduce cyclomatic complexity
 
@@ -190,7 +190,7 @@ Break down into smaller, focused functions:
 
 ---
 
-## Issue 4: Add Comprehensive Docstrings
+## Issue #35: Add Comprehensive Docstrings
 
 **Title:** Add comprehensive docstrings to all public functions
 
@@ -236,14 +236,14 @@ def get_config_priority(path: str) -> int:
 ```
 
 ### Acceptance Criteria
-- [ ] All public functions have complete docstrings
-- [ ] pydocstyle configured and passing
-- [ ] Module-level docstrings added
-- [ ] Examples included for complex functions
+- [x] All public functions have complete docstrings
+- [x] pydocstyle configured and passing
+- [x] Module-level docstrings added
+- [x] Examples included for complex functions
 
 ---
 
-## Issue 5: Add Error Scenario Test Coverage
+## Issue #36: Add Error Scenario Test Coverage
 
 **Title:** Add comprehensive error scenario test coverage
 
@@ -277,14 +277,14 @@ Current tests focus on happy paths. Need tests for error scenarios and edge case
 4. Consider property-based testing with `hypothesis`
 
 ### Acceptance Criteria
-- [ ] Test coverage > 85%
-- [ ] All error paths tested
-- [ ] Edge cases covered
-- [ ] Performance benchmarks added
+- [x] Test coverage > 85%
+- [x] All error paths tested
+- [x] Edge cases covered
+- [x] Performance benchmarks added
 
 ---
 
-## Issue 6: Extract Configuration to Dedicated Module
+## Issue #37: Extract Configuration to Dedicated Module
 
 **Title:** Extract magic numbers and configuration to dedicated config module
 
@@ -331,17 +331,17 @@ class AnalysisConfig:
 
 ### Files to Update
 - Create `src/mcp_repo_onboarding/config.py`
-- Update `src/mcp_repo_onboarding/analysis.py`
+- Update `src/mcp_repo_onboarding/analysis/core.py` (and other analysis modules)
 
 ### Acceptance Criteria
-- [ ] All configuration in dedicated module
-- [ ] No magic numbers in code
-- [ ] Configuration is type-safe
-- [ ] Easy to modify for testing
+- [x] All configuration in dedicated module
+- [x] No magic numbers in code
+- [x] Configuration is type-safe
+- [x] Easy to modify for testing
 
 ---
 
-## Issue 7: Add Dependency Upper Bounds and Security Scanning
+## Proposed Issue: Add Dependency Upper Bounds and Security Scanning
 
 **Title:** Add dependency upper bounds and security scanning
 
@@ -390,7 +390,7 @@ dependencies = [
 
 ---
 
-## Issue 8: Improve Error Response Handling in Server
+## Issue #38: Improve Error Response Handling in Server
 
 **Title:** Use Pydantic models for error responses instead of manual JSON
 
@@ -435,14 +435,18 @@ except ValueError as e:
 ```
 
 ### Acceptance Criteria
-- [ ] Error response models defined
-- [ ] All error responses use models
-- [ ] Error codes documented
-- [ ] Tests for error responses
+- [x] Logic split into helper functions or classes
+- [x] `analyze_repo` function length significantly reduced
+- [x] No logic changes (refactor only)
+- [x] Tests pass
+- [x] Error response models defined
+- [x] All error responses use models
+- [x] Error codes documented
+- [x] Tests for error responses
 
 ---
 
-## Issue 9: Add Performance Benchmarks and Caching
+## Issue #39: Add Performance Benchmarks and Caching
 
 **Title:** Add performance benchmarks and optional caching layer
 
@@ -460,7 +464,7 @@ No performance benchmarks or caching for repeated analysis operations.
 
 ### Files to Update
 - `tests/test_performance.py` (create)
-- `src/mcp_repo_onboarding/analysis.py`
+- `src/mcp_repo_onboarding/analysis/core.py`
 - `src/mcp_repo_onboarding/cache.py` (create)
 
 ### Acceptance Criteria
@@ -471,7 +475,7 @@ No performance benchmarks or caching for repeated analysis operations.
 
 ---
 
-## Issue 10: Enhance Security with Symbolic Link Protection
+## Issue #40: Enhance Security with Symbolic Link Protection
 
 **Title:** Add symbolic link detection and protection
 
@@ -498,30 +502,78 @@ Current path sandboxing doesn't protect against symbolic link attacks.
 - `README.md` (security documentation)
 
 ### Acceptance Criteria
-- [ ] Symbolic links detected and handled
-- [ ] Security tests added
-- [ ] Security assumptions documented
+- [x] Traversal attempts blocked
+- [x] Symlinks inside the repo are still supported
+- [x] Security tests pass
+- [x] Code reviewed for common bypasses
+- [x] Security assumptions documented
 - [ ] No race conditions in path resolution
+
+---
+
+## Issue #41: Document Defaults in Prompt Text
+
+**Title:** Define and document defaults in evaluation prompt text
+
+**Labels:** `documentation`, `priority: low`, `prompt-engineering`
+
+**Description:**
+
+The prompt text in `docs/evaluation/B-prompt.txt` does not explicitly document the default values used by the analysis (e.g., `MAX_DOCS_CAP`, `max_files`).
+
+### Proposed Solution
+1. Review `src/mcp_repo_onboarding/config.py` for default values.
+2. Update `docs/evaluation/B-prompt.txt` and `docs/evaluation/phase5-ab-prompts.md` to clearly state these defaults.
+
+### Acceptance Criteria
+- [x] Defaults documented in `B-prompt.txt`
+- [x] Defaults synced to `phase5-ab-prompts.md`
+- [x] Consistent with code values
+
+---
+
+## Issue #42: Add Dependency Upper Bounds and Security Scanning
+
+**Title:** Add dependency upper bounds and security scanning
+
+**Labels:** `dependencies`, `priority: medium`, `security`
+
+**Description:**
+
+Dependencies have no upper bounds, risking breaking changes from major updates.
+
+### Proposed Solution
+1. Add upper bounds for major versions in `pyproject.toml`.
+2. Set up Dependabot or Renovate.
+3. Add security scanning with `pip-audit`.
+4. Add dependency update workflow.
+
+### Acceptance Criteria
+- [x] All dependencies have upper bounds
+- [x] Dependabot configured
+- [x] Security scanning in CI
+- [x] Documentation on dependency updates
 
 ---
 
 ## Priority Summary
 
 ### High Priority (Do First) 🔴
-1. Issue #1: Add Comprehensive Error Logging
-2. Issue #2: Add Complete Type Hints
-3. Issue #3: Refactor `analyze_repo` Function
+1. Issue #32: Add Comprehensive Error Logging ✅
+2. Issue #33: Add Complete Type Hints ✅
+3. Issue #34: Refactor `analyze_repo` Function ✅
 
 ### Medium Priority (Do Soon) 🟡
-4. Issue #4: Add Comprehensive Docstrings
-5. Issue #5: Add Error Scenario Tests
-6. Issue #6: Extract Configuration Module
-7. Issue #7: Dependency Upper Bounds
-8. Issue #8: Improve Error Responses
-10. Issue #10: Symbolic Link Protection
+4. Issue #35: Add Comprehensive Docstrings ✅
+5. Issue #36: Add Error Scenario Tests ✅
+6. Issue #37: Extract Configuration Module ✅
+7. Issue #42: Dependency Upper Bounds ✅
+8. Issue #38: Improve Error Responses ✅
+10. Issue #40: Symbolic Link Protection ✅
 
 ### Low Priority (Nice to Have) 🟢
-9. Issue #9: Performance Benchmarks
+9. Issue #39: Performance Benchmarks ✅
+11. Issue #41: Document Defaults in Prompt Text ✅
 
 ---
 
