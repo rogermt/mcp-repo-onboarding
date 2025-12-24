@@ -1,24 +1,33 @@
-# Development Plan: Formatting Sync and Quality Enforcement
+# Issue #10: Use tomllib to improve pyproject.toml signal accuracy
 
-This plan addresses the recurring formatting inconsistencies between local development and CI checks (as seen with `tests/test_type_hints.py`).
+## Goal Description
+Improve the accuracy of Python environment detection by parsing `pyproject.toml` using the standard library's `tomllib`. This enables extracting version constraints, build systems, and package manager configurations directly and reliably.
 
-## Goal
-To synchronize the repository's formatting and ensure that automated checks (pre-commit) effectively block all non-compliant code from being pushed.
+## Proposed Changes
 
-## Proposed Strategy
+### [Component Name] Analysis Package
 
-### 1. Immediate Correction (The "Sync" Phase)
-- **Force Format**: Run `uv run ruff format .` and `uv run ruff check --fix .` locally to bring all files (including `tests/test_type_hints.py`) into 100% compliance.
-- **Verification**: Run `uv run ruff format --check .` locally. If this passes, the CI check is guaranteed to pass.
+#### [MODIFY] [extractors.py](file:///home/rogermt/mcp-repo-onboarding/src/mcp_repo_onboarding/analysis/extractors.py)
+- Create `extract_pyproject_metadata(repo_root: Path, pyproject_path: str) -> dict[str, Any]` function.
+- Parse `pyproject.toml` using `tomllib`.
+- Extract `project.requires-python` and add to `pythonVersionHints`.
+- Detect package managers from `tool.*` keys (poetry, hatch, pdm, flit).
+- Detect build backend from `build-system`.
 
-### 2. Preventive Reinforcement (The "Enforce" Phase)
-- **Pre-commit Re-install**: Run `uv run pre-commit install` to ensure Git hooks are active and correctly configured to intercept non-formatted commits.
-- **Hook Trigger**: Manually run `uv run pre-commit run --all-files` to baseline the repository.
+#### [MODIFY] [core.py](file:///home/rogermt/mcp-repo-onboarding/src/mcp_repo_onboarding/analysis/core.py)
+- Update `_infer_python_environment` to call `extract_pyproject_metadata`.
+- Use the extracted metadata to populate the `PythonInfo` object.
 
-### 3. Workflow Standardization
-- Every subsequent push will be preceded by a local `uv run ruff format --check .` validation.
+## Verification Plan
 
-## Verification Checklist
-- [ ] `uv run ruff format --check .` returns exit code 0.
-- [ ] `uv run pre-commit run --all-files` passes all checks.
-- [ ] No regressions in `uv run pytest`.
+### Automated Tests
+- Create a new fixture: `tests/fixtures/pyproject-rich/`.
+- Add test file `tests/test_pyproject_parsing.py`.
+- Verify:
+    - Accurate `pythonVersionHints` when `requires-python` is present.
+    - Correct `packageManagers` detection (e.g., Poetry, Hatch).
+    - Robustness against malformed TOML files.
+- Run `uv run pytest`.
+
+### Manual Verification
+- Verify the output of `analyze_repo` on the new fixture.

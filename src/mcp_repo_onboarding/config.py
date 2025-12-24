@@ -83,3 +83,11 @@ DOC_HUMAN_EXTENSIONS = {
     ".txt",
     ".adoc",
 }
+
+# Mapping of tool keys and build backend identifiers to package manager names
+KNOWN_PACKAGE_MANAGERS = {
+    "poetry": "poetry",
+    "hatch": "hatch",
+    "pdm": "pdm",
+    "flit": "flit",
+}
