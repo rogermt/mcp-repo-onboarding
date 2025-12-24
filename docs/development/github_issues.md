@@ -4,7 +4,7 @@ This file contains GitHub issues that can be created manually. Each issue is for
 
 ---
 
-## Issue 11: Fix Remaining Code Quality Issues and Add Complete Type Hints
+## Proposed Issue: Fix Remaining Code Quality Issues and Add Complete Type Hints
 
 **Title:** Fix remaining code quality issues and add complete type hints
 
@@ -72,7 +72,7 @@ def test_extract_tox_commands_has_proper_type_hints():
 
 ---
 
-## Issue 1: Add Comprehensive Error Logging
+## Issue #32: Add Comprehensive Error Logging
 
 **Title:** Add comprehensive error logging throughout the codebase
 
@@ -119,7 +119,7 @@ except OSError as e:
 
 ---
 
-## Issue 2: Add Complete Type Hints and Enable mypy Strict Mode
+## Issue #33: Add Complete Type Hints and Enable mypy Strict Mode
 
 **Title:** Add complete type hints and enable mypy strict mode
 
@@ -154,7 +154,7 @@ Several functions are missing return type hints, and mypy is not configured in s
 
 ---
 
-## Issue 3: Refactor `analyze_repo` Function to Reduce Complexity
+## Issue #34: Refactor `analyze_repo` Function to Reduce Complexity
 
 **Title:** Refactor `analyze_repo` function to reduce cyclomatic complexity
 
@@ -190,7 +190,7 @@ Break down into smaller, focused functions:
 
 ---
 
-## Issue 4: Add Comprehensive Docstrings
+## Issue #35: Add Comprehensive Docstrings
 
 **Title:** Add comprehensive docstrings to all public functions
 
@@ -243,7 +243,7 @@ def get_config_priority(path: str) -> int:
 
 ---
 
-## Issue 5: Add Error Scenario Test Coverage
+## Proposed Issue: Add Error Scenario Test Coverage
 
 **Title:** Add comprehensive error scenario test coverage
 
@@ -284,7 +284,7 @@ Current tests focus on happy paths. Need tests for error scenarios and edge case
 
 ---
 
-## Issue 6: Extract Configuration to Dedicated Module
+## Proposed Issue: Extract Configuration to Dedicated Module
 
 **Title:** Extract magic numbers and configuration to dedicated config module
 
@@ -341,7 +341,7 @@ class AnalysisConfig:
 
 ---
 
-## Issue 7: Add Dependency Upper Bounds and Security Scanning
+## Proposed Issue: Add Dependency Upper Bounds and Security Scanning
 
 **Title:** Add dependency upper bounds and security scanning
 
@@ -390,7 +390,7 @@ dependencies = [
 
 ---
 
-## Issue 8: Improve Error Response Handling in Server
+## Proposed Issue: Improve Error Response Handling in Server
 
 **Title:** Use Pydantic models for error responses instead of manual JSON
 
@@ -446,7 +446,7 @@ except ValueError as e:
 
 ---
 
-## Issue 9: Add Performance Benchmarks and Caching
+## Proposed Issue: Add Performance Benchmarks and Caching
 
 **Title:** Add performance benchmarks and optional caching layer
 
@@ -475,7 +475,7 @@ No performance benchmarks or caching for repeated analysis operations.
 
 ---
 
-## Issue 10: Enhance Security with Symbolic Link Protection
+## Proposed Issue: Enhance Security with Symbolic Link Protection
 
 **Title:** Add symbolic link detection and protection
 
@@ -512,20 +512,20 @@ Current path sandboxing doesn't protect against symbolic link attacks.
 ## Priority Summary
 
 ### High Priority (Do First) 🔴
-1. Issue #1: Add Comprehensive Error Logging
-2. Issue #2: Add Complete Type Hints
-3. Issue #3: Refactor `analyze_repo` Function
+1. Issue #32: Add Comprehensive Error Logging
+2. Issue #33: Add Complete Type Hints
+3. Issue #34: Refactor `analyze_repo` Function
 
 ### Medium Priority (Do Soon) 🟡
-4. Issue #4: Add Comprehensive Docstrings
-5. Issue #5: Add Error Scenario Tests
-6. Issue #6: Extract Configuration Module
-7. Issue #7: Dependency Upper Bounds
-8. Issue #8: Improve Error Responses
-10. Issue #10: Symbolic Link Protection
+4. Issue #35: Add Comprehensive Docstrings
+5. Proposed Issue: Add Error Scenario Tests
+6. Proposed Issue: Extract Configuration Module
+7. Proposed Issue: Dependency Upper Bounds
+8. Proposed Issue: Improve Error Responses
+10. Proposed Issue: Symbolic Link Protection
 
 ### Low Priority (Nice to Have) 🟢
-9. Issue #9: Performance Benchmarks
+9. Proposed Issue: Performance Benchmarks
 
 ---
 
