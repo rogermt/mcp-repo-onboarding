@@ -58,7 +58,7 @@ def test_extract_tox_commands_has_proper_type_hints():
 - Coverage remains >80%
 
 ### Files to Update
-- `src/mcp_repo_onboarding/analysis.py` (lines 255, 305)
+- `src/mcp_repo_onboarding/analysis/extractors.py`
 - `tests/test_type_hints.py` (create new)
 
 ### Acceptance Criteria
@@ -331,7 +331,7 @@ class AnalysisConfig:
 
 ### Files to Update
 - Create `src/mcp_repo_onboarding/config.py`
-- Update `src/mcp_repo_onboarding/analysis.py`
+- Update `src/mcp_repo_onboarding/analysis/core.py` (and other analysis modules)
 
 ### Acceptance Criteria
 - [ ] All configuration in dedicated module
@@ -435,6 +435,10 @@ except ValueError as e:
 ```
 
 ### Acceptance Criteria
+- [x] Logic split into helper functions or classes
+- [x] `analyze_repo` function length significantly reduced
+- [x] No logic changes (refactor only)
+- [x] Tests pass
 - [ ] Error response models defined
 - [ ] All error responses use models
 - [ ] Error codes documented
@@ -460,7 +464,7 @@ No performance benchmarks or caching for repeated analysis operations.
 
 ### Files to Update
 - `tests/test_performance.py` (create)
-- `src/mcp_repo_onboarding/analysis.py`
+- `src/mcp_repo_onboarding/analysis/core.py`
 - `src/mcp_repo_onboarding/cache.py` (create)
 
 ### Acceptance Criteria
