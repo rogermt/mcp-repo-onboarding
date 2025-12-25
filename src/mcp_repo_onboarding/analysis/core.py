@@ -1,4 +1,5 @@
 import logging
+import re
 from pathlib import Path
 from typing import Any
 
@@ -243,21 +244,24 @@ def _infer_python_environment(
         elif any(Path(d.path).name.lower() == "pyproject.toml" for d in dep_files):
             install_instructions.append("pip install .")
 
+        raw_hints = sorted(
+            set(
+                workflow_versions
+                + (
+                    [pyproject_metadata["python_version"]]
+                    if pyproject_metadata["python_version"]
+                    else []
+                )
+            )
+        )
+        python_version_hints = [v for v in raw_hints if _is_exact_version(v)]
+
         python_info = PythonInfo(
             packageManagers=package_managers,
             dependencyFiles=dep_files,
             envSetupInstructions=env_setup_instructions,
             installInstructions=install_instructions,
-            pythonVersionHints=sorted(
-                set(
-                    workflow_versions
-                    + (
-                        [pyproject_metadata["python_version"]]
-                        if pyproject_metadata["python_version"]
-                        else []
-                    )
-                )
-            ),
+            pythonVersionHints=python_version_hints,
         )
 
         python_info.dependencyFiles.sort(key=lambda d: 0 if d.path == "requirements.txt" else 1)
@@ -315,3 +319,13 @@ def analyze_repo(repo_path: str, max_files: int = DEFAULT_MAX_FILES) -> RepoAnal
         projectLayout=ProjectLayout(),
         testSetup=TestSetup(),
     )
+
+
+def _is_exact_version(v: str) -> bool:
+    """
+    Check if a version string is an exact version (X.Y or X.Y.Z) and not a range.
+    Matches digits only separated by dots.
+    """
+    if not v:
+        return False
+    return bool(re.match(r"^\d+\.\d+(\.\d+)?$", v))
