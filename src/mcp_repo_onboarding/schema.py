@@ -40,8 +40,6 @@ class PythonInfo(BaseModel):
     """Aggregated information about the Python environment."""
 
     pythonVersionHints: list[str] = Field(default_factory=list)
-    pythonVersionPin: str | None = None
-    pythonVersionComments: str | None = None
     packageManagers: list[str] = Field(default_factory=list)
     dependencyFiles: list[PythonEnvFile] = Field(default_factory=list)
     envSetupInstructions: list[str] = Field(default_factory=list)

@@ -32,7 +32,6 @@ from .extractors import (
 from .prioritization import get_config_priority, get_doc_priority
 from .scanning import scan_repo_files
 from .structs import IgnoreMatcher
-from .utils import classify_python_version
 
 logger = logging.getLogger(__name__)
 
@@ -244,36 +243,21 @@ def _infer_python_environment(
         elif any(Path(d.path).name.lower() == "pyproject.toml" for d in dep_files):
             install_instructions.append("pip install .")
 
-        # Process version hints
-        final_pin = None
-        comments = []
-
-        all_hints = sorted(
-            set(
-                workflow_versions
-                + (
-                    [pyproject_metadata["python_version"]]
-                    if pyproject_metadata["python_version"]
-                    else []
-                )
-            )
-        )
-
-        for hint in all_hints:
-            pin, comment = classify_python_version(hint)
-            if pin and not final_pin:
-                final_pin = pin
-            if comment:
-                comments.append(comment)
-
         python_info = PythonInfo(
             packageManagers=package_managers,
             dependencyFiles=dep_files,
             envSetupInstructions=env_setup_instructions,
             installInstructions=install_instructions,
-            pythonVersionHints=all_hints,
-            pythonVersionPin=final_pin,
-            pythonVersionComments=", ".join(comments) if comments else None,
+            pythonVersionHints=sorted(
+                set(
+                    workflow_versions
+                    + (
+                        [pyproject_metadata["python_version"]]
+                        if pyproject_metadata["python_version"]
+                        else []
+                    )
+                )
+            ),
         )
 
         python_info.dependencyFiles.sort(key=lambda d: 0 if d.path == "requirements.txt" else 1)
