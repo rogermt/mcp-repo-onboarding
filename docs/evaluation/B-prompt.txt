@@ -33,15 +33,18 @@ From `get_run_and_test_commands`, extract:
 
 Step 3 — Grounding rules (Hard rules):
 - Python version: ONLY mention a specific version if `python.pythonVersionHints` contains it. If empty, say: "No Python version pin detected."
-- Environment setup: If `python.pythonVersionHints` is empty and no explicit venv commands are detected, you MAY provide a standard (Generic suggestion) venv snippet:
-```bash
-python3 -m venv .venv
-source .venv/bin/activate
-```
+- Environment setup: If `python.pythonVersionHints` is empty and no explicit venv commands are detected, you MUST provide a standard (Generic suggestion) venv snippet.
+- (Generic suggestion) Labeling Rule: The line `(Generic suggestion)` MUST appear exactly as written (no colon, no extra text) exactly ONE line above the first venv command.
+- Venv Formatting:
+(Generic suggestion)
+* `python3 -m venv .venv` (Create virtual environment.)
+* `source .venv/bin/activate` (Activate virtual environment.)
 - Commands: ONLY include commands that appear in `scripts.*`, `testSetup.commands`, or `get_run_and_test_commands`.
+- Install Commands Priority: If `make install` is detected, it MUST be the primary and SOLE install command. Do not invent `pip install` commands if `make install` is present. If `make install` is absent, use provided `pip install` or `uv sync` commands. Max ONE `pip install -r` line allowed.
 - Signal Provenance: Use the `description` field from the JSON to explain why a command or framework was detected. If SHOW_PROVENANCE is true, append (source: <source>). If SHOW_PROVENANCE is false, omit the source entirely.
 - Never present Makefile recipe internals as commands.
-- Confidence: If a command/signal has `confidence: "heuristic"`, label it as "(Generic suggestion)". Keep to 1–2 bullets max per section.
+- Command Formatting Rule (hard rule): Every command bullet MUST follow the format: `* `command` (Brief description.)`. Use a space between the backtick and opening parenthesis. Do NOT use dashes or colons between the command and description.
+- Confidence: If a command/signal has `confidence: "heuristic"`, label it as "(Generic suggestion)" on the line above.
 
 Step 4 — Produce ONBOARDING.md (copy/pasteable):
 Bullet points in the documnet ALWAYS use * or an asterix
@@ -49,7 +52,7 @@ Bullet points in the documnet ALWAYS use * or an asterix
 - Use the heading exactly: `## Environment setup` (do not write `## Environment` and do not add parentheses like `(Python 3.14)` in the heading).
 - The first line under `## Environment setup` must be the Python version statement:
   - If `python.pythonVersionHints` is non-empty: `Python version: <value>`
-  - If empty: `No Python version pin detected.`
+  - If empty: `No Python version pin detected.` (DO NOT prefix with "Python version:").
 The document MUST start exactly like this:
 
 # ONBOARDING.md
@@ -84,7 +87,7 @@ If file writing is supported, call `write_onboarding` with:
 - mode: "overwrite"
 - content: (the ONBOARDING.md you just generated)
 
-Hard rule: If you are running in headless mode (e.g., --yolo or --headless), DO NOT call write_onboarding. Output the Markdown content directly.
+Hard rule: You MUST call `write_onboarding` to persist the changes.
 
 Step 6 — Token usage:
 At the end of your response, write: "Token usage: <value if available, else unknown>"

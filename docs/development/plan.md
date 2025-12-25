@@ -1,53 +1,58 @@
-# Phase 7: Evaluation Regressions & Standards (Issues 11-15)
+# Phase 6: Evaluation Regressions & Standards (Issues 53-57)
 
-This phase addresses critical regressions in version detection and standardizes `ONBOARDING.md` output through a deterministic validator "Epic" (Issue 14).
+This phase addresses critical regressions in version detection and standardizes `ONBOARDING.md` output through a deterministic validator "Epic" (Issue 56).
 
 ## Gap Analysis
 - **In-Scope**:
-    - **Strict Pin Extraction**: Re-implementing Python logic to reject range specifiers (>=, ~, etc.).
-    - **Deterministic Validator**: A Python-based regex validator (Rules V1-V8) to gate evaluation runs.
-    - **Prompt Engineering**: Updating `B-prompt.txt` to align with new formatting and install policies.
+    - **Deterministic Validator (#56)**: Implements Rules V1-V8 to gate evaluation runs.
+    - **Strict Pin Extraction (#53)**: Uses **regex-based** filtering to reject range specifiers.
+    - **Prompt Engineering (#54, #55, #57)**: Updates `B-prompt.txt` to align with validator rules.
 - **Out-of-Scope**:
-    - **LLM-based Self-Correction**: We rely on the validator to catch drift, not the model to "double check" itself.
-    - **Automatic Markdown Fixing**: The validator will report errors and fail the run, requiring manual or prompt-based fixes.
+    - **LLM-based Self-Correction**: Enforcement is via the deterministic validator, not the model itself.
 
 ## Proposed Changes
 
-### [Component Name] Analysis Logic (Issue 11)
-
-#### [MODIFY] [core.py](file:///home/rogermt/mcp-repo-onboarding/src/mcp_repo_onboarding/analysis/core.py)
-- Refine `_infer_python_environment` to strictly filter `pythonVersionHints`.
-- Add `is_exact_version(v: str) -> bool` helper:
-    - PASS: `3.10`, `3.14.0`, etc.
-    - FAIL: Contains `>=`, `^`, `~`, `*`, `x`, or non-digit starting chars (except version).
-
-### [Component Name] Tooling & Validation (Issue 14 - Epic)
+### Step 1: Tooling & Validation (Issue 56 - Epic)
+Implement the validator first to establish a stable gate.
 
 #### [NEW] [validate_onboarding.py](file:///home/rogermt/mcp-repo-onboarding/docs/evaluation/validate_onboarding.py)
 A standalone Python script implementing Rules V1-V8:
 - **V1 (Headings)**: Asserts exact presence and order of the 10 required headings.
 - **V2 (Repo Path)**: Asserts `Repo path: <path>` under Overview.
-- **V3 (No Pin Phrasing)**: Fails if `Python version: No Python version pin detected.` is found.
-- **V4 (Venv Labeling)**: Fails if venv snippet found without `(Generic suggestion)` label in previous 3 lines.
-- **V5 (Command Formatting)**: Asserts commands in specific sections are `backticked` and descriptions are `(parenthesized)`.
-- **V6 (Analyzer Notes)**: Fails if heading exists but section is effectively empty.
-- **V7 (Install Policy)**: Fails if >1 `pip install -r` line detected.
-- **V8 (Provenance)**: Fails if `source:` or `evidence:` found (unless `--allow-provenance` passed).
+- **V3 (No Pin Phrasing)**: Fails on forbidden `Python version: No Python version pin detected.`
+- **V4 (Venv Labeling)**: Fails on unlabeled venv snippets.
+- **V5 (Command Formatting)**: Asserts backticks for commands and parentheses for descriptions.
+- **V6 (Analyzer Notes)**: Fails on empty placeholder notes.
+- **V7 (Install Policy)**: Fails on >1 `pip install -r` line.
+- **V8 (Provenance)**: Fails on `source:`/`evidence:` unless overridden.
 
 #### [MODIFY] [run_headless_evaluation.sh](file:///home/rogermt/mcp-repo-onboarding/docs/evaluation/run_headless_evaluation.sh)
-- Call the validator after each `ONBOARDING.md` generation.
-- Propagate non-zero exit codes to fail the evaluation run.
+- Integrate `validate_onboarding.py` into the evaluation loop.
 
-### [Component Name] Prompt Engineering (Issues 12, 13, 15)
+### Step 2: Analysis Logic (Issue 53)
+Fix correctly at the source using strict versioning rules.
+
+#### [MODIFY] [core.py](file:///home/rogermt/mcp-repo-onboarding/src/mcp_repo_onboarding/analysis/core.py)
+- Refine `_infer_python_environment` with **regex-based** exact version filtering.
+- Regex: `^\d+\.\d+(\.\d+)?$` (Matches `X.Y` or `X.Y.Z` only).
+- Rejects any string with operators (`>`, `<`, `~`, `^`), wildcards (`*`, `x`), or text prefixes.
+
+### Step 3: Prompt Engineering (Issues 54, 55, 57)
+Align prompt instructions with Validator rules (V3, V4, V7).
 
 #### [MODIFY] [B-prompt.txt](file:///home/rogermt/mcp-repo-onboarding/docs/evaluation/B-prompt.txt)
-- Update Step 3/4/5 with explicit rules for phrasing, venv labeling, and install priority (`make install` first).
+- **#54 (No Pin)**: Forbid "Python version:" prefix for "No pin" state.
+- **#55 (Venv)**: Mandatory labeling of venv snippets.
+- **#57 (Install)**: Prioritize `make install` and cap pip commands.
+
+### Step 4: Verification
+Run full evaluation batch with validator enabled.
 
 ## Verification Plan
 
 ### Automated Tests
-- **Python Unit Tests**:
-    - `tests/fixtures/python-pin-range/pyproject.toml` (verify empty hints).
-    - `tests/test_onboarding_validator.py` (verify V1-V8 pass/fail logic).
-- **Integration**:
-    - User-run evaluation script must show validator passes for fixed repos.
+- **Validator Unit Tests**: `tests/test_onboarding_validator.py` covering Rules V1-V8.
+- **Pin Logic Tests**:
+    - `python-pin-range/pyproject.toml` (>=3.10 -> empty).
+    - `workflow-python-pin-env` (3.14 -> 3.14).
+    - `3.x` -> empty.

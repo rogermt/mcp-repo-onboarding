@@ -11,6 +11,11 @@ else
 
 fi
 
+# Step 0: Setup target repositories (sync settings and prompts)
+echo "=== Setting up evaluation repositories ==="
+bash docs/evaluation/setup_evaluation_repos.sh
+echo " "
+
 
 
 export prompt="Follow instructions in file: .gemini/B-prompt.txt"
@@ -65,6 +70,9 @@ done
 
 # Second loop: print dd header and cat ONBOARDING.md
 
+validator_script="$orig_dir/docs/evaluation/validate_onboarding.py"
+validation_failures=0
+
 for repo in "${repos[@]}"; do
 
   echo " "
@@ -79,6 +87,13 @@ for repo in "${repos[@]}"; do
 
     cat ONBOARDING.md
 
+    echo " "
+    echo "--- Validating ONBOARDING.md for $repo ---"
+    if ! uv run python3 "$validator_script" ONBOARDING.md; then
+      echo "ERROR: Validation failed for $repo"
+      validation_failures=$((validation_failures + 1))
+    fi
+
     popd > /dev/null
 
   else
@@ -88,6 +103,12 @@ for repo in "${repos[@]}"; do
   fi
 
 done
+
+if [ "$validation_failures" -gt 0 ]; then
+  echo " "
+  echo "!!! CRITICAL: $validation_failures repo(s) failed validation !!!"
+  exit 1
+fi
 
 
 

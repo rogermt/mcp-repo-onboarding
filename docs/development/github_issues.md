@@ -512,6 +512,7 @@ Current path sandboxing doesn't protect against symbolic link attacks.
 ---
 
 ## Issue #41: Document Defaults in Prompt Text
+### Phase 6: Evaluation Regressions & Standards (Hardening)
 
 **Title:** Define and document defaults in evaluation prompt text
 
@@ -599,64 +600,234 @@ Moved from basic line/regex scanning to robust TOML parsing using the standard l
 
 ---
 
-## Issue #53 — BUG: Do not treat version ranges as pins (`>=3.10`)
+## Issue #53 — BUG: Python version pins must be exact versions only
 
 **Title:** BUG: Python version pins must be exact versions only (reject ranges like `>=3.10`)
 
-**Labels:** `bug`, `phase6`, `correctness`
+**Labels:** bug, phase6, correctness
 
-**Rules:**
-- `python.pythonVersionHints` may contain only exact versions (e.g., `3.10`, `3.11`, `3.14.0`).
-- Reject: `>=3.10`, `^3.11`, `~=3.12`, `3.x`, `3.*`, `3`.
-- Empty range → "No Python version pin detected."
+**Context**
+We observed repos (e.g., wagtail) where compatibility constraints like `requires-python = ">=3.10"` were rendered as a “pin” (`Python version: >=3.10`). This violates grounding: ranges are not pins.
+
+**Rules (must be enforced in analyzer output)**
+- `python.pythonVersionHints` must contain only **exact version strings** matching:
+  - `X.Y` or `X.Y.Z` where X/Y/Z are digits (e.g., `3.14`, `3.14.0`)
+- Reject and never include in `pythonVersionHints`:
+  - `>=3.10`, `^3.11`, `~=3.12`, `!=3.10.*`, `3.x`, `3.*`, `3`
+  - any string containing operator/wildcard/range syntax
+- If only ranges are available (pyproject constraints, poetry constraints), treat as **no pin**:
+  - `pythonVersionHints` remains empty
+
+**Examples**
+- `requires-python = ">=3.10"` → `pythonVersionHints: []`
+- workflow `env: PYTHON_VERSION: "3.14"` → `pythonVersionHints: ["3.14"]`
+
+**Acceptance**
+- Wagtail-style repo no longer yields `>=3.10` inside `pythonVersionHints`.
+- Workflow pins like `"3.14"` continue to be detected as exact versions.
+
+**Tests (must be added)**
+1) Fixture: `tests/fixtures/python-pin-range/pyproject.toml`
+   - contains `requires-python = ">=3.10"`
+   - Assert `analysis.python.pythonVersionHints` is empty/None
+
+2) Fixture: `tests/fixtures/workflow-python-pin-env/.github/workflows/checker.yml`
+   - contains `env: PYTHON_VERSION: "3.14"`
+   - Assert `analysis.python.pythonVersionHints == ["3.14"]`
+
+3) Negative test (or param): workflow pin `PYTHON_VERSION: "3.x"`
+   - Assert hints empty
 
 ---
 
-## Issue #54 — BUG: Phrasing for "No pin"
+## Issue #54 — BUG: “No pin” phrasing must be exact and standalone
 
 **Title:** BUG: When no pin exists, render exactly “No Python version pin detected.”
 
-**Labels:** `bug`, `phase6`, `ux`
+**Labels:** bug, phase6, ux
 
-**Rule:** Unter `## Environment setup`, if no pin, the line must be exactly `No Python version pin detected.` with no `Python version:` prefix.
+**Context**
+We observed output like:
+- `Python version: No Python version pin detected.`
+
+This violates the contract: the “no pin” phrase must be exact and standalone.
+
+**Rules (must be enforced in generated ONBOARDING.md)**
+Under `## Environment setup`, if no pin exists, the line must be exactly:
+
+- `No Python version pin detected.`
+
+Forbidden:
+- `Python version: No Python version pin detected.`
+- any paraphrase like “No pin found.”
+
+**Examples**
+- Good:
+  - `No Python version pin detected.`
+- Bad:
+  - `Python version: No Python version pin detected.`
+
+**Acceptance**
+- All outputs render the no-pin phrase exactly, with no prefix.
+
+**Tests (validator-enforced; must be added under #56)**
+- Validator Rule V3 fails if it finds the forbidden pattern:
+  - `Python version: No Python version pin detected.`
 
 ---
 
-## Issue #55 — UX: Standardize venv snippet labeling
+## Issue #55 — UX: venv snippet must be labeled “(Generic suggestion)”
 
 **Title:** UX: Always label venv snippet as “(Generic suggestion)” unless explicitly detected
 
-**Labels:** `phase6`, `ux`
+**Labels:** phase6, ux
 
-**Rule:** Venv snippets must be preceded by `(Generic suggestion)` within 3 lines.
+**Context**
+Venv snippets are generic guidance unless the analyzer explicitly detected venv commands (rare). Unlabeled venv snippets look like detected repo instructions.
+
+**Rules (must be enforced in generated ONBOARDING.md)**
+If ONBOARDING contains either:
+- `python -m venv .venv` OR `python3 -m venv .venv`
+
+Then a line containing exactly:
+- `(Generic suggestion)`
+
+must appear within 3 lines above the snippet.
+
+**Examples**
+Good:
+- `(Generic suggestion)`
+  ```bash
+  python3 -m venv .venv
+  source .venv/bin/activate
+  ```
+
+Bad:
+- venv snippet present with no `(Generic suggestion)` label.
+
+**Acceptance**
+- Any venv snippet is always labeled generic.
+
+**Tests (validator-enforced; must be added under #56)**
+- Validator Rule V4:
+  - detects venv snippet
+  - fails if `(Generic suggestion)` not found within 3 lines above
 
 ---
 
-## Issue #56 — TOOLING: Epic Validator (Single Source of Truth)
+## Issue #56 — TOOLING EPIC: Deterministic ONBOARDING.md validator (single source of truth)
 
-**Title:** TOOLING: Add deterministic ONBOARDING.md validator to enforce prompt/format rules
+**Title:** TOOLING: Add deterministic ONBOARDING.md validator to enforce prompt/format rules (V1–V8)
 
-**Labels:** `phase6`, `tooling`, `epic`, `evaluation`
+**Labels:** phase6, tooling, epic, evaluation
 
-**Rules (V1-V8):**
-- **V1:** Required headings exists in order.
-- **V2:** Repo path line present.
-- **V3:** "No pin" phrasing (no prefix).
-- **V4:** Venv snippet labeling.
-- **V5:** Command formatting (backticks + parens).
-- **V6:** Analyzer notes not empty if present.
-- **V7:** Install policy (max 1 pip install -r).
-- **V8:** No provenance if `SHOW_PROVENANCE=false`.
+**Context**
+ONBOARDING.md is generated by an LLM. Prompt rules drift. We need a deterministic validator that fails evaluation runs when output violates the contract. This validator is the enforcement mechanism for #54/#55/#57 and formatting stability.
+
+**Deliverable**
+- A deterministic validator script (recommended: `docs/evaluation/validate_onboarding.py`)
+- Called by `docs/evaluation/run_headless_evaluation.sh`
+- Non-zero exit on failure with clear messages (rule id + location + what failed)
+
+**Rules (V1–V8)**
+V1 — Required headings exist in exact order:
+1) `# ONBOARDING.md`
+2) `## Overview`
+3) `## Environment setup`
+4) `## Install dependencies`
+5) `## Run / develop locally`
+6) `## Run tests`
+7) `## Lint / format`
+8) `## Dependency files detected`
+9) `## Useful configuration files`
+10) `## Useful docs`
+`## Analyzer notes` is optional (see V6).
+
+V2 — Repo path line exists:
+- Immediately after `## Overview`, there must be:
+  - `Repo path: <non-empty>`
+
+V3 — No-pin phrasing:
+- Must fail if it finds:
+  - `Python version: No Python version pin detected.`
+
+V4 — Venv snippet labeling:
+- If venv snippet exists, require `(Generic suggestion)` within 3 lines above.
+
+V5 — Command formatting:
+- In command sections (Install/Run/Test/Lint), commands must be backticked:
+  - `` `command` ``
+- If a description exists, it must be parenthesized immediately after:
+  - `` `command` (Description.) ``
+
+V6 — Analyzer notes:
+- If `## Analyzer notes` exists, it must contain at least one non-empty bullet line.
+- Fail if “(empty)” or blank notes section.
+
+V7 — Install policy guard:
+- Fail if ONBOARDING contains more than one `pip install -r` line.
+  (Prevents invented Connexion-style multi-installs until we have explicit MCP-provided installs.)
+
+V8 — Provenance hidden (standard mode):
+- In standard runs with `SHOW_PROVENANCE=false`, fail if ONBOARDING contains:
+  - `source:`
+  - `evidence:`
+(Allow override flag later if needed, e.g. `--allow-provenance`.)
+
+**Acceptance**
+- Validator is invoked for each repo output and fails runs when any V-rule is violated.
+- Validator output clearly reports:
+  - rule id (V1–V8)
+  - line number/section
+  - failure reason
+
+**Tests (must be added)**
+Add `tests/test_onboarding_validator.py` with string-based unit tests:
+- One fully valid sample passes
+- Each rule has at least one failing sample that asserts correct error id:
+  - missing heading (V1)
+  - missing repo path (V2)
+  - forbidden “Python version: No Python…” (V3)
+  - unlabeled venv snippet (V4)
+  - unbackticked command / missing parentheses (V5)
+  - empty analyzer notes section (V6)
+  - multiple `pip install -r` lines (V7)
+  - presence of `source:` when provenance is hidden (V8)
 
 ---
 
-## Issue #57 — UX: Install dependencies policy
+## Issue #57 — UX: Install dependencies policy (make install first)
 
 **Title:** UX: Install dependencies policy — prefer `make install`; otherwise minimal generic pip
 
-**Labels:** `phase6`, `ux`
+**Labels:** phase6, ux
 
-**Rule:** Prefer `make install`. Max one `pip install -r` if no `make install`.
+**Context**
+Install output can become noisy or misleading (e.g., Connexion invented multiple `pip install -r` lines). We need a stable, minimal policy.
+
+**Rules (must be enforced in B-prompt and by validator)**
+1) If `make install` exists in MCP command outputs:
+- Install dependencies section must include:
+  - `` `make install` ``
+- It must not include generic pip commands (`pip install -r …`, `pip install -e .`) unless explicitly detected/derived by MCP output (default: omit).
+
+2) If `make install` does not exist:
+- Allow at most one `pip install -r …` line (generic) and keep it minimal.
+- Do not generate multiple `pip install -r <nested requirements>` commands just because files exist.
+
+**Examples**
+- Makefile repo with install:
+  - `` `make install` ``
+- Simple pip repo:
+  - `` `pip install -r requirements.txt` `` (Generic suggestion)
+
+**Acceptance**
+- Connexion-style output no longer invents multiple `pip install -r` commands.
+- Makefile repos prefer `make install` when present.
+
+**Tests**
+- Validator Rule V7 enforces “max 1 pip install -r”.
+- Add a validator test case where ONBOARDING contains 2+ pip install -r lines → must fail V7.
 
 ---
 
