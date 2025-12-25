@@ -599,13 +599,76 @@ Moved from basic line/regex scanning to robust TOML parsing using the standard l
 
 ---
 
+## Issue #53 — BUG: Do not treat version ranges as pins (`>=3.10`)
+
+**Title:** BUG: Python version pins must be exact versions only (reject ranges like `>=3.10`)
+
+**Labels:** `bug`, `phase6`, `correctness`
+
+**Rules:**
+- `python.pythonVersionHints` may contain only exact versions (e.g., `3.10`, `3.11`, `3.14.0`).
+- Reject: `>=3.10`, `^3.11`, `~=3.12`, `3.x`, `3.*`, `3`.
+- Empty range → "No Python version pin detected."
+
+---
+
+## Issue #54 — BUG: Phrasing for "No pin"
+
+**Title:** BUG: When no pin exists, render exactly “No Python version pin detected.”
+
+**Labels:** `bug`, `phase6`, `ux`
+
+**Rule:** Unter `## Environment setup`, if no pin, the line must be exactly `No Python version pin detected.` with no `Python version:` prefix.
+
+---
+
+## Issue #55 — UX: Standardize venv snippet labeling
+
+**Title:** UX: Always label venv snippet as “(Generic suggestion)” unless explicitly detected
+
+**Labels:** `phase6`, `ux`
+
+**Rule:** Venv snippets must be preceded by `(Generic suggestion)` within 3 lines.
+
+---
+
+## Issue #56 — TOOLING: Epic Validator (Single Source of Truth)
+
+**Title:** TOOLING: Add deterministic ONBOARDING.md validator to enforce prompt/format rules
+
+**Labels:** `phase6`, `tooling`, `epic`, `evaluation`
+
+**Rules (V1-V8):**
+- **V1:** Required headings exists in order.
+- **V2:** Repo path line present.
+- **V3:** "No pin" phrasing (no prefix).
+- **V4:** Venv snippet labeling.
+- **V5:** Command formatting (backticks + parens).
+- **V6:** Analyzer notes not empty if present.
+- **V7:** Install policy (max 1 pip install -r).
+- **V8:** No provenance if `SHOW_PROVENANCE=false`.
+
+---
+
+## Issue #57 — UX: Install dependencies policy
+
+**Title:** UX: Install dependencies policy — prefer `make install`; otherwise minimal generic pip
+
+**Labels:** `phase6`, `ux`
+
+**Rule:** Prefer `make install`. Max one `pip install -r` if no `make install`.
+
+---
+
 ## Priority Summary
 
 ### High Priority (Critical) 🔴
 1. Issue #10: Use tomllib for pyproject.toml accuracy ✅
-2. Issue #32: Modularize Analysis Logic ✅
-3. Issue #33: Enable Strict Mypy Mode ✅
-4. Issue #40: Enhance security with symbolic link protection ✅
+2. Issue #53: BUG: Reject version ranges as pins 🆕
+3. Issue #56: TOOLING: Epic Validator 🆕
+4. Issue #32: Modularize Analysis Logic ✅
+5. Issue #33: Enable Strict Mypy Mode ✅
+6. Issue #40: Enhance security with symbolic link protection ✅
 
 ### Medium Priority (Important) 🟡
 5. Issue #34: Standardize Error Logging ✅

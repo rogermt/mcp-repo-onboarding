@@ -1,75 +1,591 @@
 
-=== Running evaluation for: connexion ===
+=== Running evaluation for: searxng Paper2Code imgix-python wagtail connexion ===
 Logging to: evaluation_results.log
 
-=== Running gemini for connexion ===
+=== Running gemini for searxng ===
 YOLO mode is enabled. All tool calls will be automatically approved.
 Loaded cached credentials.
 [STARTUP] StartupProfiler.flush() called with 9 phases
-[STARTUP] Recording metric for phase: cli_startup duration: 1931.6079769999997
-[STARTUP] Recording metric for phase: load_settings duration: 4.262733999999909
-[STARTUP] Recording metric for phase: migrate_settings duration: 2.922386999999617
-[STARTUP] Recording metric for phase: parse_arguments duration: 40.51932599999964
-[STARTUP] Recording metric for phase: load_cli_config duration: 74.53564399999959
-[STARTUP] Recording metric for phase: initialize_app duration: 1794.8332279999995
-[STARTUP] Recording metric for phase: authenticate duration: 1570.8509439999998
-[STARTUP] Recording metric for phase: discover_tools duration: 9.71104799999921
-[STARTUP] Recording metric for phase: initialize_mcp_clients duration: 2185.1247729999995
+[STARTUP] Recording metric for phase: cli_startup duration: 2226.6970910000005
+[STARTUP] Recording metric for phase: load_settings duration: 2.0381170000000566
+[STARTUP] Recording metric for phase: migrate_settings duration: 1.3953820000001542
+[STARTUP] Recording metric for phase: parse_arguments duration: 16.155682999999954
+[STARTUP] Recording metric for phase: load_cli_config duration: 59.646044000000074
+[STARTUP] Recording metric for phase: initialize_app duration: 2141.200258
+[STARTUP] Recording metric for phase: authenticate duration: 2064.9143480000002
+[STARTUP] Recording metric for phase: discover_tools duration: 4.29863800000021
+[STARTUP] Recording metric for phase: initialize_mcp_clients duration: 1323.855815
+Okay, I will read the instructions from `.gemini/B-prompt.txt`.
+Okay, I understand. I'll execute `analyze_repo` first, then `get_run_and_test_commands`. After that, I'll generate and save `ONBOARDING.md` based on their output, adhering to all formatting and content rules.
+`analyze_repo` is done. Now, `get_run_and_test_commands`.
+Okay, I'll generate `ONBOARDING.md`. I'll fill in the "Overview", "Environment setup", "Install dependencies", "Run / develop locally", "Run tests", "Lint / format", "Analyzer notes" (if applicable), "Dependency files detected", "Useful configuration files", and "Useful docs" sections using the `analyze_repo` and `get_run_and_test_commands` outputs, adhering to all specified grounding rules. Finally, I'll write the content to `ONBOARDING.md`.
+`ONBOARDING.md` is done. Token usage: unknown.Token usage: unknown
+I have completed the task.
+Token usage: unknown
+Waiting 30 seconds for rate limits...
+=== Running gemini for Paper2Code ===
+YOLO mode is enabled. All tool calls will be automatically approved.
+Loaded cached credentials.
+[STARTUP] StartupProfiler.flush() called with 9 phases
+[STARTUP] Recording metric for phase: cli_startup duration: 2684.7910450000004
+[STARTUP] Recording metric for phase: load_settings duration: 1.800637999999708
+[STARTUP] Recording metric for phase: migrate_settings duration: 1.482915999999932
+[STARTUP] Recording metric for phase: parse_arguments duration: 18.793862999999874
+[STARTUP] Recording metric for phase: load_cli_config duration: 48.8659889999999
+[STARTUP] Recording metric for phase: initialize_app duration: 2606.7918140000006
+[STARTUP] Recording metric for phase: authenticate duration: 2550.264903
+[STARTUP] Recording metric for phase: discover_tools duration: 4.769706000000042
+[STARTUP] Recording metric for phase: initialize_mcp_clients duration: 1068.1819540000006
+Okay, I will read the instructions from `.gemini/B-prompt.txt`.
+Okay, I'll generate `ONBOARDING.md`. First, I'll use `analyze_repo` and `get_run_and_test_commands` to gather necessary information. Then, I'll format the output according to the specified rules, write the file using `write_onboarding`, and conclude with token usage.
+Okay, `analyze_repo` is done. Time for `get_run_and_test_commands`.
+I've processed the `analyze_repo` and `get_run_and_test_commands` outputs. My next step is to generate the `ONBOARDING.md` file, incorporating all extracted data, and adhering to the specified formatting and content rules, including omitting provenance and notes sections due to `SHOW_PROVENANCE = False` and no `notes` data. The file will then be written, and token usage reported.
+`ONBOARDING.md` is created. Token usage: unknown.
+I have completed the task.
+Token usage: unknown
+Waiting 30 seconds for rate limits...
+=== Running gemini for imgix-python ===
+YOLO mode is enabled. All tool calls will be automatically approved.
+Loaded cached credentials.
+[STARTUP] StartupProfiler.flush() called with 9 phases
+[STARTUP] Recording metric for phase: cli_startup duration: 1425.2415569999998
+[STARTUP] Recording metric for phase: load_settings duration: 2.270586000000094
+[STARTUP] Recording metric for phase: migrate_settings duration: 1.2898969999996552
+[STARTUP] Recording metric for phase: parse_arguments duration: 22.122776000000158
+[STARTUP] Recording metric for phase: load_cli_config duration: 36.95570800000041
+[STARTUP] Recording metric for phase: initialize_app duration: 1355.199368
+[STARTUP] Recording metric for phase: authenticate duration: 1312.8681539999998
+[STARTUP] Recording metric for phase: discover_tools duration: 3.1229670000002443
+[STARTUP] Recording metric for phase: initialize_mcp_clients duration: 537.4760980000001
+Okay, I understand. I will proceed with the following steps:
+
+1.  Call `analyze_repo` with an empty dictionary.
+2.  Call `get_run_and_test_commands` with an empty dictionary.
+3.  Extract the required information from the outputs of these two tools.
+4.  Construct the `ONBOARDING.md` content based on the extracted information and the provided formatting rules.
+5.  Write the `ONBOARDING.md` file using `write_onboarding`.
+
+I will ensure `SHOW_PROVENANCE` is `False` as per the prompt.
+Repo analysis done. Next, run/test commands.
+Okay, I have the `analyze_repo` and `get_run_and_test_commands` outputs. I'll now generate the `ONBOARDING.md` content following the specified rules: overview, environment setup (Python version, venv if needed), dependency installation, local development, test execution, linting/formatting, analyzer notes (if any), detected dependency files, useful configuration files, and useful documentation.
+```python
+analyze_repo_output = {
+  "repoPath": "/home/rogermt/imgix-python",
+  "languages": [],
+  "python": {
+    "pythonVersionHints": [],
+    "packageManagers": [
+      "pip"
+    ],
+    "dependencyFiles": [
+      {
+        "path": "setup.cfg",
+        "type": "setup.cfg",
+        "description": "Packaging/build configuration (setuptools)."
+      },
+      {
+        "path": "setup.py",
+        "type": "setup.py",
+        "description": "Packaging/build configuration (setuptools)."
+      }
+    ],
+    "envSetupInstructions": [],
+    "installInstructions": [
+      "pip install -e ."
+    ]
+  },
+  "projectLayout": {
+    "sourceDirs": [],
+    "testDirs": [],
+    "hasSrcLayout": False,
+    "notablePackages": []
+  },
+  "scripts": {
+    "dev": [],
+    "start": [],
+    "test": [
+      {
+        "command": "tox",
+        "source": "tox.ini",
+        "description": "Run tests via tox"
+      }
+    ],
+    "lint": [
+      {
+        "command": "tox -e flake8",
+        "source": "tox.ini",
+        "description": "Run flake8 linting via tox"
+      }
+    ],
+    "format": [],
+    "install": [],
+    "other": []
+  },
+  "frameworks": [],
+  "testSetup": {
+    "usesTox": False,
+    "usesNox": False
+  },
+  "configurationFiles": [
+    {
+      "path": "tox.ini",
+      "type": "tox.ini",
+      "description": "Test environment orchestrator (tox)."
+    },
+    {
+      "path": ".github/workflows/add-issue-to-project.yml",
+      "type": "add-issue-to-project.yml",
+      "description": "CI/CD automation workflow."
+    },
+    {
+      "path": ".github/workflows/add-pr-to-project.yml",
+      "type": "add-pr-to-project.yml",
+      "description": "CI/CD automation workflow."
+    }
+  ],
+  "deploymentHints": [],
+  "docs": [
+    {
+      "path": "CONTRIBUTING.md",
+      "type": "doc"
+    },
+    {
+      "path": "README.md",
+      "type": "doc"
+    }
+  ],
+  "notes": []
+}
+
+get_run_and_test_commands_output = {
+  "devCommands": [],
+  "testCommands": [
+    {
+      "command": "tox",
+      "source": "tox.ini",
+      "description": "Run tests via tox"
+    }
+  ],
+  "buildCommands": []
+}
+
+onboarding_content = []
+
+# Heading rule (hard rule):
+# The document MUST start exactly like this:
+onboarding_content.append("# ONBOARDING.md\n")
+
+# ## Overview
+# Repo path: <repoPath>
+onboarding_content.append("## Overview\n")
+onboarding_content.append(f"Repo path: {analyze_repo_output['repoPath']}\n")
+if "summary" in analyze_repo_output and analyze_repo_output["summary"]:
+    onboarding_content.append(f"{analyze_repo_output['summary']}\n")
+
+# ## Environment setup (Include Python version here)
+onboarding_content.append("\n## Environment setup\n")
+if analyze_repo_output["python"]["pythonVersionHints"]:
+    onboarding_content.append(f"Python version: {analyze_repo_output['python']['pythonVersionHints'][0]}\n")
+else:
+    onboarding_content.append("No Python version pin detected.\n")
+    # If python.pythonVersionHints is empty and no explicit venv commands are detected,
+    # you MAY provide a standard (Generic suggestion) venv snippet:
+    if not analyze_repo_output["python"]["envSetupInstructions"]:
+        onboarding_content.append("```bash\n")
+        onboarding_content.append("python3 -m venv .venv\n")
+        onboarding_content.append("source .venv/bin/activate\n")
+        onboarding_content.append("```\n")
+
+# ## Install dependencies
+onboarding_content.append("\n## Install dependencies\n")
+install_commands = []
+if analyze_repo_output["python"]["installInstructions"]:
+    install_commands.extend(analyze_repo_output["python"]["installInstructions"])
+if analyze_repo_output["scripts"]["install"]:
+    install_commands.extend([cmd["command"] for cmd in analyze_repo_output["scripts"]["install"]])
+
+if install_commands:
+    # If a pip install ... command is present anywhere in the extracted MCP evidence, you MUST NOT output “No explicit install commands detected.”
+    # For now, just taking the first one since the prompt says 1-2 bullets max
+    onboarding_content.append(f"* `{install_commands[0]}`\n")
+else:
+    onboarding_content.append("No explicit install commands detected.\n")
+
+
+# ## Run / develop locally (If commands exist; otherwise "No explicit commands detected.")
+onboarding_content.append("\n## Run / develop locally\n")
+if get_run_and_test_commands_output["devCommands"]:
+    for cmd in get_run_and_test_commands_output["devCommands"]:
+        onboarding_content.append(f"* `{cmd['command']}` {cmd['description']}\n") # No provenance
+else:
+    onboarding_content.append("No explicit commands detected.\n")
+
+# ## Run tests (If commands exist; otherwise "No explicit commands detected.")
+onboarding_content.append("\n## Run tests\n")
+if get_run_and_test_commands_output["testCommands"]:
+    for cmd in get_run_and_test_commands_output["testCommands"]:
+        onboarding_content.append(f"* `{cmd['command']}` {cmd['description']}\n") # No provenance
+else:
+    onboarding_content.append("No explicit commands detected.\n")
+
+# ## Lint / format (If commands exist; otherwise "No explicit commands detected.")
+onboarding_content.append("\n## Lint / format\n")
+lint_format_commands = []
+if analyze_repo_output["scripts"]["lint"]:
+    lint_format_commands.extend(analyze_repo_output["scripts"]["lint"])
+if analyze_repo_output["scripts"]["format"]:
+    lint_format_commands.extend(analyze_repo_output["scripts"]["format"])
+
+if lint_format_commands:
+    for cmd in lint_format_commands:
+        onboarding_content.append(f"* `{cmd['command']}` {cmd['description']}\n") # No provenance
+else:
+    onboarding_content.append("No explicit commands detected.\n")
+
+# ## Analyzer notes (Include ONLY if `notes` is not empty. List verbatim as bullet points.)
+if analyze_repo_output["notes"]:
+    onboarding_content.append("\n## Analyzer notes\n")
+    for note in analyze_repo_output["notes"]:
+        onboarding_content.append(f"* {note}\n")
+
+# ## Dependency files detected (List `python.dependencyFiles[*].path`)
+if analyze_repo_output["python"]["dependencyFiles"]:
+    onboarding_content.append("\n## Dependency files detected\n")
+    for dep_file in analyze_repo_output["python"]["dependencyFiles"]:
+        onboarding_content.append(f"* {dep_file['path']}\n")
+
+# ## Useful configuration files (List `configurationFiles[*].path` and include their `description` if present. If SHOW_PROVENANCE is true, append (source: <path>))
+if analyze_repo_output["configurationFiles"]:
+    onboarding_content.append("\n## Useful configuration files\n")
+    for config_file in analyze_repo_output["configurationFiles"]:
+        description = f" {config_file['description']}" if "description" in config_file and config_file['description'] else ""
+        onboarding_content.append(f"* {config_file['path']}{description}\n")
+
+# ## Useful docs (List `docs[*].path` and include their `description` if present)
+if analyze_repo_output["docs"]:
+    onboarding_content.append("\n## Useful docs\n")
+    for doc_file in analyze_repo_output["docs"]:
+        description = f" {doc_file['description']}" if "description" in doc_file and doc_file['description'] else ""
+        onboarding_content.append(f"* {doc_file['path']}{description}\n")
+
+final_onboarding_content = "".join(onboarding_content)
+
+print(final_onboarding_content)
+```
+Now, I will write this content to `ONBOARDING.md`.
+`ONBOARDING.md` created. Now, token usage.
+```json
+{
+  "todos": [
+    {
+      "description": "Call analyze_repo with {}",
+      "status": "completed"
+    },
+    {
+      "description": "Call get_run_and_test_commands with {}",
+      "status": "completed"
+    },
+    {
+      "description": "Extract Evidence from analyze_repo and get_run_and_test_commands outputs.",
+      "status": "completed"
+    },
+    {
+      "description": "Grounding rules (Hard rules) for ONBOARDING.md creation.",
+      "status": "completed"
+    },
+    {
+      "description": "Produce ONBOARDING.md content.",
+      "status": "completed"
+    },
+    {
+      "description": "Write ONBOARDING.md file using write_onboarding.",
+      "status": "completed"
+    }
+  ]
+}
+```
+I have completed the task of generating the `ONBOARDING.md` file.
+Token usage: unknown
+Waiting 30 seconds for rate limits...
+=== Running gemini for wagtail ===
+YOLO mode is enabled. All tool calls will be automatically approved.
+Loaded cached credentials.
+[STARTUP] StartupProfiler.flush() called with 9 phases
+[STARTUP] Recording metric for phase: cli_startup duration: 872.3733509999997
+[STARTUP] Recording metric for phase: load_settings duration: 1.7548010000000431
+[STARTUP] Recording metric for phase: migrate_settings duration: 1.218239999999696
+[STARTUP] Recording metric for phase: parse_arguments duration: 18.9284090000001
+[STARTUP] Recording metric for phase: load_cli_config duration: 56.94319899999982
+[STARTUP] Recording metric for phase: initialize_app duration: 780.9511150000003
+[STARTUP] Recording metric for phase: authenticate duration: 733.804889
+[STARTUP] Recording metric for phase: discover_tools duration: 3.4381419999999707
+[STARTUP] Recording metric for phase: initialize_mcp_clients duration: 691.7619810000001
 ```markdown
 # ONBOARDING.md
 
 ## Overview
-Repo path: /home/rogermt/connexion
+Repo path: /home/rogermt/wagtail
 
-## Environment
-Python version: 3.12
-(Generic suggestion) venv snippet:
+## Environment setup
+Python version: >=3.10
+
+## Install dependencies
+* `pip install -e .`
+
+## Run / develop locally
+* `bash scripts/fetch-translations.sh` - Delete old translation files (except "en" which is the source translation)
+* `bash scripts/rebuild-translation-sources.sh` - Delete old translation sources
+
+## Run tests
+* `make test` - Run the test suite via Makefile target.
+* `bash scripts/latest.sh` - Run repo script entrypoint.
+* `tox` - Run tests via tox
+
+## Lint / format
+* `make lint`
+* `make format` - Run formatting via Makefile target.
+
+## Analyzer notes
+* docs list truncated to 10 entries (total=364)
+
+## Dependency files detected
+* pyproject.toml
+* setup.py
+* wagtail/project_template/requirements.txt
+
+## Useful configuration files
+* Makefile - Primary task runner for development and build orchestration.
+* tox.ini - Test environment orchestrator (tox).
+* .pre-commit-config.yaml - Pre-commit hooks configuration (code quality automation).
+* .github/workflows/codeql-analysis.yml - CI/CD automation workflow.
+* .github/workflows/test.yml - CI/CD automation workflow.
+
+## Useful docs
+* .github/CONTRIBUTING.md
+* README.md
+* client/README.md
+* client/src/controllers/README.md
+* docs/README.md
+* docs/getting_started/demo_site.md
+* docs/getting_started/index.md
+* docs/getting_started/integrating_into_django.md
+* docs/getting_started/quick_install.md
+* docs/getting_started/the_zen_of_wagtail.md
+```
+Token usage: unknown
+Token usage: unknown
+Waiting 30 seconds for rate limits...
+=== Running gemini for connexion ===
+YOLO mode is enabled. All tool calls will be automatically approved.
+Loaded cached credentials.
+[STARTUP] StartupProfiler.flush() called with 9 phases
+[STARTUP] Recording metric for phase: cli_startup duration: 785.1117559999998
+[STARTUP] Recording metric for phase: load_settings duration: 2.2616900000002715
+[STARTUP] Recording metric for phase: migrate_settings duration: 1.2542790000002242
+[STARTUP] Recording metric for phase: parse_arguments duration: 19.388628000000153
+[STARTUP] Recording metric for phase: load_cli_config duration: 38.99865399999999
+[STARTUP] Recording metric for phase: initialize_app duration: 715.6847339999999
+[STARTUP] Recording metric for phase: authenticate duration: 674.1186819999998
+[STARTUP] Recording metric for phase: discover_tools duration: 4.950139999999919
+[STARTUP] Recording metric for phase: initialize_mcp_clients duration: 598.939719
+Okay, I will read the instructions from `.gemini/B-prompt.txt`.
+Instructions read. Next, `analyze_repo` and `get_run_and_test_commands` calls, then `ONBOARDING.md` generation per rules, then output. Now, `analyze_repo`.
+`analyze_repo` done. Now, `get_run_and_test_commands`.
+Okay, `analyze_repo` and `get_run_and_test_commands` are done. I'll now generate `ONBOARDING.md`. I'll start with the Overview, followed by Environment Setup, Install Dependencies, Run/Develop Locally, Run Tests, Lint/Format, Analyzer Notes, Dependency Files, Useful Configuration Files, and finally, Useful Docs. I'll then construct the `ONBOARDING.md` content.
+`ONBOARDING.md` is done. Token usage: unknown.Token usage: unknown
+Token usage: unknown
+Waiting 30 seconds for rate limits...
+
+=== Showing ONBOARDING.md for searxng ===
+=== Repo: searxng ===
+# ONBOARDING.md
+
+## Overview
+Repo path: /home/rogermt/searxng
+
+## Environment setup
+Python version: 3.14
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
 ```
 
 ## Install dependencies
-* `pip install .`
+* pip install -r requirements.txt (Generic suggestion)
+* pip install -e . (Generic suggestion)
+
+## Run / develop locally
+* `make run` (Run the application via Makefile target.)
+
+## Run tests
+* `make test` (Run the test suite via Makefile target.)
+
+## Lint / format
+* `make format` (Run formatting via Makefile target.)
+
+## Analyzer notes
+* docs list truncated to 10 entries (total=171)
+
+## Dependency files detected
+* requirements.txt
+* requirements-dev.txt
+* requirements-server.txt
+* setup.py
+
+## Useful configuration files
+* Makefile (Primary task runner for development and build orchestration.)
+* .github/workflows/checker.yml (CI/CD automation workflow.)
+* .github/workflows/container.yml (CI/CD automation workflow.)
+* .github/workflows/data-update.yml (CI/CD automation workflow.)
+* .github/workflows/documentation.yml (CI/CD automation workflow.)
+* .github/workflows/integration.yml (CI/CD automation workflow.)
+* .github/workflows/l10n.yml (CI/CD automation workflow.)
+* .github/workflows/security.yml (CI/CD automation workflow.)
+
+## Useful docs
+* CONTRIBUTING.rst
+* README.rst
+* client/simple/README.rst
+* docs/admin/installation-apache.rst
+* docs/admin/installation-docker.rst
+* docs/admin/installation-granian.rst
+* docs/admin/installation-nginx.rst
+* docs/admin/installation-scripts.rst
+* docs/admin/installation-searxng.rst
+* docs/admin/installation-uwsgi.rst
+=== Showing ONBOARDING.md for Paper2Code ===
+=== Repo: Paper2Code ===
+# ONBOARDING.md
+
+## Overview
+Repo path: /home/rogermt/Paper2Code
+
+## Environment setup
+Python version: No Python version pin detected.
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+```
+
+## Install dependencies
+* `pip install -r requirements.txt`
+
+## Run / develop locally
+* `bash scripts/run.sh` (Run repo script entrypoint.)
+* `bash scripts/run_latex.sh` (Run repo script entrypoint.)
+* `bash scripts/run_latex_llm.sh` (Run repo script entrypoint.)
+* `bash scripts/run_litellm.sh` (Run repo script entrypoint.)
+* `bash scripts/run_llm.sh` (Run repo script entrypoint.)
+
+## Run tests
+No explicit commands detected.
+
+## Lint / format
+No explicit commands detected.
+
+## Dependency files detected
+* `requirements.txt`
+
+## Useful configuration files
+* `.pre-commit-config.yaml` (Pre-commit hooks configuration (code quality automation).)
+
+## Useful docs
+* `CONTRIBUTING.md`
+* `README.md`
+* `data/paper2code/README.md`
+* `notebooks/README.md`
+
+=== Showing ONBOARDING.md for imgix-python ===
+=== Repo: imgix-python ===
+# ONBOARDING.md
+
+## Overview
+Repo path: /home/rogermt/imgix-python
+
+## Environment setup
+No Python version pin detected.
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+```
+
+## Install dependencies
+* `pip install -e .`
 
 ## Run / develop locally
 No explicit commands detected.
 
 ## Run tests
-* `tox` (source: tox.ini)
+* `tox` Run tests via tox
 
 ## Lint / format
-* `tox -e flake8` (source: tox.ini)
-
-## Analyzer notes
-* docs list truncated to 10 entries (total=42)
+* `tox -e flake8` Run flake8 linting via tox
 
 ## Dependency files detected
-* examples/frameworks/requirements.txt
-* examples/jwt/requirements.txt
-* examples/sqlalchemy/requirements.txt
-* pyproject.toml
+* setup.cfg
+* setup.py
 
 ## Useful configuration files
-* tox.ini: Test environment orchestrator (tox).
-* .pre-commit-config.yaml: Pre-commit hooks configuration (code quality automation).
-* .github/workflows/pipeline.yml: CI/CD automation workflow.
-* .github/workflows/release.yml: CI/CD automation workflow.
+* tox.ini Test environment orchestrator (tox).
+* .github/workflows/add-issue-to-project.yml CI/CD automation workflow.
+* .github/workflows/add-pr-to-project.yml CI/CD automation workflow.
 
 ## Useful docs
+* CONTRIBUTING.md
 * README.md
-* examples/apikey/README.rst
-* examples/basicauth/README.rst
-* examples/enforcedefaults/README.rst
-* examples/frameworks/README.rst
-* examples/helloworld/README.rst
-* examples/helloworld_async/README.rst
-* examples/jwt/README.rst
-* examples/methodresolver/README.rst
-* examples/oauth2/README.rst
-```
-Token usage: unknown
-Waiting 30 seconds for rate limits...
+
+=== Showing ONBOARDING.md for wagtail ===
+=== Repo: wagtail ===
+# ONBOARDING.md
+
+## Overview
+Repo path: /home/rogermt/wagtail
+
+## Environment setup
+Python version: >=3.10
+
+## Install dependencies
+* `pip install -e .`
+
+## Run / develop locally
+* `bash scripts/fetch-translations.sh` - Delete old translation files (except "en" which is the source translation)
+* `bash scripts/rebuild-translation-sources.sh` - Delete old translation sources
+
+## Run tests
+* `make test` - Run the test suite via Makefile target.
+* `bash scripts/latest.sh` - Run repo script entrypoint.
+* `tox` - Run tests via tox
+
+## Lint / format
+* `make lint`
+* `make format` - Run formatting via Makefile target.
+
+## Analyzer notes
+* docs list truncated to 10 entries (total=364)
+
+## Dependency files detected
+* pyproject.toml
+* setup.py
+* wagtail/project_template/requirements.txt
+
+## Useful configuration files
+* Makefile - Primary task runner for development and build orchestration.
+* tox.ini - Test environment orchestrator (tox).
+* .pre-commit-config.yaml - Pre-commit hooks configuration (code quality automation).
+* .github/workflows/codeql-analysis.yml - CI/CD automation workflow.
+* .github/workflows/test.yml - CI/CD automation workflow.
+
+## Useful docs
+* .github/CONTRIBUTING.md
+* README.md
+* client/README.md
+* client/src/controllers/README.md
+* docs/README.md
+* docs/getting_started/demo_site.md
+* docs/getting_started/index.md
+* docs/getting_started/integrating_into_django.md
+* docs/getting_started/quick_install.md
+* docs/getting_started/the_zen_of_wagtail.md
 
 === Showing ONBOARDING.md for connexion ===
 === Repo: connexion ===
@@ -78,13 +594,8 @@ Waiting 30 seconds for rate limits...
 ## Overview
 Repo path: /home/rogermt/connexion
 
-## Environment
+## Environment setup
 Python version: 3.12
-(Generic suggestion) venv snippet:
-```bash
-python3 -m venv .venv
-source .venv/bin/activate
-```
 
 ## Install dependencies
 * `pip install .`
@@ -93,13 +604,13 @@ source .venv/bin/activate
 No explicit commands detected.
 
 ## Run tests
-* `tox` (source: tox.ini)
+* `tox` (Run tests via tox)
 
 ## Lint / format
-* `tox -e flake8` (source: tox.ini)
+* `tox -e flake8` (Run flake8 linting via tox)
 
 ## Analyzer notes
-* docs list truncated to 10 entries (total=42)
+* docs list truncated to 10 entries (total=31)
 
 ## Dependency files detected
 * examples/frameworks/requirements.txt
@@ -108,10 +619,10 @@ No explicit commands detected.
 * pyproject.toml
 
 ## Useful configuration files
-* tox.ini: Test environment orchestrator (tox).
-* .pre-commit-config.yaml: Pre-commit hooks configuration (code quality automation).
-* .github/workflows/pipeline.yml: CI/CD automation workflow.
-* .github/workflows/release.yml: CI/CD automation workflow.
+* tox.ini (Test environment orchestrator (tox).)
+* .pre-commit-config.yaml (Pre-commit hooks configuration (code quality automation).)
+* .github/workflows/pipeline.yml (CI/CD automation workflow.)
+* .github/workflows/release.yml (CI/CD automation workflow.)
 
 ## Useful docs
 * README.md
@@ -124,5 +635,4 @@ No explicit commands detected.
 * examples/jwt/README.rst
 * examples/methodresolver/README.rst
 * examples/oauth2/README.rst
-
 === Evaluation complete ===
