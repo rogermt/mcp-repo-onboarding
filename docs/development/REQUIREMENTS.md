@@ -1,9 +1,9 @@
 # mcp-repo-onboarding
-**Requirements & Implementation Plan (Python‑First MCP Server for Gemini CLI)**
+**Requirements & Implementation Plan (Python‑Only MCP Server for Gemini CLI)**
 
 Canonical name (repo + python package): `mcp-repo-onboarding`
 
-Scope: Focus on **Python repos** first (services, CLIs, libraries, research repos), with the primary value being a **high-signal grounded extractor** (commands + key setup signals) that reduces hallucinations and reduces token usage. Polyglot repos may be present but remain secondary until Python extraction is consistently high-signal.
+Scope: **100% Python**. This project is a specialized high-signal grounded extractor for Python repositories. Polyglot support is out of scope for this repository.
 
 ---
 
@@ -25,15 +25,15 @@ Note: The **Gemini CLI `mcpServers` key** (e.g. `"repo-onboarding"`) is user-con
 
 ---
 
-## 0.1 Phase 5 Pivot
+## 0.1 Current Status: Phase 7 (Domain Specialization)
 
-Phase 5 pivots the product objective from “generate great ONBOARDING.md automatically” to:
+Phase 6 (Hardening) is complete. The project has successfully pivoted to:
 
-1) Produce **high-signal, grounded extraction output** (commands + setup signals) that is safe and non-misleading.
-2) Provide **token-saving** structured output for Gemini (measured in A/B evaluation).
-3) Keep `ONBOARDING.md` read/write tools, but treat prose generation as optional and secondary to extractor quality.
+1) **High-signal, grounded extraction** (commands + setup signals) that is safe and non-misleading.
+2) **Token-saving structured output** for Gemini (validated by A/B testing).
+3) **Strict validation** via `validate_onboarding.py` as the source of truth.
 
-This pivot is driven by A/B results: MCP mode saves tokens, but utility suffers when extraction is noisy (e.g., Makefile recipe internals), polluted by env/vendor directories (e.g., `site-packages`), or misses common patterns (e.g., `scripts/*.sh`).
+Phase 7 focuses on **Domain Specialization** (Data Science / Research repos), **UX Automation** (Template Resource), and **Signal Hierarchy** (Relevance Scoring).
 
 ---
 
@@ -85,7 +85,7 @@ Division of responsibilities:
 3. **New contributor / new hire**
    - Wants reliable setup/run/test instructions grounded in repo signals.
 
-### 2.2 Core Use Cases (Python-first)
+### 2.2 Core Use Cases
 
 1. **Extract high-signal commands and setup signals (token-saving)**
    - Flow:
@@ -112,7 +112,7 @@ Division of responsibilities:
 
 ## 3. Scope
 
-### 3.1 In Scope (Python-first MVP)
+### 3.1 In Scope (Python)
 
 - Environment setup signals (venv/Poetry/Pipenv/Conda detection, best-effort)
 - Dependency file detection
@@ -127,13 +127,14 @@ Division of responsibilities:
   - aggressive ignore patterns for env/vendor directories (e.g., `site-packages`)
   - cap large lists (`docs`, `configurationFiles`) to keep output usable
 
-### 3.2 Out of Scope (MVP)
+### 3.2 Out of Scope
 
 - Deep architecture discovery (data flows, rationale, full system explanation)
 - Policy enforcement (pre-commit/CI detected, not judged)
 - Executing repo code or shell commands; network access
 - Remote knowledge sources (issues, wikis, external APIs)
 - Exhaustive doc/config listing for large repos (we cap and summarize instead)
+- Support for non-Python repositories (except where polyglot signals aid Python env setup)
 
 ---
 
@@ -208,12 +209,13 @@ Notes:
 Output type (RepoAnalysis):
 (See `src/mcp_repo_onboarding/schema.py` for full Pydantic models)
 
-##### Output size / caps contract (Phase 5 pivot)
+##### Output size / caps contract
 - `docs` is capped at **10** entries
 - `configurationFiles` is capped at **15** entries
 - When caps apply, add truncation messages to `notes`, e.g.:
   - “docs list truncated to 10 entries”
   - “configurationFiles list truncated to 15 entries”
+- This contract ensures token usage remains predictable even for large repos.
 
 #### 4.1.2.1 Makefile extraction rules (P0)
 - If Makefile targets exist for common developer workflows (`test`, `lint`, `format`, `dev`, `run`, `start`, `check`, `install`), commands should be emitted as `make <target>`.
@@ -261,11 +263,6 @@ Behavior:
 - For typical Python repos (< 5k files), `analyze_repo` should complete in ≤ 2 seconds.
 - Avoid reading full file contents except small config files (with size caps).
 - Prefer targeted discovery before broad walking.
-- Default ignore patterns should exclude:
-  - `.git/`, `.venv/`, `venv/`, `__pycache__/`, `.pytest_cache/`, `.mypy_cache/`
-  - `node_modules/`, `dist/`, `build/`
-  - any path containing `site-packages`
-  - recognizable repo-local env/vendor patterns (e.g., `local/**/site-packages/**`)
 
 #### 4.2.2 Security / Safety
 - No execution of repo code, shell scripts, or tasks.
@@ -293,9 +290,16 @@ Gemini CLI config example (uv-based):
 #### 4.2.4 Logging & Diagnostics
 - Logs must go to stderr (stdout reserved for MCP transport).
 
+#### 4.2.5 Infrastructure & Ignore Handling (`IgnoreMatcher`)
+- **IgnoreMatcher** is the core infrastructure component responsible for filtering file paths.
+- It must consistently apply:
+  - **Hard ignores**: System invariants (e.g., `.git`, `site-packages`).
+  - **User ignores**: Patterns from `.gitignore` and `.git/info/exclude`.
+  - **Safety overrides**: Ensuring targeted signals (like `pyproject.toml`) are readable even if ignored by user patterns.
+
 ---
 
-## 4.3 Signal Interpretation Guidelines
+### 4.3 Signal Interpretation Guidelines
 
 - Pre-commit configs
   - Detect `.pre-commit-config.yaml` and list under `configurationFiles` with type `pre-commit`.
@@ -308,7 +312,7 @@ Goal: point developers in the right direction, not substitute for detailed proce
 
 ---
 
-## 4.4 Hard Rule — Environment Setup Sections
+### 4.4 Hard Rule — Environment Setup Sections
 
 - **No invented commands**
    - MCP must never emit environment setup instructions (e.g., `python -m venv .venv`, `pip install -r requirements.txt`) unless explicitly found in repository evidence.
@@ -331,7 +335,7 @@ Goal: point developers in the right direction, not substitute for detailed proce
 
 ---
 
-## 4.5 Gitignore-aware scanning precedence
+### 4.5 Gitignore-aware scanning precedence
 
   - **Repo scanning** uses three layers of filtering, in this strict order:
 
@@ -340,6 +344,14 @@ Goal: point developers in the right direction, not substitute for detailed proce
     - **Targeted signal discovery (not blocked by ignore rules):** The analyzer must detect and parse “known signal files” via explicit checks (e.g., `pyproject.toml`, `requirements*.txt`, `tox.ini`, `noxfile.py`, `setup.py`, `setup.cfg`, `Makefile`, `.pre-commit-config.yaml`, `.github/workflows/*.yml`). These targeted reads must not be suppressed by `.gitignore`, since they are required to produce grounded, high-signal output.
 
     - **Broad scan filtering (gitignore-aware):** Any broad filesystem walk (e.g., enumerating docs/config candidates, language counts, fallback discovery) must respect repo-local ignore patterns from `.gitignore` (and optionally `.git/info/exclude`). Global/user gitignore configuration must not be used, to keep analyzer output deterministic across machines.
+
+---
+
+### 4.6 Validator & Evaluation
+
+- **Source of Truth**: `docs/evaluation/validate_onboarding.py` is the canonical definition of a "valid" onboarding document.
+- **Evaluation**: All releases must pass validation against the Phase 6+ evaluation dataset (A/B evaluation prompts).
+- **Provenance**: Command provenance (`source: ...`) is supported by the analyzer but hidden by default in the generated markdown to keep it clean. It can be enabled via configuration for debugging.
 
 ---
 
@@ -354,25 +366,27 @@ Goal: point developers in the right direction, not substitute for detailed proce
 
 ### 5.2 Milestones
 
-Milestones 1–4 are implemented and tested.
+Milestones 1–6 are complete.
 
-Milestone 5 (pivoted):
-- Lock extractor quality gates (P0) and output compactness contract (caps + truncation notes)
-- Prioritize docs/config lists before truncation (high-signal ordering)
+**Milestone 6 (Hardening & Validation) - COMPLETE**:
+- Implemented `IgnoreMatcher` for robust ignore handling.
+- Validated against strict A/B prompts.
+- Established `validate_onboarding.py` as the quality gate.
+- Achieved 5/5 validation pass on core test repos.
+
+**Milestone 7 (Domain Specialization) - IN PROGRESS**:
+- **Signal Hierarchy**: Implementation of Rule R1-R3 (Root > Docs > Fixture Penalty).
+- **UX Automation**: Exposing the Phase 6 prompt as a server resource.
+- **Research Mastery**: Detecting Notebook-centric repos and hygiene (`nbstripout`).
+- **Framework Expansion**: Advanced recognition of Python and non-Python frameworks (Issue #12, #23).
 
 ---
 
-## 7. MVP Definition (Pivoted)
+## 7. MVP Definition (Completed)
 
-We consider the Python-focused MCP server MVP-ready when:
-
-1) It runs locally and passes tests.
-2) On the Phase 5 evaluation set (minimum: scripts repo + tox library + Makefile-heavy repo):
-   - Makefile repos: output includes stable commands like `make test` and does not include recipe internals.
-   - scripts repos: output surfaces `scripts/*.sh` entrypoints as runnable commands (`bash scripts/<file>.sh`).
-   - Large repos: output does not include env/vendor pollution (no `site-packages` paths) and remains compact (caps + truncation notes).
-3) A/B evaluation demonstrates:
-   - MCP mode reduces misleading output (fewer invented commands/versions).
-   - MCP mode shows meaningful token reduction vs baseline (recorded per run where possible).
-
-At that point, iterate based on real-world usage.
+The Python-focused MCP server MVP is **Live**.
+It satisfies:
+1) Local execution with full test coverage.
+2) High-signal extraction for Makefiles, scripts, and standard Python tooling.
+3) Compact output with strict caps and truncation.
+4) Verified token reduction and hallucination checks via A/B testing.

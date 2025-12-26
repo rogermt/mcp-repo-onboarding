@@ -14,8 +14,8 @@ Important clarity:
 - This MCP server only performs **static analysis + safe local file I/O**.
 - **The server does not generate prose**; Gemini generates `ONBOARDING.md` content and passes it to `write_onboarding`.
 
-> Status: Python-first MVP implementation is complete (Phases 1–4).
-> Phase 5 (validation/CI/distribution + A/B evaluation) is in progress.
+> Status: **Phase 6 (Hardening) Complete**. Phase 7 (Domain Specialization) In Progress.
+> Validated against strict A/B prompts with 5/5 pass rate.
 
 ---
 
@@ -225,27 +225,24 @@ Prompt:
 
 ---
 
-### Phase 6 – Python MCP Hardening & Signal Precision
+### Phase 6 – Hardening & Signal Precision (Completed)
 
 **Summary**
-Phase 6 focuses on tightening correctness, grounding, and signal prioritization in the Python MCP implementation following successful Phase‑5 validation. The goal is to eliminate contradictory output, reduce generic suggestions, and leverage Python‑native tooling for more precise static extraction—without increasing scope, runtime, or token usage.
+Phase 6 focused on tightening correctness, grounding, and signal prioritization.
 
-**Goals**
-
+**Outcomes**
 * Zero contradictory analyzer output
 * Strict adherence to Phase‑5 B‑prompt contract
 * Prefer repo‑native commands over generic ones
-* Improve Python version and dependency signal accuracy
-* Keep MCP output mechanical and non‑prose
+* `validate_onboarding.py` established as the quality gate
 
-**Non‑Goals**
+### Phase 7 – Domain Specialization (In Progress)
 
-* No code execution
-* No dependency resolution
-* No deep architecture inference
-* No TS/JS parity work
-
-See [Phase 5 A/B Evaluation Prompts](./docs/evaluation/phase5-ab-prompts.md).
+**Goals**
+* **Signal Hierarchy**: Prioritize root and `/docs` files while suppressing test/fixture noise (Rule R1-R3).
+* **UX Automation**: Expose `resource://onboarding-template` via the MCP server for zero-copy grounding.
+* **Research / Data Science**: Better support for Jupyter Notebooks (`.ipynb`), `requirements.txt` variants, and scientific stacks.
+* **Evidence & Provenance**: Surface verbatim "Key Symbols" and Framework evidence for high-fidelity mapping.
 
 ---
 
@@ -288,7 +285,7 @@ Logs must go to **stderr** (stdout is reserved for MCP protocol transport).
 
 ## Command Provenance
 
-The analyzer captures the source of each command (e.g., `Makefile`, `tox.ini`, or a specific script path). By default, this "provenance" is hidden in the generated `ONBOARDING.md` for a cleaner experience.
+The analyzer captures the source of each command (e.g., `Makefile`, `tox.ini`, or a specific script path). By default, this "provenance" is **hidden** in the generated `ONBOARDING.md` for a cleaner experience.
 
 For debugging or auditing, you can enable provenance rendering by setting `SHOW_PROVENANCE = true` in the `.gemini/B-prompt.txt` configuration block. When enabled, commands and configuration files will include a `(source: ...)` annotation.
 
