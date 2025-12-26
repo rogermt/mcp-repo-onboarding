@@ -1,8 +1,13 @@
 # AGENTS.md — Agent & Copilot Instructions
 
+## Current Status
+- **Phase 6 (Hardening):** COMPLETE (5/5 validation pass).
+- **Phase 7 (Domain Specialization):** ACTIVE.
+- **Validation Authority:** `docs/evaluation/validate_onboarding.py` is the source of truth for all code generation.
+
 ## Project Identity
 - **Name:** `mcp-repo-onboarding`
-- **Language:** Python 3.11+
+- **Language:** Python 3.11+ (**100% Python scope**)
 - **Manager:** `uv`
 - **Architecture:** FastMCP (Server), Pydantic (Schema), Pytest (Testing).
 
@@ -17,6 +22,12 @@
 
 **NO EXCEPTIONS.** Do not write logic without a red test first.
 
+## Key Project Artifacts
+- **Validator:** `docs/evaluation/validate_onboarding.py` (Must be used to verify any generated `ONBOARDING.md`).
+- **Requirements:** `docs/development/REQUIREMENTS.md` (The canonical spec).
+- **Prompt Contract:** `docs/evaluation/B-prompt.txt` (Required prompt for compliant output).
+- **Ignore Design:** `docs/design/ignore-handling.md` (Design for the `IgnoreMatcher` system).
+
 ## Build & Run Commands
 - **Sync Dependencies:** `uv sync`
 - **Run Tests:** `uv run pytest`
@@ -26,7 +37,7 @@
 ## File Structure
 - `src/mcp_repo_onboarding/` -> Source code.
 - `tests/` -> Pytest tests and fixtures.
-- `tests/fixtures/` -> **READ-ONLY** test data copied from legacy repo.
+- `tests/fixtures/` -> **READ-ONLY** test data.
 
 ## Code Style
 - Use **Type Hints** everywhere.

@@ -1,3 +1,8 @@
+## Current Status
+- **Phase 6 (Hardening):** COMPLETE (5/5 validation pass).
+- **Phase 7 (Domain Specialization):** ACTIVE.
+- **Validation Authority:** `docs/evaluation/validate_onboarding.py` is the source of truth.
+
 ## Runtime responsibilities (avoid confusion)
 
 - **Gemini CLI** is the runtime agent that calls MCP tools (via `mcpServers`).
@@ -25,9 +30,12 @@ MCP tool names are a stable API and must not change:
 
 see /home/rogermt/mcp-repo-onboarding/docs/design/SOFTWARE_DESIGN_GUIDE.md
 
-
-
-
+## Key Phase 6 Artifacts (Reference)
+- **Validator:** `docs/evaluation/validate_onboarding.py` (Run this to verify `ONBOARDING.md` compliance).
+- **Requirements:** `docs/development/REQUIREMENTS.md` (Updated for Python-only scope & infrastructure).
+- **Prompt Contract:** `docs/evaluation/B-prompt.txt` (The prompt template that must be satisfied).
+- **Ignore Logic:** `docs/design/ignore-handling.md` (Docs for `IgnoreMatcher`).
+- **Phase 7 Log:** `docs/development/DEV Phase 7.md` (Current work log).
 
 ## Build & Run (uv required)
 
@@ -42,12 +50,12 @@ This project uses `uv` for dependency management.
 - **Create Directory**
 
 ```bash
-mkdir .gemnini
+mkdir .gemini
 ```
 
 - **Create JSON File**
 
-Create a file named `settings.json` inside the `.gemnini` directory with the following content:
+Create a file named `settings.json` inside the `.gemini` directory with the following content:
 
 ```json
 {
@@ -71,7 +79,7 @@ Create a file named `settings.json` inside the `.gemnini` directory with the fol
 ## Architecture
 - **Framework:** `mcp` (Official Python SDK), `FastMCP`.
 - **Validation:** `pydantic`.
-- **Ignore Hndling:** [pathspec](/home/rogermt/mcp-repo-onboarding/docs/design/ignore-handling.md)
+- **Ignore Handling:** [pathspec](/home/rogermt/mcp-repo-onboarding/docs/design/ignore-handling.md)
 - **Structure:**
     - `src/mcp_repo_onboarding/schema.py`: Pydantic models (API Contract).
     - `src/mcp_repo_onboarding/analysis.py`: Core logic (AST, File walking).
