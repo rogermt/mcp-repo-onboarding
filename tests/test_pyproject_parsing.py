@@ -11,8 +11,9 @@ def test_pyproject_metadata_extraction(temp_repo: Callable[[str], Path]) -> None
     analysis = analyze_repo(str(repo_path))
 
     assert analysis.python is not None
-    # Verify Python version hint from requires-python
-    assert ">=3.11" in analysis.python.pythonVersionHints
+    # In Phase 6, version ranges like ">=3.11" are rejected.
+    assert ">=3.11" not in analysis.python.pythonVersionHints
+    assert len(analysis.python.pythonVersionHints) == 0
 
     # Verify package manager detection (Hatch)
     assert "hatch" in analysis.python.packageManagers

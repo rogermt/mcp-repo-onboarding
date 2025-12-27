@@ -1,5 +1,7 @@
 from pathlib import Path
 
+__all__ = ["get_config_priority", "get_doc_priority", "get_dep_priority"]
+
 
 def get_config_priority(path: str) -> int:
     """

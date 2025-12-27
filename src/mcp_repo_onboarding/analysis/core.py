@@ -7,7 +7,6 @@ from typing import Any
 from ..config import (
     CONFIG_FILE_TYPES,
     DEFAULT_MAX_FILES,
-    DEPENDENCY_FILE_TYPES,
     DOC_EXCLUDED_EXTENSIONS,
     DOC_HUMAN_EXTENSIONS,
     MAX_CONFIG_CAP,
@@ -25,6 +24,7 @@ from ..schema import (
     RepoAnalysisScriptGroup,
     TestSetup,
 )
+from .catalog import is_dependency_file
 from .extractors import (
     detect_workflow_python_version,
     extract_makefile_commands,
@@ -32,7 +32,7 @@ from .extractors import (
     extract_shell_scripts,
     extract_tox_commands,
 )
-from .prioritization import get_config_priority, get_doc_priority
+from .prioritization import get_config_priority, get_dep_priority, get_doc_priority
 from .scanning import scan_repo_files
 from .structs import IgnoreMatcher
 
@@ -168,15 +168,6 @@ def _categorize_files(
     dep_files.sort(key=lambda x: (-get_dep_priority(x.path), x.path))
 
     return docs, configs, dep_files, notes
-
-
-def is_dependency_file(path: str) -> bool:
-    """Check if a file is canonically a dependency manifest."""
-    path = path.replace("\\", "/").lstrip("/")
-    name = Path(path).name.lower()
-    return name in DEPENDENCY_FILE_TYPES or (
-        name.startswith("requirements") and name.endswith((".txt", ".in"))
-    )
 
 
 def sort_by_score_then_path(items: list[Any], score_fn: Callable[[str], int]) -> list[Any]:
