@@ -78,10 +78,10 @@ Phase 7 focuses on:
 ## 5. Definition of Done for Phase 7
 
 Phase 7 is complete when:
-- [ ] `EXTRACT_OUTPUT_RULES.md` is the single source of truth.
-- [ ] Our own repo onboarding is noise-free (no fixture pollution in top-10).
-- [ ] The `onboarding-template` resource is visible and functional.
-- [ ] All 5 evaluation repos pass the deterministic validator with 0 regressions.
+- [x] `EXTRACT_OUTPUT_RULES.md` is the single source of truth.
+- [x] Our own repo onboarding is noise-free (no fixture pollution in top-10).
+- [x] The `onboarding-template` resource is visible and functional.
+- [x] All 5 evaluation repos pass the deterministic validator with 0 regressions.
 - [ ] Notebook-centric repos (Paper2Code) are correctly identified as such.
 
 ---

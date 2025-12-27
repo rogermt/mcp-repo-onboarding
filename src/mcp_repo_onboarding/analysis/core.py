@@ -32,6 +32,7 @@ from .extractors import (
     extract_shell_scripts,
     extract_tox_commands,
 )
+from .notebook_hygiene import precommit_has_notebook_hygiene
 from .prioritization import get_config_priority, get_dep_priority, get_doc_priority
 from .scanning import scan_repo_files
 from .structs import IgnoreMatcher
@@ -96,6 +97,7 @@ def _is_workflow_file(rel_path: str) -> bool:
 
 
 def _categorize_files(
+    root: Path,
     all_files: list[str],
 ) -> tuple[list[DocInfo], list[ConfigFileInfo], list[PythonEnvFile], list[str]]:
     docs = []
@@ -161,6 +163,13 @@ def _categorize_files(
 
             if describer:
                 config_file = describer.describe(config_file)
+
+            # P7-02: Notebook hygiene detection in pre-commit config
+            # Acceptance: if nbstripout/nb-clean/jupyter-notebook-cleanup is found,
+            # override the description with the required text.
+            if name in (".pre-commit-config.yaml", ".pre-commit-config.yml"):
+                if precommit_has_notebook_hygiene(root, f_path):
+                    config_file.description = "Pre-commit config for cleaning Jupyter notebooks (e.g. stripping outputs) for cleaner diffs."
 
             configs.append(config_file)
 
@@ -321,7 +330,7 @@ def analyze_repo(repo_path: str, max_files: int = DEFAULT_MAX_FILES) -> RepoAnal
     all_files = sorted(set(all_other_files + targeted_files))
 
     # 4. Categorize
-    docs, configs, dep_files, cat_notes = _categorize_files(all_files)
+    docs, configs, dep_files, cat_notes = _categorize_files(root, all_files)
 
     # 5. Prioritize & Cap
     docs, configs, cap_notes = _prioritize_and_cap(docs, configs)
