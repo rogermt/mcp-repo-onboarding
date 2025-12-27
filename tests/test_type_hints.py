@@ -23,9 +23,9 @@ def test_extract_shell_scripts_has_proper_type_hints() -> None:
 
     # Check that it's a Dict type (not just 'dict')
     return_type = hints["return"]
-    assert hasattr(return_type, "__origin__"), (
-        "Return type should be a generic Dict, not plain dict"
-    )
+    assert hasattr(
+        return_type, "__origin__"
+    ), "Return type should be a generic Dict, not plain dict"
     assert return_type.__origin__ == dict, "Return type should be Dict"
 
 
@@ -39,9 +39,9 @@ def test_extract_tox_commands_has_proper_type_hints() -> None:
 
     # Check that it's a Dict type (not just 'dict')
     return_type = hints["return"]
-    assert hasattr(return_type, "__origin__"), (
-        "Return type should be a generic Dict, not plain dict"
-    )
+    assert hasattr(
+        return_type, "__origin__"
+    ), "Return type should be a generic Dict, not plain dict"
     assert return_type.__origin__ == dict, "Return type should be Dict"
 
 
@@ -55,7 +55,7 @@ def test_extract_makefile_commands_has_proper_type_hints() -> None:
 
     # Check that it's a Dict type
     return_type = hints["return"]
-    assert hasattr(return_type, "__origin__"), (
-        "Return type should be a generic Dict, not plain dict"
-    )
+    assert hasattr(
+        return_type, "__origin__"
+    ), "Return type should be a generic Dict, not plain dict"
     assert return_type.__origin__ == dict, "Return type should be Dict"
