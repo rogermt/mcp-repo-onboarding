@@ -128,6 +128,7 @@ class RepoAnalysis(BaseModel):
     configurationFiles: list[ConfigFileInfo] = Field(default_factory=list)
     deploymentHints: list[DeploymentHint] = Field(default_factory=list)
     docs: list[DocInfo] = Field(default_factory=list)
+    notebooks: list[str] = Field(default_factory=list)
     gitInfo: GitInfo | None = None
     notes: list[str] = Field(default_factory=list)
 

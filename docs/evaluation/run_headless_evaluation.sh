@@ -30,6 +30,8 @@ LOG_FILE="evaluation_results.log"
 
 echo " "
 
+echo "=== Evaluation Started: $(date) ==="
+
 echo "=== Running evaluation for: ${repos[*]} ==="
 
 echo "Logging to: ${LOG_FILE}"

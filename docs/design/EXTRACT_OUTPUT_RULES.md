@@ -300,3 +300,24 @@ If none of the markers are present, use the standard generic pre-commit descript
 Notes:
 - This is a neutral detection (Scout stance). Do not imply policy requirements.
 - This enrichment must not emit provenance strings (`source:` / `evidence:`) in standard mode.
+
+---
+
+## 7. Notebook-centric detection (P7-01 / Issue #60)
+
+If the analyzer detects any Jupyter notebooks (`*.ipynb`) after safety ignores are applied, it MUST:
+
+1) Append a `notes` entry exactly:
+
+`Notebook-centric repo detected; core logic may reside in Jupyter notebooks.`
+
+2) Populate a new field in `RepoAnalysis`:
+
+`RepoAnalysis.notebooks`: a sorted list of **repo-relative directory paths** containing one or more `*.ipynb` files.
+
+Rules:
+- Use normalized repo-relative POSIX paths (`/` separators).
+- If a notebook is located at repo root, include the directory as `.`.
+- Purely informational (Scout stance):
+  - Do NOT assume the notebook kernel language (notebooks may be Python/R/Julia/other).
+  - Do NOT prescribe a runner (Kaggle/Colab/local/JupyterLab/etc.).
