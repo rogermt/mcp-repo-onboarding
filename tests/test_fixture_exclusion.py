@@ -64,6 +64,6 @@ def test_fixtures_are_invisible_everywhere(temp_repo: Callable[[str], Path]) -> 
     dep_paths = set()
     if analysis.python:
         dep_paths = {d.path.replace("\\", "/") for d in (analysis.python.dependencyFiles or [])}
-    assert (
-        "pyproject.toml" in dep_paths
-    ), f"Expected root pyproject.toml in deps, got: {sorted(dep_paths)}"
+    assert "pyproject.toml" in dep_paths, (
+        f"Expected root pyproject.toml in deps, got: {sorted(dep_paths)}"
+    )

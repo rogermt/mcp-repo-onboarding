@@ -117,9 +117,9 @@ class TestSelfAnalysis:
         assert pyproject_paths, "Root pyproject.toml not found in dependencyFiles"
 
         # It should be first (highest priority)
-        assert (
-            deps[0].path == "pyproject.toml"
-        ), f"Root pyproject.toml should be first dependency, but found '{deps[0].path}' instead"
+        assert deps[0].path == "pyproject.toml", (
+            f"Root pyproject.toml should be first dependency, but found '{deps[0].path}' instead"
+        )
 
     def test_root_readme_is_first_doc(self, self_analysis: RepoAnalysis) -> None:
         """
@@ -133,21 +133,21 @@ class TestSelfAnalysis:
         # README.md should be first or second (LICENSE might be first alphabetically)
         top_docs = [d.path for d in docs[:3]]
 
-        assert any(
-            "README" in p.upper() for p in top_docs
-        ), f"Root README not in top 3 docs. Found: {top_docs}"
+        assert any("README" in p.upper() for p in top_docs), (
+            f"Root README not in top 3 docs. Found: {top_docs}"
+        )
 
     def test_docs_list_respects_cap(self, self_analysis: RepoAnalysis) -> None:
         """Docs list should not exceed MAX_DOCS_CAP (10)."""
-        assert (
-            len(self_analysis.docs) <= 10
-        ), f"Docs list exceeds cap: {len(self_analysis.docs)} > 10"
+        assert len(self_analysis.docs) <= 10, (
+            f"Docs list exceeds cap: {len(self_analysis.docs)} > 10"
+        )
 
     def test_config_list_respects_cap(self, self_analysis: RepoAnalysis) -> None:
         """Config list should not exceed MAX_CONFIG_CAP (15)."""
-        assert (
-            len(self_analysis.configurationFiles) <= 15
-        ), f"Config list exceeds cap: {len(self_analysis.configurationFiles)} > 15"
+        assert len(self_analysis.configurationFiles) <= 15, (
+            f"Config list exceeds cap: {len(self_analysis.configurationFiles)} > 15"
+        )
 
     def test_truncation_note_present_when_truncated(self, self_analysis: RepoAnalysis) -> None:
         """
@@ -159,9 +159,9 @@ class TestSelfAnalysis:
         if len(self_analysis.docs) == 10:
             # Should have truncation note
             truncation_notes = [n for n in self_analysis.notes if "docs list truncated" in n]
-            assert (
-                truncation_notes
-            ), "Docs were truncated but no truncation note found in Analyzer notes"
+            assert truncation_notes, (
+                "Docs were truncated but no truncation note found in Analyzer notes"
+            )
 
 
 class TestIgnoreMatcherUnit:
@@ -209,9 +209,9 @@ class TestIgnoreMatcherUnit:
     def test_is_safety_ignored(self, matcher: IgnoreMatcher, path: str, expected: bool) -> None:
         """Test safety ignore matching for various paths."""
         result = matcher.is_safety_ignored(path)
-        assert (
-            result == expected
-        ), f"is_safety_ignored('{path}') returned {result}, expected {expected}"
+        assert result == expected, (
+            f"is_safety_ignored('{path}') returned {result}, expected {expected}"
+        )
 
     def test_safety_ignores_not_overridable_by_gitignore(self, tmp_path: Path) -> None:
         """Safety ignores cannot be negated by .gitignore patterns."""
