@@ -65,7 +65,7 @@ def validate_onboarding(content: str, allow_provenance: bool = False) -> list[st
         if "No Python version pin detected." in line:
             if "Python version:" in line:
                 errors.append(
-                    f"V3: Forbidden pattern found on line {i+1}: '{line.strip()}'. The phrase must be exact and standalone."
+                    f"V3: Forbidden pattern found on line {i + 1}: '{line.strip()}'. The phrase must be exact and standalone."
                 )
 
     # V4: Venv snippet labeling
@@ -80,7 +80,7 @@ def validate_onboarding(content: str, allow_provenance: bool = False) -> list[st
                     break
             if not label_found:
                 errors.append(
-                    f"V4: Venv snippet found on line {i+1} without '(Generic suggestion)' label within 3 lines above."
+                    f"V4: Venv snippet found on line {i + 1} without '(Generic suggestion)' label within 3 lines above."
                 )
 
     # V5: Command formatting
@@ -111,7 +111,7 @@ def validate_onboarding(content: str, allow_provenance: bool = False) -> list[st
                     content_line.lower(),
                 ):
                     errors.append(
-                        f"V5: Command on line {i+1} must be wrapped in backticks: '{content_line}'"
+                        f"V5: Command on line {i + 1} must be wrapped in backticks: '{content_line}'"
                     )
 
             # Check for description parentheses: `command` (Description.)
@@ -122,7 +122,7 @@ def validate_onboarding(content: str, allow_provenance: bool = False) -> list[st
                 if desc:
                     if not (desc.startswith("(") and desc.endswith(")")):
                         errors.append(
-                            f"V5: Description on line {i+1} must be in parentheses: '{desc}'"
+                            f"V5: Description on line {i + 1} must be in parentheses: '{desc}'"
                         )
 
     # V6: Analyzer notes section policy
@@ -166,7 +166,7 @@ def validate_onboarding(content: str, allow_provenance: bool = False) -> list[st
         for i, line in enumerate(lines):
             if re.search(r"\b(source|evidence):", line, re.I):
                 errors.append(
-                    f"V8: Provenance found on line {i+1}: '{line.strip()}'. Provenance is forbidden in standard mode."
+                    f"V8: Provenance found on line {i + 1}: '{line.strip()}'. Provenance is forbidden in standard mode."
                 )
 
     return errors

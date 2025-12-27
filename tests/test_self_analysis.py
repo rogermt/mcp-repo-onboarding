@@ -117,10 +117,9 @@ class TestSelfAnalysis:
         assert pyproject_paths, "Root pyproject.toml not found in dependencyFiles"
 
         # It should be first (highest priority)
-        assert deps[0].path == "pyproject.toml", (
-            f"Root pyproject.toml should be first dependency, "
-            f"but found '{deps[0].path}' instead"
-        )
+        assert (
+            deps[0].path == "pyproject.toml"
+        ), f"Root pyproject.toml should be first dependency, but found '{deps[0].path}' instead"
 
     def test_root_readme_is_first_doc(self, self_analysis: RepoAnalysis) -> None:
         """
