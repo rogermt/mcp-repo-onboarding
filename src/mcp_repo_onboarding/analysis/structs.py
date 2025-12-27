@@ -21,7 +21,7 @@ class IgnoreMatcher:
             gitignore_patterns: List of patterns from .gitignore.
         """
         self.repo_root = repo_root.resolve()
-        self.safety_ignores = [p.rstrip("/") for p in safety_ignores]
+        self.safety_ignores = list(safety_ignores)
 
         self._pathspec: pathspec.PathSpec | None
         if gitignore_patterns:
@@ -30,6 +30,33 @@ class IgnoreMatcher:
             )
         else:
             self._pathspec = None
+
+    def is_safety_ignored(self, rel_path: str) -> bool:
+        """
+        Check if a repo-relative path is in the safety ignore list.
+        Bypasses gitignore entirely.
+        """
+        # Normalize separators and strip leading/trailing slashes for comparison
+        clean_rel_path = rel_path.replace("\\", "/").strip("/")
+
+        for si in self.safety_ignores:
+            si_clean = si.strip("/")
+
+            if si.endswith("/"):
+                # Directory match anywhere in the path (e.g. site-packages/ or tests/fixtures/)
+                if f"/{si_clean}/" in f"/{clean_rel_path}/":
+                    return True
+            else:
+                # File-like match (e.g. .coverage)
+                # Matches exact name, matching as a filename at any level, or as a substring with /
+                if (
+                    clean_rel_path == si_clean
+                    or Path(clean_rel_path).name == si_clean
+                    or f"/{si_clean}" in f"/{clean_rel_path}"
+                ):
+                    return True
+
+        return False
 
     def should_ignore(self, path: Path, is_dir: bool = False) -> bool:
         """
@@ -50,11 +77,8 @@ class IgnoreMatcher:
             if is_dir and not rel_path_str.endswith("/"):
                 rel_path_str += "/"
 
-            for si in self.safety_ignores:
-                if f"/{si}/" in f"/{rel_path_str}":
-                    return True
-                if rel_path_str.startswith(f"{si}/") or rel_path_str == si:
-                    return True
+            if self.is_safety_ignored(rel_path_str):
+                return True
 
             if self._pathspec:
                 return self._pathspec.match_file(rel_path_str)

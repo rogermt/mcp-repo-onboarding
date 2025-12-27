@@ -12,17 +12,25 @@ def get_config_priority(path: str) -> int:
         Priority score (higher is better).
     """
     name = Path(path).name.lower()
-    if name == "makefile":
-        return 100
-    if name in ["pyproject.toml", "setup.cfg", "setup.py"]:
-        return 90
-    if name in ["tox.ini", "noxfile.py"]:
-        return 80
-    if name in [".pre-commit-config.yaml", ".pre-commit-config.yml"]:
-        return 70
-    if path.startswith(".github/workflows/"):
-        return 60
-    return 10
+    score = 10
+    if name == "makefile" or name == "justfile":
+        score = 300
+    elif name in [
+        "tox.ini",
+        "noxfile.py",
+        ".pre-commit-config.yaml",
+        ".pre-commit-config.yml",
+        "pytest.ini",
+    ]:
+        score = 200
+    elif path.startswith(".github/workflows/"):
+        score = 150
+
+    # V9: Root Priority (+100)
+    if "/" not in path:
+        score += 100
+
+    return score
 
 
 def get_doc_priority(path: str) -> int:
@@ -36,17 +44,53 @@ def get_doc_priority(path: str) -> int:
         Priority score (higher is better).
     """
     name = Path(path).name.lower()
-    if name.startswith("readme"):
-        return 100
-    if name.startswith("contributing"):
-        return 100
-    if (
-        "getting_started" in path.lower()
-        or "quickstart" in path.lower()
-        or "install" in name
-        or "setup" in name
-    ):
-        return 90
+    score = 50
+
+    # 3.1 Buckets
+    if "/" not in path:
+        if name.startswith(("readme", "contributing", "license", "security")):
+            score = 300
+
+    if score < 300:
+        if path.startswith("docs/") and "/" not in path[5:]:
+            score = 250
+        elif any(kw in path.lower() for kw in ["quickstart", "install", "setup", "tutorial"]):
+            score = 200
+        elif path.startswith("docs/"):
+            score = 150
+
+    # Penalties
     if "admin" in path.lower():
-        return 40
-    return 50
+        score -= 20
+
+    if any(p in path.lower() for p in ["tests/", "examples/", "scripts/", "src/"]):
+        score -= 100
+
+    return score
+
+
+def get_dep_priority(path: str) -> int:
+    """
+    Determine the priority of a dependency file.
+
+    Args:
+        path: Path to the dependency file.
+
+    Returns:
+        Priority score (higher is better).
+    """
+    name = Path(path).name.lower()
+    score = 100
+
+    # root manifests
+    if "/" not in path:
+        if name == "pyproject.toml" or name.startswith("requirements"):
+            score = 300
+    elif name == "pyproject.toml" or name.startswith("requirements"):
+        score = 150
+
+    # Penalties
+    if any(p in path.lower() for p in ["tests/", "examples/", "scripts/"]):
+        score -= 100
+
+    return score
