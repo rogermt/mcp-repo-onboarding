@@ -5,6 +5,9 @@
 - **Phase 7 (Domain Specialization):** ACTIVE.
 - **Validation Authority:** `docs/evaluation/validate_onboarding.py` is the source of truth for all code generation.
 
+## Output Verification
+When verifying output, ensure no files from `tests/fixtures/` appear in the lists. Refer to [EXTRACT_OUTPUT_RULES.md](./docs/design/EXTRACT_OUTPUT_RULES.md) for the priority order.
+
 ## Project Identity
 - **Name:** `mcp-repo-onboarding`
 - **Language:** Python 3.11+ (**100% Python scope**)

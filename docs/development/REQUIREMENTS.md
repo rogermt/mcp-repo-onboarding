@@ -312,7 +312,11 @@ Goal: point developers in the right direction, not substitute for detailed proce
 
 ---
 
-### 4.4 Hard Rule — Environment Setup Sections
+### 4.4 Scanning & Prioritization Rules
+The analyzer must adhere to the filtering and ranking logic defined in [EXTRACT_OUTPUT_RULES.md](../design/EXTRACT_OUTPUT_RULES.md).
+**Key Constraint:** `tests/fixtures` must be strictly ignored to prevent self-analysis pollution.
+
+### 4.5 Hard Rule — Environment Setup Sections
 
 - **No invented commands**
    - MCP must never emit environment setup instructions (e.g., `python -m venv .venv`, `pip install -r requirements.txt`) unless explicitly found in repository evidence.
@@ -335,7 +339,7 @@ Goal: point developers in the right direction, not substitute for detailed proce
 
 ---
 
-### 4.5 Gitignore-aware scanning precedence
+### 4.6 Gitignore-aware scanning precedence
 
   - **Repo scanning** uses three layers of filtering, in this strict order:
 
@@ -347,7 +351,7 @@ Goal: point developers in the right direction, not substitute for detailed proce
 
 ---
 
-### 4.6 Validator & Evaluation
+### 4.7 Validator & Evaluation
 
 - **Source of Truth**: `docs/evaluation/validate_onboarding.py` is the canonical definition of a "valid" onboarding document.
 - **Evaluation**: All releases must pass validation against the Phase 6+ evaluation dataset (A/B evaluation prompts).
