@@ -342,6 +342,25 @@ def analyze_repo(repo_path: str, max_files: int = DEFAULT_MAX_FILES) -> RepoAnal
     # 7. Infer Python Env
     python_info = _infer_python_environment(root, py_files, dep_files)
 
+    # 8. Notebook Detection (P7-01 / Issue #60)
+    notebook_dirs = set()
+    for f_path in all_files:
+        if f_path.lower().endswith(".ipynb"):
+            # If at root, use '.', otherwise parent directory
+            rel_dir = str(Path(f_path).parent)
+            if rel_dir == ".":
+                notebook_dirs.add(".")
+            else:
+                posix_dir = rel_dir.replace("\\", "/")
+                # Ensure trailing slash for directories
+                if not posix_dir.endswith("/"):
+                    posix_dir += "/"
+                notebook_dirs.add(posix_dir)
+
+    notebooks_field = sorted(notebook_dirs)
+    if notebooks_field:
+        notes.append("Notebook-centric repo detected; core logic may reside in Jupyter notebooks.")
+
     logger.info(f"Analyzed repo at {root}: {len(all_files)} files found.")
 
     return RepoAnalysis(
@@ -351,6 +370,7 @@ def analyze_repo(repo_path: str, max_files: int = DEFAULT_MAX_FILES) -> RepoAnal
         scripts=scripts,
         notes=notes,
         python=python_info,
+        notebooks=notebooks_field,
         projectLayout=ProjectLayout(),
         testSetup=TestSetup(),
     )
