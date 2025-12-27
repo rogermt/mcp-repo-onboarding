@@ -9,7 +9,7 @@ Phase 6 is complete and signed off:
 - Token savings are verified at ~80% reduction.
 
 Important clarity:
-- **The Scout (MCP):** Provides grounded JSON based on [EXTRACTION_RULES.md](./EXTRACTION_RULES.md).
+- **The Scout (MCP):** Provides grounded JSON based on [EXTRACT_OUTPUT_RULES.md](../design/EXTRACT_OUTPUT_RULES.md).
 - **The Agent (LLM):** Generates prose that must pass the Phase 6 Validator invariants.
 
 ---
@@ -30,7 +30,7 @@ Phase 7 focuses on:
 
 ### 2.1 Relevance & Noise Suppression (P0)
 **Problem:** Our own repository analysis is currently polluted by 60+ requirements files from test fixtures, drowning out the root signals.
-**Fix:** Implement Rule **R1-R3** from `EXTRACTION_RULES.md` (Root > Docs > Nested > Fixture Penalty).
+**Fix:** Implement Rule **R1-R3** from `EXTRACT_OUTPUT_RULES.md` (Root > Docs > Nested > Fixture Penalty).
 
 ### 2.2 UX Automation (P0)
 **Problem:** Users must manually copy and paste grounding rules from a text file.
@@ -68,7 +68,7 @@ Phase 7 focuses on:
 
 ## 4. Execution Sequence
 
-1.  **Hardening the Contract:** Create `EXTRACTION_RULES.md` and synchronize all project docs.
+1.  **Hardening the Contract:** Create `EXTRACT_OUTPUT_RULES.md` and synchronize all project docs.
 2.  **Cleaning our House:** Implement **P7-07** (Relevance Scoring) to fix our own repo's output.
 3.  **Standardizing UX:** Implement **P7-05** (Prompt Resource).
 4.  **Domain Specialization:** Implement **P7-01/02** (Notebooks) and **P7-03/04** (Evidence).
@@ -78,7 +78,7 @@ Phase 7 focuses on:
 ## 5. Definition of Done for Phase 7
 
 Phase 7 is complete when:
-- [ ] `EXTRACTION_RULES.md` is the single source of truth.
+- [ ] `EXTRACT_OUTPUT_RULES.md` is the single source of truth.
 - [ ] Our own repo onboarding is noise-free (no fixture pollution in top-10).
 - [ ] The `onboarding-template` resource is visible and functional.
 - [ ] All 5 evaluation repos pass the deterministic validator with 0 regressions.

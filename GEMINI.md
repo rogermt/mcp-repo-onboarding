@@ -3,6 +3,9 @@
 - **Phase 7 (Domain Specialization):** ACTIVE.
 - **Validation Authority:** `docs/evaluation/validate_onboarding.py` is the source of truth.
 
+## Output Verification
+When verifying output, ensure no files from `tests/fixtures/` appear in the lists. Refer to [EXTRACT_OUTPUT_RULES.md](./docs/design/EXTRACT_OUTPUT_RULES.md) for the priority order.
+
 ## Runtime responsibilities (avoid confusion)
 
 - **Gemini CLI** is the runtime agent that calls MCP tools (via `mcpServers`).

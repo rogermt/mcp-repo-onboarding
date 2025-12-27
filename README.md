@@ -38,6 +38,8 @@ Important clarity:
 - Report key files:
   - Docs: `README`, `CONTRIBUTING`, `docs/`
   - Config: `pyproject.toml`, `tox.ini`, `.pre-commit-config.yaml`, GitHub Actions workflows, etc.
+- **Smart Filtering:** Automatically ignores test fixtures, build artifacts, and environments (see [Output Rules](./docs/design/EXTRACT_OUTPUT_RULES.md)).
+- **High-Signal Sorting:** Prioritizes root documentation and `docs/` folders over obscure internal readmes.
 - Manage `ONBOARDING.md`:
   - Read existing file
   - Write / overwrite / append, with optional backups
@@ -239,10 +241,9 @@ Phase 6 focused on tightening correctness, grounding, and signal prioritization.
 ### Phase 7 – Domain Specialization (In Progress)
 
 **Goals**
-* **Signal Hierarchy**: Prioritize root and `/docs` files while suppressing test/fixture noise (Rule R1-R3).
-* **UX Automation**: Expose `resource://onboarding-template` via the MCP server for zero-copy grounding.
-* **Research / Data Science**: Better support for Jupyter Notebooks (`.ipynb`), `requirements.txt` variants, and scientific stacks.
-* **Evidence & Provenance**: Surface verbatim "Key Symbols" and Framework evidence for high-fidelity mapping.
+* **Research / Data Science**: Better support for Jupyter Notebooks, `requirements.txt` variants, and scientific stacks.
+* **UX Automation**: Expose `resource://onboarding-template` via the MCP server for the validated B-Prompt.
+* **Evidence & Provenance**: Deeper tracking of where signals come from and framework recognition.
 
 ---
 

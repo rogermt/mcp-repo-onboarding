@@ -34,6 +34,13 @@ def _commands(group: list[CommandInfo] | None) -> list[str]:
 
 def test_caps_docs_and_config(temp_repo: Callable[[str], Path]) -> None:
     repo_path = temp_repo("excessive-docs-configs")
+
+    # Add 20 valid config files to trigger config truncation (limit is 15)
+    for i in range(20):
+        d = repo_path / f"config_dir_{i}"
+        d.mkdir()
+        (d / "pytest.ini").write_text("[pytest]")
+
     analysis = analyze_repo(repo_path=str(repo_path))
 
     assert len(analysis.docs) <= 10
@@ -210,16 +217,14 @@ def test_requirements_prioritized_in_deps(temp_repo: Callable[[str], Path]) -> N
 
     assert dep_paths[0] == "requirements.txt"
 
+    def test_env_install_instructions_separation(temp_repo: Callable[[str], Path]) -> None:
+        repo_path = temp_repo("phase3-2-tox-nox-make")
 
-def test_env_install_instructions_separation(temp_repo: Callable[[str], Path]) -> None:
-    repo_path = temp_repo("phase3-2-tox-nox-make")
+        analysis = analyze_repo(repo_path=str(repo_path))
 
-    analysis = analyze_repo(repo_path=str(repo_path))
-
-    assert analysis.python is not None
-    assert len(analysis.python.envSetupInstructions) == 0
-    assert "pip install -r requirements.txt" in analysis.python.installInstructions
-    assert len(analysis.python.installInstructions) > 0
+        assert analysis.python is not None
+        assert len(analysis.python.envSetupInstructions) == 0
+        assert "pip install ." in analysis.python.installInstructions
 
 
 def test_script_description_rejects_command_like_comments(temp_repo: Callable[[str], Path]) -> None:

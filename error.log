@@ -1,0 +1,2 @@
+The MCP server tools `analyze_repo` and `get_run_and_test_commands` failed with the error: "name 'get_dep_priority' is not defined".
+I am unable to proceed with generating ONBOARDING.md as per the instructions in `.gemini/B-prompt.txt` without the output from these tools.

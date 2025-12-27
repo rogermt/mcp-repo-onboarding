@@ -13,7 +13,11 @@ DEFAULT_MAX_FILES = 5000
 
 # Patterns to always ignore for safety and noise reduction
 SAFETY_IGNORES = [
+    "tests/fixtures/",
+    "test/fixtures/",
     ".git/",
+    ".hg/",
+    ".svn/",
     ".venv/",
     "venv/",
     "env/",
@@ -27,7 +31,8 @@ SAFETY_IGNORES = [
     ".coverage",
 ]
 
-# Set of file names known to be configuration files
+# Configuration files — NO overlap with DEPENDENCY_FILE_TYPES per §2
+# NOTE: pyproject.toml, setup.py, setup.cfg are classified as DEPS, not configs
 CONFIG_FILE_TYPES = {
     "makefile",
     "tox.ini",
@@ -36,12 +41,9 @@ CONFIG_FILE_TYPES = {
     ".pre-commit-config.yml",
     "pytest.ini",
     "pytest.cfg",
-    "pyproject.toml",
-    "setup.cfg",
-    "setup.py",
 }
 
-# Set of file names known to define dependencies
+# Dependency files — canonical list per EXTRACT_OUTPUT_RULES.md §2
 DEPENDENCY_FILE_TYPES = {
     "requirements.txt",
     "requirements-dev.txt",
@@ -49,6 +51,9 @@ DEPENDENCY_FILE_TYPES = {
     "pyproject.toml",
     "setup.py",
     "setup.cfg",
+    "pipfile",
+    "environment.yml",
+    "environment.yaml",
 }
 # Extensions to exclude from documentation entirely
 DOC_EXCLUDED_EXTENSIONS = {
