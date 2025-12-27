@@ -1,5 +1,6 @@
 import logging
 import os
+from pathlib import Path
 
 from mcp.server.fastmcp import FastMCP
 
@@ -21,6 +22,47 @@ mcp = FastMCP("repo-onboarding")
 logger = logging.getLogger(__name__)
 
 
+def _resolve_under_repo_root(repo_root: str, subpath: str | None) -> Path:
+    """
+    Resolve an optional user-provided subpath under REPO_ROOT.
+
+    Security invariant:
+      - The resolved path MUST remain under REPO_ROOT (no .. escape, no absolute escape).
+    """
+    root = Path(repo_root).resolve()
+    target = (root / subpath).resolve() if subpath else root
+    try:
+        target.relative_to(root)
+    except ValueError as e:
+        raise ValueError(f"path escapes REPO_ROOT: {subpath}") from e
+    return target
+
+
+def _validate_rel_file_path(repo_root: str, rel_path: str) -> str:
+    """
+    Validate a file path argument intended to be repo-root-relative (e.g. ONBOARDING.md).
+
+    Returns a normalized repo-relative POSIX path string if valid.
+    Raises ValueError if the path is absolute or escapes REPO_ROOT.
+    """
+    if not rel_path:
+        raise ValueError("path must be non-empty")
+
+    p = Path(rel_path)
+    if p.is_absolute():
+        raise ValueError(f"path must be repo-relative, got absolute: {rel_path}")
+
+    root = Path(repo_root).resolve()
+    resolved = (root / p).resolve()
+    try:
+        rel = resolved.relative_to(root)
+    except ValueError as e:
+        raise ValueError(f"path escapes REPO_ROOT: {rel_path}") from e
+
+    # Always return repo-relative POSIX form for determinism.
+    return rel.as_posix()
+
+
 @mcp.tool()
 def ping() -> str:
     """Sanity check: returns a small JSON payload to verify MCP connectivity."""
@@ -29,7 +71,10 @@ def ping() -> str:
 
 
 @mcp.tool()
-def analyze_repo(path: str | None = None, max_files: int = DEFAULT_MAX_FILES) -> str:
+def analyze_repo(
+    path: str | None = None,
+    max_files: int = DEFAULT_MAX_FILES,
+) -> str:
     """
     Analyze the current repository (Python-first) and return a structured summary.
 
@@ -42,10 +87,17 @@ def analyze_repo(path: str | None = None, max_files: int = DEFAULT_MAX_FILES) ->
     """
     # Resolve root from env var (standard MCP pattern) or CWD
     repo_root = os.environ.get("REPO_ROOT", os.getcwd())
-    target_path = os.path.join(repo_root, path) if path else repo_root
+    try:
+        target = _resolve_under_repo_root(repo_root, path)
+    except ValueError as e:
+        return ErrorResponse(
+            error=str(e),
+            error_code="INVALID_ARGUMENT",
+            details={"path": path, "repo_root": repo_root},
+        ).model_dump_json(exclude_none=True, indent=2)
 
-    analysis = analysis_mod_analyze_repo(target_path, max_files=max_files)
-    logger.info(f"Analyzed repo at {target_path}")
+    analysis = analysis_mod_analyze_repo(str(target), max_files=max_files)
+    logger.info(f"Analyzed repo at {target}")
 
     # Return JSON string via Pydantic
     return analysis.model_dump_json(exclude_none=True, indent=2)
@@ -64,9 +116,16 @@ def get_run_and_test_commands(path: str | None = None) -> str:
     """
     # Reuse analyze_repo logic
     repo_root = os.environ.get("REPO_ROOT", os.getcwd())
-    target_path = os.path.join(repo_root, path) if path else repo_root
+    try:
+        target = _resolve_under_repo_root(repo_root, path)
+    except ValueError as e:
+        return ErrorResponse(
+            error=str(e),
+            error_code="INVALID_ARGUMENT",
+            details={"path": path, "repo_root": repo_root},
+        ).model_dump_json(exclude_none=True, indent=2)
 
-    analysis = analysis_mod_analyze_repo(target_path)
+    analysis = analysis_mod_analyze_repo(str(target))
 
     # Map to RunAndTestCommands schema
     # Logic ported from deriveRunAndTestCommands in TS
@@ -102,7 +161,16 @@ def read_onboarding(path: str = "ONBOARDING.md") -> str:
         JSON string representation of OnboardingDocument.
     """
     repo_root = os.environ.get("REPO_ROOT", os.getcwd())
-    result = read_onboarding_svc(repo_root, path)
+    try:
+        safe_rel = _validate_rel_file_path(repo_root, path)
+    except ValueError as e:
+        return ErrorResponse(
+            error=str(e),
+            error_code="INVALID_ARGUMENT",
+            details={"path": path, "repo_root": repo_root},
+        ).model_dump_json(exclude_none=True, indent=2)
+
+    result = read_onboarding_svc(repo_root, safe_rel)
     return result.model_dump_json(exclude_none=True, indent=2)
 
 
@@ -133,10 +201,19 @@ def write_onboarding(
         ).model_dump_json()
 
     try:
+        safe_rel = _validate_rel_file_path(repo_root, path)
+    except ValueError as e:
+        return ErrorResponse(
+            error=str(e),
+            error_code="INVALID_ARGUMENT",
+            details={"path": path, "repo_root": repo_root},
+        ).model_dump_json(exclude_none=True, indent=2)
+
+    try:
         result = write_onboarding_svc(
             repo_root=repo_root,
             content=content,
-            path=path,
+            path=safe_rel,
             mode=mode,
             create_backup=create_backup,
         )

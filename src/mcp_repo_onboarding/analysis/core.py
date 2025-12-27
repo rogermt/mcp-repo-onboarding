@@ -1,9 +1,11 @@
 import logging
 import re
+from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
 from ..config import (
+    CONFIG_FILE_TYPES,
     DEFAULT_MAX_FILES,
     DEPENDENCY_FILE_TYPES,
     DOC_EXCLUDED_EXTENSIONS,
@@ -82,6 +84,17 @@ def _perform_targeted_scan(root: Path, safety_ignores: list[str]) -> list[str]:
     return targeted_files
 
 
+def _is_workflow_file(rel_path: str) -> bool:
+    """
+    GitHub Actions workflow file detection (repo-relative POSIX path).
+    """
+    p = rel_path.replace("\\", "/")
+    if not p.startswith(".github/workflows/"):
+        return False
+    lower = p.lower()
+    return lower.endswith(".yml") or lower.endswith(".yaml")
+
+
 def _categorize_files(
     all_files: list[str],
 ) -> tuple[list[DocInfo], list[ConfigFileInfo], list[PythonEnvFile], list[str]]:
@@ -91,14 +104,14 @@ def _categorize_files(
     notes: list[str] = []
 
     for f_path in all_files:
-        name = f_path.split("/")[-1].lower() if "/" in f_path else f_path.lower()
+        # f_path is expected to be repo-relative with "/" separators, but normalize defensively.
+        f_path = f_path.replace("\\", "/").lstrip("/")
+        name = Path(f_path).name.lower()
 
         # Docs
-        is_doc_candidate = (
-            name.startswith("readme")
-            or name.startswith("contributing")
-            or f_path.startswith("docs/")
-        )
+        is_doc_candidate = name.startswith(
+            ("readme", "contributing", "license", "security")
+        ) or f_path.startswith("docs/")
 
         if is_doc_candidate:
             suffix = Path(f_path).suffix.lower()
@@ -122,50 +135,70 @@ def _categorize_files(
             continue
 
         # Dependencies
-        is_dep = False
-        if name in DEPENDENCY_FILE_TYPES or (
-            name.startswith("requirements") and name.endswith((".txt", ".in"))
-        ):
+        is_dep = is_dependency_file(f_path)
+        if is_dep:
             desc_key = "requirements.txt" if name.startswith("requirements") else name
             dep_describer = FILE_DESCRIBER_REGISTRY.get(desc_key)
             dep_file = PythonEnvFile(path=f_path, type=name)
             if dep_describer:
                 dep_file = dep_describer.describe(dep_file)
             dep_files.append(dep_file)
-            is_dep = True
-
-        # Config Files (Only if not already a dependency)
-        if is_dep:
             continue
 
-        is_workflow = f_path.startswith(".github/workflows/")
-        describer = FILE_DESCRIBER_REGISTRY.get(name) or (
-            FILE_DESCRIBER_REGISTRY.get(".github/workflows") if is_workflow else None
-        )
+        # Config files (classification MUST NOT depend on describer presence)
+        is_workflow = _is_workflow_file(f_path)
+        is_named_config = name in CONFIG_FILE_TYPES
 
-        if describer or name in ["pytest.ini", "pytest.cfg"]:
-            if not (name.startswith("requirements") and name.endswith((".txt", ".in"))):
-                config_file = ConfigFileInfo(path=f_path, type=name)
-                if describer:
-                    config_file = describer.describe(config_file)
-                configs.append(config_file)
+        if is_workflow or is_named_config:
+            config_file = ConfigFileInfo(path=f_path, type=name)
+
+            # Enrichment only (optional descriptions)
+            describer = None
+            if is_workflow:
+                describer = FILE_DESCRIBER_REGISTRY.get(".github/workflows")
+            else:
+                describer = FILE_DESCRIBER_REGISTRY.get(name)
+
+            if describer:
+                config_file = describer.describe(config_file)
+
+            configs.append(config_file)
+
+    # Sort dependency files deterministically
+    dep_files.sort(key=lambda x: (-get_dep_priority(x.path), x.path))
 
     return docs, configs, dep_files, notes
+
+
+def is_dependency_file(path: str) -> bool:
+    """Check if a file is canonically a dependency manifest."""
+    path = path.replace("\\", "/").lstrip("/")
+    name = Path(path).name.lower()
+    return name in DEPENDENCY_FILE_TYPES or (
+        name.startswith("requirements") and name.endswith((".txt", ".in"))
+    )
+
+
+def sort_by_score_then_path(items: list[Any], score_fn: Callable[[str], int]) -> list[Any]:
+    """Sort items by score (descending) then path (ascending)."""
+    return sorted(items, key=lambda x: (-score_fn(x.path), x.path))
 
 
 def _prioritize_and_cap(
     docs: list[DocInfo], configs: list[ConfigFileInfo]
 ) -> tuple[list[DocInfo], list[ConfigFileInfo], list[str]]:
     notes = []
-    docs.sort(key=lambda x: get_doc_priority(x.path), reverse=True)
+    docs = sort_by_score_then_path(docs, get_doc_priority)
     if len(docs) > MAX_DOCS_CAP:
-        notes.append(f"docs list truncated to {MAX_DOCS_CAP} entries (total={len(docs)})")
+        total = len(docs)
+        notes.append(f"docs list truncated to {MAX_DOCS_CAP} entries (total={total})")
         docs = docs[:MAX_DOCS_CAP]
 
-    configs.sort(key=lambda x: get_config_priority(x.path), reverse=True)
+    configs = sort_by_score_then_path(configs, get_config_priority)
     if len(configs) > MAX_CONFIG_CAP:
+        total = len(configs)
         notes.append(
-            f"configurationFiles list truncated to {MAX_CONFIG_CAP} entries (total={len(configs)})"
+            f"configurationFiles list truncated to {MAX_CONFIG_CAP} entries (total={total})"
         )
         configs = configs[:MAX_CONFIG_CAP]
     return docs, configs, notes
@@ -233,16 +266,18 @@ def _infer_python_environment(
         env_setup_instructions: list[str] = []
         install_instructions = []
 
-        if "pip" in package_managers:
+        has_pyproject = any(Path(d.path).name.lower() == "pyproject.toml" for d in dep_files)
+        has_setup_py = any(Path(d.path).name.lower() == "setup.py" for d in dep_files)
+
+        if has_pyproject:
+            install_instructions.append("pip install .")
+        elif has_setup_py:
+            install_instructions.append("pip install -e .")
+        elif "pip" in package_managers:
             reqs = [d.path for d in dep_files if d.path.startswith("requirements")]
             if reqs:
                 main_req = next((r for r in reqs if r == "requirements.txt"), reqs[0])
                 install_instructions.append(f"pip install -r {main_req}")
-
-        if any(Path(d.path).name.lower() == "setup.py" for d in dep_files):
-            install_instructions.append("pip install -e .")
-        elif any(Path(d.path).name.lower() == "pyproject.toml" for d in dep_files):
-            install_instructions.append("pip install .")
 
         raw_hints = sorted(
             set(
