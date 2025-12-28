@@ -1,0 +1,9 @@
+[tool.poetry]
+name = "fw-poetry-flask"
+version = "0.1.0"
+description = ""
+authors = ["Your Name <you@example.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+flask = "^2.0"

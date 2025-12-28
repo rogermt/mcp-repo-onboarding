@@ -60,6 +60,8 @@ class FrameworkInfo(BaseModel):
 
     name: str
     detectionReason: str
+    keySymbols: list[str] = Field(default_factory=list)
+    evidencePath: str | None = None
 
 
 class TestSetup(BaseModel):

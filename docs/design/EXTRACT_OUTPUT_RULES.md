@@ -311,13 +311,46 @@ If the analyzer detects any Jupyter notebooks (`*.ipynb`) after safety ignores a
 
 `Notebook-centric repo detected; core logic may reside in Jupyter notebooks.`
 
-2) Populate a new field in `RepoAnalysis`:
+2) Populate the `RepoAnalysis.notebooks` field:
 
 `RepoAnalysis.notebooks`: a sorted list of **repo-relative directory paths** containing one or more `*.ipynb` files.
 
 Rules:
+- Notebook detection is based on the `.ipynb` file extension only.
 - Use normalized repo-relative POSIX paths (`/` separators).
 - If a notebook is located at repo root, include the directory as `.`.
 - Purely informational (Scout stance):
   - Do NOT assume the notebook kernel language (notebooks may be Python/R/Julia/other).
   - Do NOT prescribe a runner (Kaggle/Colab/local/JupyterLab/etc.).
+
+---
+
+## 8. Framework key symbols (Issue #23)
+
+When `RepoAnalysis.frameworks[]` includes a framework detection, the analyzer MUST attach minimal proof
+strings as `frameworks[].keySymbols` (list of strings).
+
+Definitions:
+- `keySymbols` may come from pyproject.toml classifiers (preferred when present), e.g. Framework :: Django.
+
+Optional debugging field:
+- `frameworks[].evidencePath` (optional): repo-relative POSIX path where the selected key symbol was found.
+
+Scope limits (must remain narrow and cheap):
+- Only search for key symbols in a small candidate set of files, e.g.:
+  - known entrypoints (`manage.py`, `app.py`, `main.py`, `wsgi.py`, `asgi.py`), and/or
+  - a capped list of root-level `.py` files.
+- Respect safety ignores and file size limits (size-capped reads).
+- No execution, no network.
+
+Determinism:
+- If multiple candidate files match, choose deterministically (lexicographically first repo-relative path).
+- Within a file, choose the first matching line encountered.
+
+Output rule:
+- This proof is stored in MCP JSON only. Do not require or encourage printing `evidence:` in `ONBOARDING.md`
+  (validator V8 forbids `evidence:` in standard mode).
+
+key symbol sources may include:
+- `pyproject.toml` classifiers (preferred when present), e.g. `Framework :: Django`
+- Poetry dependency keys for Poetry-format projects, e.g. `tool.poetry.dependencies.flask`

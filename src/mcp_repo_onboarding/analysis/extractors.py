@@ -31,6 +31,20 @@ def extract_makefile_commands(root: Path, makefile_path: str) -> dict[str, list[
 
     target_pattern = re.compile(r"^([a-zA-Z0-9_-]+(?:\s+[a-zA-Z0-9_-]+)*):")
 
+    def _fallback_make_desc(target: str) -> str:
+        # Deterministic, grounded in Makefile target existence (not invented behavior).
+        if target == "install":
+            return "Install dependencies via Makefile target."
+        if target == "test":
+            return "Run the test suite via Makefile target."
+        if target == "lint":
+            return "Run linting via Makefile target."
+        if target == "format":
+            return "Run formatting via Makefile target."
+        if target in ("run", "start"):
+            return "Run the application via Makefile target."
+        return f"Run Makefile target '{target}'."
+
     target_mapping = {
         "test": "test",
         "lint": "lint",
@@ -55,6 +69,11 @@ def extract_makefile_commands(root: Path, makefile_path: str) -> dict[str, list[
 
                     if command_str in COMMAND_DESCRIBER_REGISTRY:
                         cmd_info = COMMAND_DESCRIBER_REGISTRY[command_str].describe(cmd_info)
+
+                    # Ensure Makefile-derived commands always have a description to prevent LLM drift
+                    # (keeps ONBOARDING compliant with the "command bullets always include (Description.)" prompt rule).
+                    if not cmd_info.description:
+                        cmd_info.description = _fallback_make_desc(target)
 
                     if category not in commands:
                         commands[category] = []
