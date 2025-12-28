@@ -127,6 +127,22 @@ class MakeRunDescriber(MetadataDescriber):
         return target
 
 
+class MakeInstallDescriber(MetadataDescriber):
+    """Describer for 'make install' command."""
+
+    def describe(self, target: CommandInfo) -> CommandInfo:
+        target.description = "Install dependencies via Makefile target."
+        return target
+
+
+class MakeLintDescriber(MetadataDescriber):
+    """Describer for 'make lint' command."""
+
+    def describe(self, target: CommandInfo) -> CommandInfo:
+        target.description = "Run linting via Makefile target."
+        return target
+
+
 class ToxDescriber(MetadataDescriber):
     """Describer for 'tox' command."""
 
@@ -173,6 +189,8 @@ COMMAND_DESCRIBER_REGISTRY: dict[str, MetadataDescriber] = {
     "make test": MakeTestDescriber(),
     "make format": MakeFormatDescriber(),
     "make run": MakeRunDescriber(),
+    "make install": MakeInstallDescriber(),
+    "make lint": MakeLintDescriber(),
     "tox": ToxDescriber(),
     "tox -e": ToxEnvDescriber(),  # Prefix for tox environments
     "bash scripts/": BashScriptDescriber(),  # Prefix for shell scripts
