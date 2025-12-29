@@ -72,7 +72,7 @@ done
 
 # Second loop: print dd header and cat ONBOARDING.md
 
-validator_script="$orig_dir/docs/evaluation/validate_onboarding.py"
+validator_script="$orig_dir/scripts/validate_onboarding.py"
 validation_failures=0
 
 for repo in "${repos[@]}"; do
