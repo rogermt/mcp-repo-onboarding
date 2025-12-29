@@ -1,7 +1,7 @@
 ## Current Status
-- **Phase 6 (Hardening):** COMPLETE (5/5 validation pass).
 - **Phase 7 (Domain Specialization):** COMPLETE (Notebook detection, Prompt/Tool UX).
-- **Validation Authority:** `docs/evaluation/validate_onboarding.py` is the source of truth.
+- **Phase 8 (Refinement):** ACTIVE (Determinism, Maintainability, Scaffold).
+- **Validation Authority:** `scripts/validate_onboarding.py` is the source of truth.
 
 ## Output Verification
 ...
@@ -31,7 +31,7 @@ MCP prompts:
 see /home/rogermt/mcp-repo-onboarding/docs/design/SOFTWARE_DESIGN_GUIDE.md
 
 ## Key Phase 6 Artifacts (Reference)
-- **Validator:** `docs/evaluation/validate_onboarding.py` (Run this to verify `ONBOARDING.md` compliance).
+- **Validator:** `scripts/validate_onboarding.py` (Run this to verify `ONBOARDING.md` compliance).
 - **Requirements:** `docs/development/REQUIREMENTS.md` (Updated for Python-only scope & infrastructure).
 - **Prompt Contract:** `docs/evaluation/B-prompt.txt` (The prompt template that must be satisfied).
 - **Ignore Logic:** `docs/design/ignore-handling.md` (Docs for `IgnoreMatcher`).
