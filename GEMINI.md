@@ -86,6 +86,7 @@ Create a file named `settings.json` inside the `.gemini` directory with the foll
     - `src/mcp_repo_onboarding/server.py`: Tool wiring.
 
 ## Safety Invariants
+- **NEVER EVER commit directly to the `master` branch.** All work MUST happen in a feature branch.
 - No code execution (no `subprocess.run` on user code).
 - All file paths sandboxed to `REPO_ROOT` using `pathlib.Path.resolve()`.
 - The server does **not** generate prose. Gemini generates `ONBOARDING.md` content and passes it to `write_onboarding`.
