@@ -9,6 +9,7 @@ from .analysis import analyze_repo as analysis_mod_analyze_repo
 from .config import DEFAULT_MAX_FILES
 from .onboarding import read_onboarding as read_onboarding_svc
 from .onboarding import write_onboarding as write_onboarding_svc
+from .resources import load_mcp_prompt
 from .schema import ErrorResponse, RunAndTestCommands
 
 """
@@ -20,6 +21,28 @@ This module defines the MCP tools exposed by the server.
 # Initialize FastMCP Server
 mcp = FastMCP("repo-onboarding")
 logger = logging.getLogger(__name__)
+
+
+@mcp.prompt()
+def generate_onboarding() -> str:
+    """
+    Returns the authoritative instructions for generating ONBOARDING.md.
+    This enables the slash command usage: /generate_onboarding
+    """
+    return load_mcp_prompt()
+
+
+@mcp.tool()
+def get_onboarding_template() -> str:
+    """
+    Returns the authoritative instructions (prompt) for generating ONBOARDING.md.
+    Useful for retrieving the prompt content programmatically.
+    """
+    try:
+        return load_mcp_prompt()
+    except Exception as e:
+        logger.error(f"Failed to read prompt file: {e}")
+        return f"Error reading prompt file: {str(e)}"
 
 
 def _resolve_under_repo_root(repo_root: str, subpath: str | None) -> Path:
