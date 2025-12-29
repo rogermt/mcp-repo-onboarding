@@ -1,13 +1,11 @@
 #!/bin/bash
 
 # Source B-prompt.txt path from the current working directory
-B_PROMPT_SOURCE="$(pwd)/docs/evaluation/B-prompt.txt"
 
 # Target repositories (relative to your home directory)
 REPOS=("searxng" "imgix-python" "Paper2Code" "wagtail" "connexion")
 
 echo "Starting updates for specified repositories..."
-echo "Using B-prompt source: ${B_PROMPT_SOURCE}"
 echo ""
 
 for REPO_NAME in "${REPOS[@]}"; do
@@ -53,15 +51,8 @@ EOF
     echo "${JSON_CONTENT}" > "${SETTINGS_FILE}"
     echo "  - Updated ${SETTINGS_FILE}"
 
-    # 2. Copy B-prompt.txt
-    if [ -f "${B_PROMPT_SOURCE}" ]; then
-        # Create the destination directory (already exists from .gemini mkdir, but good to be explicit)
-        mkdir -p "${B_PROMPT_DEST_DIR}"
-        # Copy the B-prompt.txt file
-        cp "${B_PROMPT_SOURCE}" "${B_PROMPT_DEST_FILE}"
         echo "  - Copied B-prompt.txt to ${B_PROMPT_DEST_FILE}"
     else
-        echo "  - Error: B-prompt.txt source file not found at ${B_PROMPT_SOURCE}. Skipping copy."
     fi
     echo ""
 done
