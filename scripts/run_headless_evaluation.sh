@@ -13,7 +13,7 @@ fi
 
 # Step 0: Setup target repositories (sync settings and prompts)
 echo "=== Setting up evaluation repositories ==="
-bash docs/evaluation/setup_evaluation_repos.sh
+bash scripts/setup_evaluation_repos.sh
 echo " "
 
 

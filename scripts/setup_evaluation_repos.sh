@@ -50,10 +50,6 @@ EOF
     # Write the JSON content to the settings file
     echo "${JSON_CONTENT}" > "${SETTINGS_FILE}"
     echo "  - Updated ${SETTINGS_FILE}"
-
-        echo "  - Copied B-prompt.txt to ${B_PROMPT_DEST_FILE}"
-    else
-    fi
     echo ""
 done
 
