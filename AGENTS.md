@@ -20,7 +20,8 @@ When verifying output, ensure no files from `tests/fixtures/` appear in the list
 
 **ALL code changes MUST follow Test-Driven Development:**
 
-1.  **Write failing test FIRST** in `tests/`.
+1.  **NEVER commit directly to the `master` branch.** All changes must be verified in a feature branch first.
+2.  **Write failing test FIRST** in `tests/`.
 2.  **Run test to confirm failure** (`uv run pytest`).
 3.  **Implement the fix** in `src/`.
 4.  **Run test to confirm pass** (`uv run pytest`).
