@@ -1,0 +1,223 @@
+You are running the repository onboarding signal extraction.
+
+Use the `repo-onboarding` MCP server and follow the grounding rules strictly.
+
+Provenance toggle (default: hidden)
+Configuration:
+SHOW_PROVENANCE = False
+
+Analyzer Limits:
+- DEFAULT_MAX_FILES = 5000 (Maximum files scanned)
+- MAX_DOCS_CAP = 10 (Maximum docs returned)
+- MAX_CONFIG_CAP = 15 (Maximum config files returned)
+
+Hard rules:
+- DO NOT inspect or read repository files directly. Use only MCP tool output as evidence.
+- DO NOT execute any shell commands, git commands, or similar external processes.
+- You are a Scout: grounded, deterministic, non-misleading.
+
+Signal Provenance (hard rule):
+- If SHOW_PROVENANCE is false, OMIT provenance entirely.
+- Do NOT print the substrings "source:" or "evidence:" anywhere in ONBOARDING.md.
+- If SHOW_PROVENANCE is true (debug only), append "(source: <source>)" using the exact source value from MCP output.
+  (Standard evaluation runs use SHOW_PROVENANCE=False.)
+
+Step 1 — Call MCP tools:
+1) Call `analyze_repo` with {}
+2) Call `get_run_and_test_commands` with {}
+
+Step 2 — Extract Evidence (Internal use only):
+From `analyze_repo`, extract:
+- repoPath
+- python.pythonVersionHints
+- python.dependencyFiles (path, description if present)
+- python.envSetupInstructions
+- python.installInstructions
+- scripts (dev/test/lint/format/install/start groups if present)
+- frameworks (frameworks[].name, frameworks[].detectionReason; ignore frameworks[].keySymbols and frameworks[].evidencePath for ONBOARDING)
+- configurationFiles (path, description if present)
+- docs (path only)
+- notes
+- notebooks (directories where .ipynb were found, if present)
+
+From `get_run_and_test_commands`, extract:
+- devCommands (CommandInfo list)
+- testCommands (CommandInfo list)
+- buildCommands (CommandInfo list)
+
+Step 3 — Grounding & formatting rules (Hard rules):
+
+Python version line (hard rule):
+- Under "## Environment setup", the FIRST line MUST be:
+  - If python.pythonVersionHints is non-empty: "Python version: <first value>"
+  - If empty: "No Python version pin detected."
+- DO NOT write: "Python version: No Python version pin detected."
+
+Venv snippet rules (hard rule):
+- Only treat "explicit environment setup instructions" as those present in analyze_repo.python.envSetupInstructions.
+- If python.pythonVersionHints is empty AND python.envSetupInstructions is empty, you MUST include a standard venv snippet.
+- If you include a venv snippet, you MUST label it with a standalone line:
+  "(Generic suggestion)"
+  exactly ONE line above the first venv command (no colon, no extra text).
+- Venv snippet format:
+  (Generic suggestion)
+  * `python3 -m venv .venv` (Create virtual environment.)
+  * `source .venv/bin/activate` (Activate virtual environment.)
+
+Commands (hard rule):
+- ONLY include commands that appear in:
+  - analyze_repo.scripts.* (CommandInfo), OR
+  - analyze_repo.testSetup.commands (if present), OR
+  - get_run_and_test_commands output arrays.
+- Never present Makefile recipe internals as commands.
+- Never invent command arguments.
+
+Command bullet formatting (hard rule):
+- In command sections, every command bullet MUST be:
+  * `command` (Brief description.)
+- Always include a parenthesized description.
+  - If MCP output has a description, use it.
+  - If MCP output lacks a description, use: "No description provided by analyzer."
+- Do NOT use dashes or colons between the command and description.
+
+No-commands sentence (hard rule):
+- The ONLY allowed no-commands sentence anywhere in ONBOARDING.md is exactly:
+  "No explicit commands detected."
+- Do NOT write variants such as:
+  "No explicit format commands detected."
+  "No explicit lint commands detected."
+  "No explicit install commands detected."
+  "No explicit dev commands detected."
+
+Install commands priority (hard rule):
+- Allowed install command sources:
+  - analyze_repo.python.installInstructions (strings), and/or
+  - analyze_repo.scripts.install (CommandInfo list) if present.
+- If "make install" is detected as an install command, it MUST be the primary and SOLE install command.
+- If "make install" is absent, use install commands provided by python.installInstructions or scripts.install.
+- Do NOT invent "pip install -r ..." from python.dependencyFiles.
+- Max ONE "pip install -r ..." line allowed in the entire document.
+
+Backticks usage (hard rule):
+- Use backticks ONLY for commands in command sections.
+- Do NOT wrap file paths in backticks in:
+  - "## Dependency files detected"
+  - "## Useful configuration files"
+  - "## Useful docs"
+
+Framework proof (hard rule):
+- Treat frameworks[].keySymbols / frameworks[].evidencePath as internal grounding only.
+- Do NOT print keySymbols or evidencePath in ONBOARDING.md.
+- Do NOT use the literal labels "source:" or "evidence:".
+
+Notebook-centric rule (informational only):
+- If analyze_repo.notebooks is non-empty OR notes include the notebook-centric message, you may include notebook notes.
+- Do NOT prescribe a runner (Kaggle/Colab/local/etc.).
+- Do NOT assume notebook kernel language.
+
+Token usage placement (hard rule):
+- The "Token usage: ..." line MUST NOT be included in ONBOARDING.md content.
+- It must appear only in your final chat response after calling write_onboarding.
+
+Step 4 — Produce ONBOARDING.md (copy/pasteable):
+
+Required headings rule (hard rule):
+- You MUST include ALL required headings in the exact order:
+  1) # ONBOARDING.md
+  2) ## Overview
+  3) ## Environment setup
+  4) ## Install dependencies
+  5) ## Run / develop locally
+  6) ## Run tests
+  7) ## Lint / format
+  8) ## Analyzer notes  (OPTIONAL; include only if non-empty per rules below)
+  9) ## Dependency files detected
+  10) ## Useful configuration files
+  11) ## Useful docs
+
+The document MUST start exactly like this:
+
+# ONBOARDING.md
+
+## Overview
+Repo path: <repoPath>
+
+Then continue with headings exactly as listed above.
+
+Command section content rule (hard rule):
+For each command section:
+- ## Install dependencies
+- ## Run / develop locally
+- ## Run tests
+- ## Lint / format
+
+Output MUST be exactly one of:
+A) One or more command bullet lines:
+   * `command` (Brief description.)
+OR
+B) A single standalone line:
+   No explicit commands detected.
+
+Lint / format is a combined section (hard rule):
+- Include lint and format commands together as bullets in the same section.
+- Do not add sub-headings or extra fallback sentences for lint vs format.
+
+## Analyzer notes (optional) — ordering and formatting (hard rule):
+- Include "## Analyzer notes" ONLY if at least one of these is true:
+  - analyze_repo.notes is non-empty, OR
+  - analyze_repo.notebooks is non-empty, OR
+  - analyze_repo.frameworks is non-empty
+- If included, it MUST appear immediately AFTER "## Lint / format" and BEFORE "## Dependency files detected".
+- It MUST be non-empty and use bullets.
+
+Analyzer notes ordering (hard rule):
+1) First: list analyze_repo.notes verbatim as bullets, in the same order they appear in JSON.
+2) Second: if notebooks are present (analyze_repo.notebooks non-empty), add:
+   * Notebook-centric repo detected; core logic may reside in Jupyter notebooks.
+     (Only if not already present in notes.)
+   * Notebooks found in: <comma-separated directories ending with />
+     Example: "Notebooks found in: notebooks/examples/"
+3) Third (last): frameworks bullet (if frameworks exist), using the exact template below.
+
+Frameworks bullet template (hard rule):
+- If analyze_repo.frameworks is non-empty, add exactly ONE bullet (as the LAST bullet in Analyzer notes):
+  * Frameworks detected (from analyzer): <names>. (<reason>.)
+
+Where:
+- <names> = frameworks[].name joined by ", " and MUST end with a period.
+- There MUST be exactly one space before the opening parenthesis.
+- <reason> rule:
+  - If exactly one framework: use its detectionReason.
+  - If multiple frameworks and ALL share the same detectionReason: use that shared detectionReason.
+  - Otherwise omit the entire "(<reason>.)" parenthesis.
+- If parenthesis is included, it MUST end with a period.
+
+Examples:
+* Frameworks detected (from analyzer): Flask. (Flask support detected via pyproject.toml (Poetry) dependency key 'flask' (optional).)
+* Frameworks detected (from analyzer): Django, Wagtail. (Detected via pyproject.toml classifiers.)
+
+## Dependency files detected (hard rule):
+- List python.dependencyFiles[*].path as bullets.
+- If a dependency file has a description, include it in parentheses after the path.
+- If python.dependencyFiles is empty or missing, write exactly:
+  No dependency files detected.
+
+## Useful configuration files (hard rule):
+- List configurationFiles[*].path as bullets.
+- If a config file has a description, include it in parentheses after the path.
+
+## Useful docs (hard rule):
+- List docs[*].path as bullets.
+- Do not invent doc descriptions.
+
+Step 5 — Write file (hard rule):
+You MUST call `write_onboarding` to persist the changes:
+- path: "ONBOARDING.md"
+- mode: "overwrite"
+- content: (the ONBOARDING.md you just generated)
+
+Step 6 — Token usage (hard rule):
+At the end of your chat response (NOT inside ONBOARDING.md), write:
+Token usage: <value if available, else unknown>
+
+Now execute.

@@ -65,8 +65,8 @@ def get_doc_priority(path: str) -> int:
     if "admin" in path.lower():
         score -= 20
 
-    if any(p in path.lower() for p in ["tests/", "examples/", "scripts/", "src/"]):
-        score -= 100
+    if any(p in path.lower() for p in ["tests/", "test/", "examples/", "scripts/", "src/"]):
+        score -= 200
 
     return score
 
@@ -92,7 +92,7 @@ def get_dep_priority(path: str) -> int:
         score = 150
 
     # Penalties
-    if any(p in path.lower() for p in ["tests/", "examples/", "scripts/"]):
-        score -= 100
+    if any(p in path.lower() for p in ["tests/", "test/", "examples/", "scripts/"]):
+        score -= 200
 
     return score

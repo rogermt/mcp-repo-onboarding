@@ -15,7 +15,7 @@ if [ "$#" -gt 3 ]; then
 fi
 
 repos=("$@")
-export prompt="Follow instructions in file: .gemini/B-prompt.txt"
+export prompt="/generate_onboarding"
 orig_dir="$PWD"
 LOG_FILE="evaluation_results.log"
 

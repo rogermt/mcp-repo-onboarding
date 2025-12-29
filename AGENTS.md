@@ -2,7 +2,7 @@
 
 ## Current Status
 - **Phase 6 (Hardening):** COMPLETE (5/5 validation pass).
-- **Phase 7 (Domain Specialization):** ACTIVE.
+- **Phase 7 (Domain Specialization):** COMPLETE (Notebook detection, Prompt/Tool UX).
 - **Validation Authority:** `docs/evaluation/validate_onboarding.py` is the source of truth for all code generation.
 
 ## Output Verification
@@ -13,6 +13,8 @@ When verifying output, ensure no files from `tests/fixtures/` appear in the list
 - **Language:** Python 3.11+ (**100% Python scope**)
 - **Manager:** `uv`
 - **Architecture:** FastMCP (Server), Pydantic (Schema), Pytest (Testing).
+- **Stable API (Tools):** `ping`, `analyze_repo`, `get_run_and_test_commands`, `read_onboarding`, `write_onboarding`, `get_onboarding_template`.
+- **Stable API (Prompts):** `generate_onboarding` (Slash command: `/generate_onboarding`).
 
 ## ⚠️ CRITICAL: TDD Required
 

@@ -1,17 +1,10 @@
 ## Current Status
 - **Phase 6 (Hardening):** COMPLETE (5/5 validation pass).
-- **Phase 7 (Domain Specialization):** ACTIVE.
+- **Phase 7 (Domain Specialization):** COMPLETE (Notebook detection, Prompt/Tool UX).
 - **Validation Authority:** `docs/evaluation/validate_onboarding.py` is the source of truth.
 
 ## Output Verification
-When verifying output, ensure no files from `tests/fixtures/` appear in the lists. Refer to [EXTRACT_OUTPUT_RULES.md](./docs/design/EXTRACT_OUTPUT_RULES.md) for the priority order.
-
-## Runtime responsibilities (avoid confusion)
-
-- **Gemini CLI** is the runtime agent that calls MCP tools (via `mcpServers`).
-- This MCP server only performs **static analysis + safe local file I/O**.
-- The server does **not** generate prose. Gemini generates `ONBOARDING.md` content and passes it to `write_onboarding`.
-
+...
 ## Stable API / naming (must not drift)
 
 Repo/package/binary: `mcp-repo-onboarding`
@@ -23,6 +16,10 @@ MCP tool names are a stable API and must not change:
 - `get_run_and_test_commands`
 - `read_onboarding`
 - `write_onboarding`
+- `get_onboarding_template` (New: Returns authoritative prompt)
+
+MCP prompts:
+- `generate_onboarding` (New: Slash command /generate_onboarding)
 
 *ALL code changes MUST follow Test-Driven Development:**
 0.  **submit plan** overwrite /home/rogermt/mcp-repo-onboarding/docs/development/plan.md

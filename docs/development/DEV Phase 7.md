@@ -34,7 +34,7 @@ Phase 7 focuses on:
 
 ### 2.2 UX Automation (P0)
 **Problem:** Users must manually copy and paste grounding rules from a text file.
-**Fix:** Expose `resource://onboarding-template` via the MCP server to provide the validated Phase 6 prompt directly.
+**Fix:** Expose `/generate_onboarding` (Prompt) and `get_onboarding_template` (Tool) via the MCP server to provide the validated Phase 6 prompt directly.
 
 ### 2.3 Research & Data Science Mastery (P1)
 **Problem:** Research repos often lack standard entrypoints, causing the analyzer to report "No commands detected."
@@ -45,8 +45,9 @@ Phase 7 focuses on:
 ## 3. Backlog & User Stories
 
 ### P7-05: The Prompt Resource (UX)
-**As an** interactive user, **I want** a stable onboarding template available as a resource **so that** I don't have to manually manage prompt files.
-- Expose `resource://onboarding-template`.
+**As an** interactive user, **I want** a stable onboarding template available as a prompt and tool **so that** I don't have to manually manage prompt files.
+- Expose `/generate_onboarding` (Prompt).
+- Expose `get_onboarding_template` (Tool).
 - Return the full text of the validated B-Prompt.
 
 ### P7-07: Location-Aware Scoring (Relevance)
@@ -80,7 +81,7 @@ Phase 7 focuses on:
 Phase 7 is complete when:
 - [x] `EXTRACT_OUTPUT_RULES.md` is the single source of truth.
 - [x] Our own repo onboarding is noise-free (no fixture pollution in top-10).
-- [x] The `onboarding-template` resource is visible and functional.
+- [x] The `generate_onboarding` prompt and `get_onboarding_template` tool are functional.
 - [x] All 5 evaluation repos pass the deterministic validator with 0 regressions.
 - [ ] Notebook-centric repos (Paper2Code) are correctly identified as such.
 

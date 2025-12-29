@@ -1,0 +1,82 @@
+You are running the repository onboarding signal extraction.
+
+Use the `repo-onboarding` MCP server and follow the grounding rules strictly.
+
+Provenance toggle (default: hidden)
+Configuration:
+SHOW_PROVENANCE = False
+
+Analyzer Limits:
+- DEFAULT_MAX_FILES = 5000 (Maximum files scanned)
+- MAX_DOCS_CAP = 10 (Maximum docs returned)
+- MAX_CONFIG_CAP = 15 (Maximum config files returned)
+
+Rules:
+**Signal Provenance (hard rule):**
+- Use the `description` field from the MCP JSON to explain why a command or detected item matters.
+- If `SHOW_PROVENANCE` is true, append `(source: <source>)` using the exact `source` value from MCP output.
+- If `SHOW_PROVENANCE` is false, omit the source entirely (do not print `source:` or `evidence:` anywhere in ONBOARDING.md).
+
+Hard rule: DO NOT inspect or read repository files directly. Use only MCP tool output as evidence.
+Hard rule: DO NOT execute any shell commands, git commands, or similar external processes. You are a Scout, not an Investigator.
+
+Step 1 — Call MCP tools:
+1) Call `analyze_repo` with {}
+2) Call `get_run_and_test_commands` with {}
+
+Step 2 — Extract Evidence (Internal use only):
+From `analyze_repo`, extract:
+- repoPath
+- python.pythonVersionHints
+- python.dependencyFiles
+- python.envSetupInstructions
+- python.installInstructions
+- projectLayout
+- scripts
+- frameworks (including frameworks[].name, frameworks[].detectionReason, and if present: frameworks[].keySymbols, frameworks[].evidencePath)
+- configurationFiles
+- docs
+- notes
+- notebooks (if present: list of directories containing .ipynb files)
+
+From `get_run_and_test_commands`, extract:
+- devCommands, testCommands, buildCommands.
+
+Step 3 — Grounding rules (Hard rules):
+- Python version: ONLY mention a specific version if `python.pythonVersionHints` contains it. If empty, say exactly: "No Python version pin detected."
+- Environment setup: If `python.pythonVersionHints` is empty and no explicit venv commands are detected, you MUST provide a standard (Generic suggestion) venv snippet.
+- (Generic suggestion) Labeling Rule: The line `(Generic suggestion)` MUST appear exactly as written (no colon, no extra text) exactly ONE line above the first venv command.
+- Venv Formatting:
+(Generic suggestion)
+* `python3 -m venv .venv` (Create virtual environment.)
+* `source .venv/bin/activate` (Activate virtual environment.)
+- Commands: ONLY include commands that appear in `scripts.*`, `testSetup.commands`, or `get_run_and_test_commands`.
+
+Install Commands Priority (hard rule):
+- If `make install` is detected, it MUST be the primary and SOLE install command.
+- Do not invent `pip install` commands if `make install` is present.
+- If `make install` is absent, use install commands provided by MCP output (`python.installInstructions` or `scripts.install`).
+- Do NOT invent `pip install -r` commands from `python.dependencyFiles`.
+- Max ONE `pip install -r` line allowed.
+
+- Signal Provenance: If `SHOW_PROVENANCE` is true, append (source: <source>) using the exact `source` value from MCP output. If `SHOW_PROVENANCE` is false, omit provenance entirely.
+- Never present Makefile recipe internals as commands.
+
+Command Formatting Rule (hard rule):
+- Every command bullet MUST follow the format:
+  `* `command` (Brief description.)`
+- Use a space between the backtick and opening parenthesis.
+- Do NOT use dashes or colons between the command and description.
+
+Generic suggestion wording (hard rule):
+- Do NOT use the phrase "Generic suggestion" as the parenthesized description of a command bullet.
+- If you must mark something as generic, use a standalone "(Generic suggestion)" line above it (only where allowed by this prompt).
+
+Confidence rule (hard rule):
+- If a command/signal has `confidence: "heuristic"`, label it as "(Generic suggestion)" on the line above.
+
+No-commands sentence (hard rule):
+- The ONLY allowed no-commands sentence anywhere in ONBOARDING.md is exactly:
+  "No explicit commands detected."
+- Do NOT write any variants such as:
+  "No explicit format commands detect

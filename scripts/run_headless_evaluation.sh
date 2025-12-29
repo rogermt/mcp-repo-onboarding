@@ -13,12 +13,12 @@ fi
 
 # Step 0: Setup target repositories (sync settings and prompts)
 echo "=== Setting up evaluation repositories ==="
-bash docs/evaluation/setup_evaluation_repos.sh
+bash scripts/setup_evaluation_repos.sh
 echo " "
 
 
 
-export prompt="Follow instructions in file: .gemini/B-prompt.txt"
+export prompt="/generate_onboarding"
 
 orig_dir="$PWD"
 
