@@ -48,3 +48,5 @@ ONBOARDING.md.bak.*
 # Local-only artifacts (not committed)
 scratch/
 *.gitingest.txt
+evaluation_results.log
+error.log
