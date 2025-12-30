@@ -1,3 +1,4 @@
+import json
 import logging
 import os
 from pathlib import Path
@@ -6,6 +7,7 @@ from mcp.server.fastmcp import FastMCP
 
 from . import configure_logging
 from .analysis import analyze_repo as analysis_mod_analyze_repo
+from .analysis.onboarding_blueprint import build_onboarding_blueprint_v1
 from .config import DEFAULT_MAX_FILES
 from .onboarding import read_onboarding as read_onboarding_svc
 from .onboarding import write_onboarding as write_onboarding_svc
@@ -122,8 +124,13 @@ def analyze_repo(
     analysis = analysis_mod_analyze_repo(str(target), max_files=max_files)
     logger.info(f"Analyzed repo at {target}")
 
-    # Return JSON string via Pydantic
-    return analysis.model_dump_json(exclude_none=True, indent=2)
+    data = analysis.model_dump(exclude_none=True)
+    try:
+        data["onboarding_blueprint_v1"] = build_onboarding_blueprint_v1(data)
+    except Exception as e:
+        logger.warning(f"Failed to build onboarding blueprint: {e}")
+
+    return json.dumps(data, indent=2)
 
 
 @mcp.tool()

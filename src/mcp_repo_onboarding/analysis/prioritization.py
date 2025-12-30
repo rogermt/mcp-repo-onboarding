@@ -1,98 +1,93 @@
-from pathlib import Path
+from __future__ import annotations
+
+from pathlib import Path, PurePosixPath
 
 __all__ = ["get_config_priority", "get_doc_priority", "get_dep_priority"]
 
+# Preserve exact existing scoring behavior.
+
+_CONFIG_EXACT: dict[str, int] = {
+    "makefile": 300,
+    "justfile": 300,
+    "tox.ini": 200,
+    "noxfile.py": 200,
+    ".pre-commit-config.yaml": 200,
+    ".pre-commit-config.yml": 200,
+    "pytest.ini": 200,
+}
+_CONFIG_ROOT_BONUS = 100
+
 
 def get_config_priority(path: str) -> int:
-    """
-    Determine the priority of a configuration file for display.
+    p = _norm(path)
+    name = Path(p).name.lower()
 
-    Args:
-        path: Path to the configuration file.
-
-    Returns:
-        Priority score (higher is better).
-    """
-    name = Path(path).name.lower()
     score = 10
-    if name == "makefile" or name == "justfile":
-        score = 300
-    elif name in [
-        "tox.ini",
-        "noxfile.py",
-        ".pre-commit-config.yaml",
-        ".pre-commit-config.yml",
-        "pytest.ini",
-    ]:
-        score = 200
-    elif path.startswith(".github/workflows/"):
+    if p.startswith(".github/workflows/"):
         score = 150
 
-    # V9: Root Priority (+100)
-    if "/" not in path:
-        score += 100
+    score = max(score, _CONFIG_EXACT.get(name, 0))
+
+    if "/" not in p:
+        score += _CONFIG_ROOT_BONUS
 
     return score
+
+
+_DOC_ROOT_PREFIXES = ("readme", "contributing", "license", "security")
+_DOC_KEYWORDS = ("quickstart", "install", "setup", "tutorial")
+_DOC_PENALTY_DIRS = ("tests/", "test/", "examples/", "scripts/", "src/")
 
 
 def get_doc_priority(path: str) -> int:
-    """
-    Determine the priority of a documentation file.
+    p = _norm(path)
+    name = Path(p).name.lower()
 
-    Args:
-        path: Path to the doc file.
-
-    Returns:
-        Priority score (higher is better).
-    """
-    name = Path(path).name.lower()
     score = 50
 
-    # 3.1 Buckets
-    if "/" not in path:
-        if name.startswith(("readme", "contributing", "license", "security")):
-            score = 300
+    if "/" not in p and name.startswith(_DOC_ROOT_PREFIXES):
+        score = 300
 
     if score < 300:
-        if path.startswith("docs/") and "/" not in path[5:]:
+        if p.startswith("docs/") and "/" not in p[5:]:
             score = 250
-        elif any(kw in path.lower() for kw in ["quickstart", "install", "setup", "tutorial"]):
+        elif any(kw in p.lower() for kw in _DOC_KEYWORDS):
             score = 200
-        elif path.startswith("docs/"):
+        elif p.startswith("docs/"):
             score = 150
 
-    # Penalties
-    if "admin" in path.lower():
+    if "admin" in p.lower():
         score -= 20
 
-    if any(p in path.lower() for p in ["tests/", "test/", "examples/", "scripts/", "src/"]):
+    if any(seg in p.lower() for seg in _DOC_PENALTY_DIRS):
         score -= 200
 
     return score
+
+
+_DEP_PENALTY_DIRS = ("tests/", "test/", "examples/", "scripts/")
 
 
 def get_dep_priority(path: str) -> int:
-    """
-    Determine the priority of a dependency file.
+    p = _norm(path)
+    name = Path(p).name.lower()
 
-    Args:
-        path: Path to the dependency file.
-
-    Returns:
-        Priority score (higher is better).
-    """
-    name = Path(path).name.lower()
     score = 100
 
-    # root manifests
-    if "/" not in path:
-        if name == "pyproject.toml" or name.startswith("requirements"):
-            score = 300
-    elif name == "pyproject.toml" or name.startswith("requirements"):
-        score = 150
+    is_manifest = name == "pyproject.toml" or name.startswith("requirements")
 
-    # Penalties
-    if any(p in path.lower() for p in ["tests/", "test/", "examples/", "scripts/"]):
+    if "/" not in p:
+        if is_manifest:
+            score = 300
+    else:
+        if is_manifest:
+            score = 150
+
+    if any(seg in p.lower() for seg in _DEP_PENALTY_DIRS):
         score -= 200
 
     return score
+
+
+def _norm(path: str) -> str:
+    return str(PurePosixPath(str(path).replace("\\", "/").lstrip("/")))

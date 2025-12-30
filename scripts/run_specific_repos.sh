@@ -28,15 +28,16 @@ echo " "
 # First loop: run gemini with pushd/popd
 for repo in "${repos[@]}"; do
   echo "=== Running gemini for $repo ==="
-  export repo="$repo"
-  if [ -d "$HOME/$repo" ]; then
-    pushd "$HOME/$repo" > /dev/null
+  repo_abs_path="$HOME/$repo"
+  if [ -d "$repo_abs_path" ]; then
+    export REPO_ROOT="$repo_abs_path"
+    pushd "$repo_abs_path" > /dev/null
     gemini -p "$prompt" -m gemini-2.5-flash --yolo
     popd > /dev/null
     echo "Waiting 30 seconds for rate limits..."
     sleep 30
   else
-    echo "Directory $HOME/$repo does not exist; skipping gemini for $repo"
+    echo "Directory $repo_abs_path does not exist; skipping gemini for $repo"
   fi
 done
 
