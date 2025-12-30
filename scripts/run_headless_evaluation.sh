@@ -46,11 +46,13 @@ for repo in "${repos[@]}"; do
 
   echo "=== Running gemini for $repo ==="
 
-  export repo="$repo"
+  repo_abs_path="$HOME/$repo"
 
-  if [ -d "$HOME/$repo" ]; then
+  if [ -d "$repo_abs_path" ]; then
 
-    pushd "$HOME/$repo" > /dev/null
+    export REPO_ROOT="$repo_abs_path"
+
+    pushd "$repo_abs_path" > /dev/null
 
     gemini -p "$prompt" -m gemini-2.5-flash --yolo
 
@@ -62,7 +64,7 @@ for repo in "${repos[@]}"; do
 
   else
 
-    echo "Directory $HOME/$repo does not exist; skipping gemini for $repo"
+    echo "Directory $repo_abs_path does not exist; skipping gemini for $repo"
 
   fi
 

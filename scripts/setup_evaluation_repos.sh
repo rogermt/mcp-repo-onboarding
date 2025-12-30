@@ -40,7 +40,7 @@ for REPO_NAME in "${REPOS[@]}"; do
         "REPO_ROOT": "${REPO_PATH}"
       },
       "tooling": {
-        "disableTools": ["run_shell_command", "web_fetch", "google_web_search"]
+        "disableTools": ["Shell", "run_shell_command", "web_fetch", "google_web_search", "codebase_investigator"]
       }
     }
   }

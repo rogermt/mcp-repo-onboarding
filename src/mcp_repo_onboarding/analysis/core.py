@@ -33,6 +33,7 @@ from .extractors import (
     extract_tox_commands,
 )
 from .frameworks import detect_frameworks_from_pyproject
+from .install_commands import merge_python_install_instructions_into_scripts
 from .notebook_hygiene import precommit_has_notebook_hygiene
 from .prioritization import get_config_priority, get_dep_priority, get_doc_priority
 from .scanning import scan_repo_files
@@ -300,7 +301,13 @@ def _infer_python_environment(
             pythonVersionHints=python_version_hints,
         )
 
-        python_info.dependencyFiles.sort(key=lambda d: 0 if d.path == "requirements.txt" else 1)
+        python_info.dependencyFiles.sort(
+            key=lambda d: (
+                0 if d.path == "requirements.txt" else 1,  # pin requirements.txt first
+                -get_dep_priority(d.path),  # then follow normal dependency ranking
+                d.path,  # then tie-break by path
+            )
+        )
         return python_info
 
     return None
@@ -345,6 +352,9 @@ def analyze_repo(repo_path: str, max_files: int = DEFAULT_MAX_FILES) -> RepoAnal
 
     # 7. Infer Python Env
     python_info = _infer_python_environment(root, py_files, dep_files)
+
+    # NEW: mirror python.installInstructions into scripts.install with descriptions
+    merge_python_install_instructions_into_scripts(scripts, python_info)
 
     # 8. Notebook Detection (P7-01 / Issue #60)
     notebook_dirs = set()
