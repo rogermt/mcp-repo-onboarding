@@ -13,6 +13,60 @@ This module provides safe file operations restricted to the repository root.
 
 logger = logging.getLogger(__name__)
 
+ARCHIVE_DIRNAME = ".onboarding_archive"
+
+
+def _backup_path(repo_root: str, rel_path: str, ts: int) -> Path:
+    """
+    Compute backup path in archive directory.
+
+    Preserves subdirectory structure to avoid collisions.
+
+    Args:
+        repo_root: The root directory of the repository.
+        rel_path: Relative path to the file being backed up.
+        ts: Timestamp for backup suffix.
+
+    Returns:
+        Path object for the backup file (absolute path).
+    """
+    root = Path(repo_root).resolve()
+    archive_root = root / ARCHIVE_DIRNAME
+    return archive_root / f"{rel_path}.bak.{ts}"
+
+
+def _create_backup(repo_root: str, rel_path: str) -> str:
+    """
+    Create a backup of the file in the archive directory.
+
+    Args:
+        repo_root: The root directory of the repository.
+        rel_path: Relative path to the file being backed up.
+
+    Returns:
+        Repo-relative POSIX path to the backup file.
+
+    Raises:
+        FileNotFoundError: If source file does not exist.
+    """
+    root = Path(repo_root).resolve()
+    src = (root / rel_path).resolve()
+
+    if not src.exists():
+        raise FileNotFoundError(f"Source file does not exist: {src}")
+
+    ts = int(time.time())
+    dst = _backup_path(repo_root, rel_path, ts)
+
+    # Create archive parent directories
+    dst.parent.mkdir(parents=True, exist_ok=True)
+
+    # Copy file with metadata
+    shutil.copy2(src, dst)
+
+    # Return repo-relative POSIX path
+    return dst.relative_to(root).as_posix()
+
 
 def resolve_path_inside_repo(repo_root: str, sub_path: str) -> Path:
     """
@@ -107,11 +161,9 @@ def write_onboarding(
             raise ValueError(f"File {path} already exists")
 
         if mode == "overwrite" and create_backup:
-            timestamp = int(time.time())
-            # Create backup file: ONBOARDING.md.bak.1234567890
-            backup_file = target.with_name(f"{target.name}.bak.{timestamp}")
-            shutil.copy2(target, backup_file)
-            backup_path = str(backup_file)
+            # Create backup in archive directory
+            rel_backup_path = _create_backup(repo_root, path)
+            backup_path = str(Path(repo_root).resolve() / rel_backup_path)
 
     # Create parent directories if they don't exist
     target.parent.mkdir(parents=True, exist_ok=True)
