@@ -2,12 +2,15 @@ import json
 import logging
 import os
 from pathlib import Path
+from typing import Any
 
 from mcp.server.fastmcp import FastMCP
 
 from . import configure_logging
 from .analysis import analyze_repo as analysis_mod_analyze_repo
 from .analysis.onboarding_blueprint import build_onboarding_blueprint_v1
+from .analysis.onboarding_blueprint_v2 import build_context as build_blueprint_v2_context
+from .analysis.onboarding_blueprint_v2 import compile_blueprint_v2
 from .config import DEFAULT_MAX_FILES
 from .onboarding import read_onboarding as read_onboarding_svc
 from .onboarding import write_onboarding as write_onboarding_svc
@@ -20,7 +23,6 @@ MCP Server implementation for Repo Onboarding.
 This module defines the MCP tools exposed by the server.
 """
 
-# Initialize FastMCP Server
 mcp = FastMCP("repo-onboarding")
 logger = logging.getLogger(__name__)
 
@@ -84,7 +86,6 @@ def _validate_rel_file_path(repo_root: str, rel_path: str) -> str:
     except ValueError as e:
         raise ValueError(f"path escapes REPO_ROOT: {rel_path}") from e
 
-    # Always return repo-relative POSIX form for determinism.
     return rel.as_posix()
 
 
@@ -93,6 +94,39 @@ def ping() -> str:
     """Sanity check: returns a small JSON payload to verify MCP connectivity."""
     logger.debug("Ping tool called")
     return '{"ok": true, "tool": "ping"}'
+
+
+def _derive_run_and_test_commands_dict(analysis: Any) -> dict[str, Any]:
+    """
+    Derive a RunAndTestCommands payload from a RepoAnalysis-like object.
+    This is deterministic and uses the already-computed analysis object (no re-scan).
+    """
+    combined_test_cmds: list[Any] = []
+
+    scripts = getattr(analysis, "scripts", None)
+    test_setup = getattr(analysis, "testSetup", None)
+
+    if scripts is not None and getattr(scripts, "test", None):
+        combined_test_cmds.extend(scripts.test)
+
+    # Some schemas may or may not have testSetup.commands; handle defensively.
+    ts_cmds = getattr(test_setup, "commands", None) if test_setup is not None else None
+    if ts_cmds:
+        combined_test_cmds.extend(ts_cmds)
+
+    # Deduplicate by command string (only for items that have `.command`)
+    unique: dict[str, Any] = {}
+    for cmd in combined_test_cmds:
+        c = getattr(cmd, "command", None)
+        if isinstance(c, str) and c:
+            unique[c] = cmd
+
+    result = RunAndTestCommands(
+        devCommands=getattr(scripts, "dev", []) if scripts is not None else [],
+        testCommands=list(unique.values()),
+        buildCommands=getattr(scripts, "start", []) if scripts is not None else [],
+    )
+    return result.model_dump(exclude_none=True)
 
 
 @mcp.tool()
@@ -108,9 +142,8 @@ def analyze_repo(
         max_files: Optional safety cap on number of files to scan.
 
     Returns:
-        JSON string representation of RepoAnalysis.
+        JSON string representation of RepoAnalysis (plus blueprint keys).
     """
-    # Resolve root from env var (standard MCP pattern) or CWD
     repo_root = os.environ.get("REPO_ROOT", os.getcwd())
     try:
         target = _resolve_under_repo_root(repo_root, path)
@@ -124,11 +157,21 @@ def analyze_repo(
     analysis = analysis_mod_analyze_repo(str(target), max_files=max_files)
     logger.info(f"Analyzed repo at {target}")
 
-    data = analysis.model_dump(exclude_none=True)
+    data: dict[str, Any] = analysis.model_dump(exclude_none=True)
+
+    # Blueprint v1 (existing)
     try:
         data["onboarding_blueprint_v1"] = build_onboarding_blueprint_v1(data)
     except Exception as e:
-        logger.warning(f"Failed to build onboarding blueprint: {e}")
+        logger.warning(f"Failed to build onboarding blueprint v1: {e}")
+
+    # Blueprint v2 (new)
+    try:
+        commands_payload = _derive_run_and_test_commands_dict(analysis)
+        ctx = build_blueprint_v2_context(data, commands_payload)
+        data["onboarding_blueprint_v2"] = compile_blueprint_v2(ctx)
+    except Exception as e:
+        logger.warning(f"Failed to build onboarding blueprint v2: {e}")
 
     return json.dumps(data, indent=2)
 
@@ -144,7 +187,6 @@ def get_run_and_test_commands(path: str | None = None) -> str:
     Returns:
         JSON string representation of RunAndTestCommands.
     """
-    # Reuse analyze_repo logic
     repo_root = os.environ.get("REPO_ROOT", os.getcwd())
     try:
         target = _resolve_under_repo_root(repo_root, path)
@@ -156,27 +198,8 @@ def get_run_and_test_commands(path: str | None = None) -> str:
         ).model_dump_json(exclude_none=True, indent=2)
 
     analysis = analysis_mod_analyze_repo(str(target))
-
-    # Map to RunAndTestCommands schema
-    # Logic ported from deriveRunAndTestCommands in TS
-
-    # Combine extracted scripts.test + testSetup.commands
-    combined_test_cmds = []
-    if analysis.scripts.test:
-        combined_test_cmds.extend(analysis.scripts.test)
-    if analysis.testSetup.commands:
-        combined_test_cmds.extend(analysis.testSetup.commands)
-
-    # Deduplicate by command string
-    unique_test = {cmd.command: cmd for cmd in combined_test_cmds}.values()
-
-    result = RunAndTestCommands(
-        devCommands=analysis.scripts.dev,
-        testCommands=list(unique_test),
-        buildCommands=analysis.scripts.start,  # TS version mapped scripts.start to buildCommands mostly
-    )
-
-    return result.model_dump_json(exclude_none=True, indent=2)
+    payload = _derive_run_and_test_commands_dict(analysis)
+    return RunAndTestCommands(**payload).model_dump_json(exclude_none=True, indent=2)
 
 
 @mcp.tool()
@@ -227,8 +250,9 @@ def write_onboarding(
 
     if content is None:
         return ErrorResponse(
-            error="Content is required", error_code="INVALID_ARGUMENT"
-        ).model_dump_json()
+            error="Content is required",
+            error_code="INVALID_ARGUMENT",
+        ).model_dump_json(exclude_none=True, indent=2)
 
     try:
         safe_rel = _validate_rel_file_path(repo_root, path)
@@ -251,8 +275,10 @@ def write_onboarding(
     except ValueError as e:
         logger.error(f"Error writing onboarding file: {e}")
         return ErrorResponse(
-            error=str(e), error_code="INVALID_ARGUMENT", details={"path": path}
-        ).model_dump_json()
+            error=str(e),
+            error_code="INVALID_ARGUMENT",
+            details={"path": path},
+        ).model_dump_json(exclude_none=True, indent=2)
 
 
 def main() -> None:
