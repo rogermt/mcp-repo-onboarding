@@ -39,6 +39,19 @@ When verifying output, ensure no files from `tests/fixtures/` appear in the list
 - **Run Tests:** `uv run pytest`
 - **Run Server (Local):** `uv run mcp-repo-onboarding`
 - **Lint/Format:** `uv run ruff check .`
+- **Type Check:** `uv run mypy src/mcp_repo_onboarding --ignore-missing-imports`
+
+## ⚠️ MANDATORY: Run Linters After Every Edit
+
+**After EVERY edit to a `.py` file, you MUST run:**
+
+```bash
+uv run ruff check .
+uv run ruff format --check .
+uv run mypy src/mcp_repo_onboarding --ignore-missing-imports
+```
+
+**Do NOT commit or push until all three commands pass with zero errors.**
 
 ## File Structure
 - `src/mcp_repo_onboarding/` -> Source code.
