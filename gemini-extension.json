@@ -1,0 +1,15 @@
+{
+  "name": "repo-onboarding",
+  "version": "0.1.0",
+  "description": "Analyzes a Python repository to generate ONBOARDING.md.",
+  "mcpServers": {
+    "repo-onboarding": {
+      "command": "uv",
+      "args": ["run", "mcp-repo-onboarding"],
+      "cwd": "./",
+      "env": {
+        "REPO_ROOT": "."
+      }
+    }
+  }
+}

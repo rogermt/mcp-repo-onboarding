@@ -24,6 +24,7 @@ packages = ["src/mcp_repo_onboarding"]
 [tool.hatch.build.targets.sdist]
 include = [
     "src/mcp_repo_onboarding/mcp_prompt.txt",
+    "gemini-extension.json",
 ]
 
 [project.scripts]
