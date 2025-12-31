@@ -37,7 +37,7 @@ venv.bak/
 htmlcov/
 
 # MCP Repo Onboarding Specific
-ONBOARDING.md.bak.*
+.onboarding_archive/
 !tests/fixtures/
 !tests/fixtures/**
 
