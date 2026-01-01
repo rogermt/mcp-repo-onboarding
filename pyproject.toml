@@ -24,6 +24,7 @@ packages = ["src/mcp_repo_onboarding"]
 [tool.hatch.build.targets.sdist]
 include = [
     "src/mcp_repo_onboarding/mcp_prompt.txt",
+    "gemini-extension.json",
 ]
 
 [project.scripts]
@@ -74,6 +75,8 @@ select = [
     "B",      # flake8-bugbear
     "C4",     # flake8-comprehensions
     "SIM",    # flake8-simplify
+    "PL",     # pylint (includes too-many-branches, too-many-statements)
+    "C90",    # mccabe complexity
 ]
 ignore = [
     "E501",   # Line too long (handled by formatter)
@@ -83,8 +86,26 @@ ignore = [
     "E721",   # Type comparison using == (needed for runtime type checking in tests)
 ]
 
+[tool.ruff.lint.pylint]
+max-branches = 12
+max-statements = 60
+
+[tool.ruff.lint.mccabe]
+max-complexity = 10
+
 [tool.ruff.lint.per-file-ignores]
-"tests/*" = ["S101"]  # Allow assert in tests
+"tests/*" = ["S101", "PLC0415", "PLR2004"]  # Allow assert, late imports, magic numbers in tests
+"tests/fixtures/*" = ["S101", "PLC0415", "PLR2004"]  # Read-only test fixtures
+"scripts/*" = ["PLR0912", "PLR0915", "C901"]  # Validator script has legitimate complex logic
+"src/mcp_repo_onboarding/analysis/core.py" = ["PLW2901", "PLR0912", "C901"]  # f_path normalization, categorization logic
+"src/mcp_repo_onboarding/analysis/extractors.py" = ["PLR2004", "PLW2901", "C901"]  # Magic numbers, loop vars, makefile parsing
+"src/mcp_repo_onboarding/analysis/frameworks.py" = ["PLR0912", "C901"]  # Framework detection has multiple branches
+"src/mcp_repo_onboarding/analysis/install_commands.py" = ["PLR2004", "PLR0911", "C901"]  # Magic numbers, returns, command descriptions
+"src/mcp_repo_onboarding/analysis/onboarding_blueprint.py" = ["C901", "PLR0912"]  # Environment and notes rendering
+"src/mcp_repo_onboarding/analysis/onboarding_blueprint_v2.py" = ["PLR2004", "C901", "PLR0912"]  # ASCII constants, notes rendering
+"src/mcp_repo_onboarding/analysis/prioritization.py" = ["PLR2004", "PLR1714"]  # Score constants and comparisons
+"src/mcp_repo_onboarding/analysis/scanning.py" = ["C901", "PLR0912"]  # File scanning and filtering logic
+"src/mcp_repo_onboarding/analysis/structs.py" = ["PLR5501"]  # else-if indentation
 
 [tool.mypy]
 python_version = "3.11"
