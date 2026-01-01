@@ -57,7 +57,7 @@ def _bp(analyze: dict[str, Any], cmds: dict[str, Any]) -> dict[str, Any]:
     return compile_blueprint_v2(ctx)
 
 
-def test_shape_and_format():
+def test_shape_and_format() -> None:
     bp = _bp(_mk_analyze(), _mk_cmds())
     assert bp["format"] == "onboarding_blueprint_v2"
     assert bp["render"]["mode"] == "verbatim"
@@ -65,12 +65,12 @@ def test_shape_and_format():
     assert isinstance(bp["sections"], list)
 
 
-def test_internal_consistency_renderer_equals_markdown():
+def test_internal_consistency_renderer_equals_markdown() -> None:
     bp = _bp(_mk_analyze(), _mk_cmds())
     assert render_blueprint_to_markdown(bp) == bp["render"]["markdown"]
 
 
-def test_required_headings_present_in_order():
+def test_required_headings_present_in_order() -> None:
     bp = _bp(_mk_analyze(), _mk_cmds())
     md = bp["render"]["markdown"]
 
@@ -95,19 +95,19 @@ def test_required_headings_present_in_order():
         pos = p
 
 
-def test_repo_path_line_present():
+def test_repo_path_line_present() -> None:
     bp = _bp(_mk_analyze(), _mk_cmds())
     md = bp["render"]["markdown"]
     assert "Repo path: /test/repo" in md
 
 
-def test_v3_forbidden_pattern_never_emitted():
+def test_v3_forbidden_pattern_never_emitted() -> None:
     bp = _bp(_mk_analyze(), _mk_cmds())
     md = bp["render"]["markdown"]
     assert "Python version: No Python version pin detected." not in md
 
 
-def test_venv_strict_rules():
+def test_venv_strict_rules() -> None:
     # Case B: no pin + no explicit env => must include generic snippet + label
     bp = _bp(_mk_analyze(), _mk_cmds())
     md = bp["render"]["markdown"]
@@ -126,7 +126,7 @@ def test_venv_strict_rules():
     assert "source .venv/bin/activate" not in md2
 
 
-def test_command_section_formatting():
+def test_command_section_formatting() -> None:
     analyze = _mk_analyze()
     analyze["scripts"]["test"] = [{"command": "tox", "description": "Run tests via tox."}]
     bp = _bp(analyze, _mk_cmds())
@@ -134,7 +134,7 @@ def test_command_section_formatting():
     assert "* `tox` (Run tests via tox.)" in md
 
 
-def test_v7_only_one_pip_install_r_line():
+def test_v7_only_one_pip_install_r_line() -> None:
     analyze = _mk_analyze()
     analyze["python"]["installInstructions"] = [
         "pip install -r requirements.txt",
@@ -145,20 +145,20 @@ def test_v7_only_one_pip_install_r_line():
     assert md.count("pip install -r") == 1
 
 
-def test_no_provenance_strings():
+def test_no_provenance_strings() -> None:
     bp = _bp(_mk_analyze(), _mk_cmds())
     md = bp["render"]["markdown"]
     assert "source:" not in md
     assert "evidence:" not in md
 
 
-def test_bullet_style_star_only():
+def test_bullet_style_star_only() -> None:
     bp = _bp(_mk_analyze(), _mk_cmds())
     md = bp["render"]["markdown"]
     assert "\n- " not in md
 
 
-def test_best_effort_validator_import(tmp_path):
+def test_best_effort_validator_import(tmp_path: Any) -> None:
     """
     Optional: run validator if importable. Skip if not importable.
     """
@@ -179,7 +179,7 @@ def test_best_effort_validator_import(tmp_path):
         pytest.skip("validate_file entrypoint not found.")
 
 
-def test_file_description_sanitizes_double_period():
+def test_file_description_sanitizes_double_period() -> None:
     analyze = _mk_analyze()
     analyze["configurationFiles"] = [
         {"path": "tox.ini", "description": "Test environment orchestrator (tox).."}
@@ -190,7 +190,7 @@ def test_file_description_sanitizes_double_period():
     assert ".." not in md
 
 
-def test_file_description_strips_non_ascii_garbage():
+def test_file_description_strips_non_ascii_garbage() -> None:
     analyze = _mk_analyze()
     analyze["configurationFiles"] = [
         {
@@ -205,3 +205,21 @@ def test_file_description_strips_non_ascii_garbage():
         "* .pre-commit-config.yaml (Pre-commit hooks configuration (code quality automation).)"
         in md
     )
+
+
+def test_no_double_period_in_rendered_markdown() -> None:
+    bp = _bp(_mk_analyze(), _mk_cmds())
+    md = bp["render"]["markdown"]
+    assert "..)" not in md
+    assert ".." not in md  # stricter; remove if you ever intentionally use ellipses
+
+
+def test_no_non_ascii_garbage_in_rendered_markdown() -> None:
+    analyze = _mk_analyze()
+    analyze["configurationFiles"] = [
+        {"path": "tox.ini", "description": "Test environment orchestrator (tox).. Вас"}
+    ]
+    bp = _bp(analyze, _mk_cmds())
+    md = bp["render"]["markdown"]
+    assert "Вас" not in md
+    assert ".." not in md

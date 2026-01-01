@@ -1,22 +1,138 @@
 
-=== Running evaluation for: Paper2Code ===
+=== Evaluation Started: Thu Jan  1 11:49:44 GMT 2026 ===
+=== Running evaluation for: searxng Paper2Code imgix-python wagtail connexion ===
 Logging to: evaluation_results.log
 
+=== Running gemini for searxng ===
+YOLO mode is enabled. All tool calls will be automatically approved.
+Loaded cached credentials.
+[STARTUP] StartupProfiler.flush() called with 9 phases
+[STARTUP] Recording metric for phase: cli_startup duration: 1625.7873680000002
+[STARTUP] Recording metric for phase: load_settings duration: 3.725855000000138
+[STARTUP] Recording metric for phase: migrate_settings duration: 2.204172999999628
+[STARTUP] Recording metric for phase: parse_arguments duration: 22.223593000000164
+[STARTUP] Recording metric for phase: load_cli_config duration: 82.96093299999984
+[STARTUP] Recording metric for phase: initialize_app duration: 1506.688075
+[STARTUP] Recording metric for phase: authenticate duration: 1424.7307449999998
+[STARTUP] Recording metric for phase: discover_tools duration: 5.852935000000798
+[STARTUP] Recording metric for phase: initialize_mcp_clients duration: 1658.8883690000002
+Token usage: unknown
+Waiting 30 seconds for rate limits...
 === Running gemini for Paper2Code ===
 YOLO mode is enabled. All tool calls will be automatically approved.
 Loaded cached credentials.
 [STARTUP] StartupProfiler.flush() called with 9 phases
-[STARTUP] Recording metric for phase: cli_startup duration: 1225.434518
-[STARTUP] Recording metric for phase: load_settings duration: 1.7123139999998784
-[STARTUP] Recording metric for phase: migrate_settings duration: 1.217453000000205
-[STARTUP] Recording metric for phase: parse_arguments duration: 16.90113999999994
-[STARTUP] Recording metric for phase: load_cli_config duration: 31.921629999999823
-[STARTUP] Recording metric for phase: initialize_app duration: 1166.9956069999998
-[STARTUP] Recording metric for phase: authenticate duration: 1109.048909
-[STARTUP] Recording metric for phase: discover_tools duration: 3.4725530000000617
-[STARTUP] Recording metric for phase: initialize_mcp_clients duration: 565.0559590000003
+[STARTUP] Recording metric for phase: cli_startup duration: 879.6474480000002
+[STARTUP] Recording metric for phase: load_settings duration: 4.1584499999999025
+[STARTUP] Recording metric for phase: migrate_settings duration: 1.3331509999998161
+[STARTUP] Recording metric for phase: parse_arguments duration: 20.004683000000114
+[STARTUP] Recording metric for phase: load_cli_config duration: 37.47159099999999
+[STARTUP] Recording metric for phase: initialize_app duration: 803.1633400000001
+[STARTUP] Recording metric for phase: authenticate duration: 751.9785439999996
+[STARTUP] Recording metric for phase: discover_tools duration: 3.3925540000000183
+[STARTUP] Recording metric for phase: initialize_mcp_clients duration: 590.2039329999998
 Token usage: unknown
 Waiting 30 seconds for rate limits...
+=== Running gemini for imgix-python ===
+YOLO mode is enabled. All tool calls will be automatically approved.
+Loaded cached credentials.
+[STARTUP] StartupProfiler.flush() called with 9 phases
+[STARTUP] Recording metric for phase: cli_startup duration: 1023.35752
+[STARTUP] Recording metric for phase: load_settings duration: 1.8165539999999964
+[STARTUP] Recording metric for phase: migrate_settings duration: 1.1719010000001617
+[STARTUP] Recording metric for phase: parse_arguments duration: 17.700364000000263
+[STARTUP] Recording metric for phase: load_cli_config duration: 37.443812999999864
+[STARTUP] Recording metric for phase: initialize_app duration: 958.3861499999998
+[STARTUP] Recording metric for phase: authenticate duration: 911.2062420000002
+[STARTUP] Recording metric for phase: discover_tools duration: 3.4983930000003056
+[STARTUP] Recording metric for phase: initialize_mcp_clients duration: 539.3945480000002
+Token usage: unknown
+Waiting 30 seconds for rate limits...
+=== Running gemini for wagtail ===
+YOLO mode is enabled. All tool calls will be automatically approved.
+Loaded cached credentials.
+[STARTUP] StartupProfiler.flush() called with 9 phases
+[STARTUP] Recording metric for phase: cli_startup duration: 860.6512520000001
+[STARTUP] Recording metric for phase: load_settings duration: 1.8454389999997147
+[STARTUP] Recording metric for phase: migrate_settings duration: 1.287431000000197
+[STARTUP] Recording metric for phase: parse_arguments duration: 17.566432000000077
+[STARTUP] Recording metric for phase: load_cli_config duration: 60.072979999999916
+[STARTUP] Recording metric for phase: initialize_app duration: 773.1972390000001
+[STARTUP] Recording metric for phase: authenticate duration: 726.4262910000002
+[STARTUP] Recording metric for phase: discover_tools duration: 3.384581999999682
+[STARTUP] Recording metric for phase: initialize_mcp_clients duration: 603.1642879999999
+Token usage: unknown
+Waiting 30 seconds for rate limits...
+=== Running gemini for connexion ===
+YOLO mode is enabled. All tool calls will be automatically approved.
+Loaded cached credentials.
+[STARTUP] StartupProfiler.flush() called with 9 phases
+[STARTUP] Recording metric for phase: cli_startup duration: 933.3932629999999
+[STARTUP] Recording metric for phase: load_settings duration: 2.0333990000003723
+[STARTUP] Recording metric for phase: migrate_settings duration: 1.2432890000000043
+[STARTUP] Recording metric for phase: parse_arguments duration: 19.97538399999985
+[STARTUP] Recording metric for phase: load_cli_config duration: 40.12672500000008
+[STARTUP] Recording metric for phase: initialize_app duration: 862.5433579999999
+[STARTUP] Recording metric for phase: authenticate duration: 770.583212
+[STARTUP] Recording metric for phase: discover_tools duration: 3.3410860000003595
+[STARTUP] Recording metric for phase: initialize_mcp_clients duration: 676.025564
+Token usage: unknown
+Waiting 30 seconds for rate limits...
+
+=== Showing ONBOARDING.md for searxng ===
+=== Repo: searxng ===
+# ONBOARDING.md
+
+## Overview
+Repo path: /home/rogermt/searxng
+
+## Environment setup
+Python version: 3.14
+
+## Install dependencies
+* `make install` (Install dependencies via Makefile target.)
+
+## Run / develop locally
+* `make run` (Run the application via Makefile target.)
+
+## Run tests
+* `make test` (Run the test suite via Makefile target.)
+
+## Lint / format
+* `make format` (Run formatting via Makefile target.)
+
+## Analyzer notes
+* docs list truncated to 10 entries (total=174)
+
+## Dependency files detected
+* requirements.txt (Python dependency manifest.)
+* requirements-dev.txt (Python dependency manifest.)
+* requirements-server.txt (Python dependency manifest.)
+* setup.py (Packaging/build configuration (setuptools).)
+
+## Useful configuration files
+* Makefile (Primary task runner for development and build orchestration.)
+* .github/workflows/checker.yml (CI/CD automation workflow.)
+* .github/workflows/container.yml (CI/CD automation workflow.)
+* .github/workflows/data-update.yml (CI/CD automation workflow.)
+* .github/workflows/documentation.yml (CI/CD automation workflow.)
+* .github/workflows/integration.yml (CI/CD automation workflow.)
+* .github/workflows/l10n.yml (CI/CD automation workflow.)
+
+## Useful docs
+* CONTRIBUTING.rst
+* LICENSE
+* README.rst
+* SECURITY.md
+* docs/index.rst
+* docs/own-instance.rst
+* docs/dev/quickstart.rst
+* docs/admin/installation-apache.rst
+* docs/admin/installation-docker.rst
+* docs/admin/installation-granian.rst
+
+--- Validating ONBOARDING.md for searxng ---
+Validation passed for /home/rogermt/searxng/ONBOARDING.md.
 
 === Showing ONBOARDING.md for Paper2Code ===
 === Repo: Paper2Code ===
@@ -63,5 +179,163 @@ No explicit commands detected.
 * README.md
 * data/paper2code/README.md
 * notebooks/README.md
+
+--- Validating ONBOARDING.md for Paper2Code ---
+Validation passed for /home/rogermt/Paper2Code/ONBOARDING.md.
+
+=== Showing ONBOARDING.md for imgix-python ===
+=== Repo: imgix-python ===
+# ONBOARDING.md
+
+## Overview
+Repo path: /home/rogermt/imgix-python
+
+## Environment setup
+No Python version pin detected.
+(Generic suggestion)
+* `python3 -m venv .venv` (Create virtual environment.)
+* `source .venv/bin/activate` (Activate virtual environment.)
+
+## Install dependencies
+* `pip install -e .` (Install the project in editable mode.)
+
+## Run / develop locally
+No explicit commands detected.
+
+## Run tests
+* `tox` (Run tests via tox.)
+
+## Lint / format
+* `tox -e flake8` (Run flake8 linting via tox.)
+
+## Dependency files detected
+* setup.cfg (Packaging/build configuration (setuptools).)
+* setup.py (Packaging/build configuration (setuptools).)
+
+## Useful configuration files
+* tox.ini (Test environment orchestrator (tox).)
+* .github/workflows/add-issue-to-project.yml (CI/CD automation workflow.)
+* .github/workflows/add-pr-to-project.yml (CI/CD automation workflow.)
+
+## Useful docs
+* CONTRIBUTING.md
+* LICENSE
+* README.md
+
+--- Validating ONBOARDING.md for imgix-python ---
+Validation passed for /home/rogermt/imgix-python/ONBOARDING.md.
+
+=== Showing ONBOARDING.md for wagtail ===
+=== Repo: wagtail ===
+# ONBOARDING.md
+
+## Overview
+Repo path: /home/rogermt/wagtail
+
+## Environment setup
+No Python version pin detected.
+(Generic suggestion)
+* `python3 -m venv .venv` (Create virtual environment.)
+* `source .venv/bin/activate` (Activate virtual environment.)
+
+## Install dependencies
+* `pip install .` (Install the project package.)
+
+## Run / develop locally
+* `bash scripts/fetch-translations.sh` (Delete old translation files (except "en" which is the source translation).)
+* `bash scripts/rebuild-translation-sources.sh` (Delete old translation sources.)
+
+## Run tests
+* `make test` (Run the test suite via Makefile target.)
+* `bash scripts/latest.sh` (Run repo script entrypoint.)
+* `tox` (Run tests via tox.)
+
+## Lint / format
+* `make lint` (Run linting via Makefile target.)
+* `make format` (Run formatting via Makefile target.)
+
+## Analyzer notes
+* docs list truncated to 10 entries (total=366)
+* Frameworks detected (from analyzer): Django, Wagtail. (Detected via pyproject.toml classifiers.)
+
+## Dependency files detected
+* pyproject.toml (Project configuration and dependency management (PEP 518/621).)
+* wagtail/project_template/requirements.txt (Python dependency manifest.)
+* setup.py (Packaging/build configuration (setuptools).)
+
+## Useful configuration files
+* Makefile (Primary task runner for development and build orchestration.)
+* .pre-commit-config.yaml (Pre-commit hooks configuration (code quality automation).)
+* tox.ini (Test environment orchestrator (tox).)
+* .github/workflows/codeql-analysis.yml (CI/CD automation workflow.)
+* .github/workflows/test.yml (CI/CD automation workflow.)
+
+## Useful docs
+* LICENSE
+* README.md
+* docs/README.md
+* docs/index.rst
+* docs/spelling_wordlist.txt
+* docs/support.md
+* docs/advanced_topics/third_party_tutorials.md
+* docs/getting_started/quick_install.md
+* docs/getting_started/tutorial.md
+* docs/tutorial/add_search.md
+
+--- Validating ONBOARDING.md for wagtail ---
+Validation passed for /home/rogermt/wagtail/ONBOARDING.md.
+
+=== Showing ONBOARDING.md for connexion ===
+=== Repo: connexion ===
+# ONBOARDING.md
+
+## Overview
+Repo path: /home/rogermt/connexion
+
+## Environment setup
+Python version: 3.12
+
+## Install dependencies
+* `pip install .` (Install the project package.)
+
+## Run / develop locally
+No explicit commands detected.
+
+## Run tests
+* `tox` (Run tests via tox.)
+
+## Lint / format
+* `tox -e flake8` (Run flake8 linting via tox.)
+
+## Analyzer notes
+* docs list truncated to 10 entries (total=34)
+* Frameworks detected (from analyzer): Flask. (Flask support detected via pyproject.toml (Poetry) dependency key 'flask' (optional).)
+
+## Dependency files detected
+* pyproject.toml (Project configuration and dependency management (PEP 518/621).)
+* examples/frameworks/requirements.txt (Python dependency manifest.)
+* examples/jwt/requirements.txt (Python dependency manifest.)
+* examples/sqlalchemy/requirements.txt (Python dependency manifest.)
+
+## Useful configuration files
+* .pre-commit-config.yaml (Pre-commit hooks configuration (code quality automation).)
+* tox.ini (Test environment orchestrator (tox).)
+* .github/workflows/pipeline.yml (CI/CD automation workflow.)
+* .github/workflows/release.yml (CI/CD automation workflow.)
+
+## Useful docs
+* LICENSE
+* README.md
+* docs/cli.rst
+* docs/context.rst
+* docs/cookbook.rst
+* docs/exceptions.rst
+* docs/index.rst
+* docs/lifespan.rst
+* docs/middleware.rst
+* docs/quickstart.rst
+
+--- Validating ONBOARDING.md for connexion ---
+Validation passed for /home/rogermt/connexion/ONBOARDING.md.
 
 === Evaluation complete ===

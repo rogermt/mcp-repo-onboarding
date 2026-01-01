@@ -27,6 +27,53 @@ mcp = FastMCP("repo-onboarding")
 logger = logging.getLogger(__name__)
 
 
+def _sanitize_description(desc: str) -> str:
+    """Sanitize description to remove non-ASCII and normalize whitespace."""
+    # Keep deterministic ASCII-only (prevents random unicode garbage).
+    # Space (32) to tilde (126)
+    min_ascii = 32
+    max_ascii = 127
+    s = "".join(ch for ch in desc if min_ascii <= ord(ch) < max_ascii)
+    s = " ".join(s.split()).strip()
+
+    # Strip provenance markers defensively (even though standard mode forbids printing them).
+    s = s.replace("source:", "").replace("evidence:", "")
+    s = " ".join(s.split()).strip()
+
+    # Collapse trailing dots to exactly one dot, if any exist.
+    # Examples:
+    #   "tox.." -> "tox."
+    #   "tox."  -> "tox."
+    #   "tox"   -> "tox"  (we do not force adding a dot here)
+    while s.endswith(".."):
+        s = s[:-1]
+
+    return s
+
+
+def _sanitize_analysis_descriptions(data: dict[str, Any]) -> None:
+    """Sanitize all description fields in the analysis data."""
+    # configurationFiles[].description
+    cfgs = data.get("configurationFiles")
+    if isinstance(cfgs, list):
+        for c in cfgs:
+            if isinstance(c, dict):
+                d = c.get("description")
+                if isinstance(d, str) and d.strip():
+                    c["description"] = _sanitize_description(d)
+
+    # python.dependencyFiles[].description
+    py = data.get("python")
+    if isinstance(py, dict):
+        deps = py.get("dependencyFiles")
+        if isinstance(deps, list):
+            for f in deps:
+                if isinstance(f, dict):
+                    d = f.get("description")
+                    if isinstance(d, str) and d.strip():
+                        f["description"] = _sanitize_description(d)
+
+
 @mcp.prompt()
 def generate_onboarding() -> str:
     """
@@ -158,6 +205,9 @@ def analyze_repo(
     logger.info(f"Analyzed repo at {target}")
 
     data: dict[str, Any] = analysis.model_dump(exclude_none=True)
+
+    # Sanitize descriptions at the MCP boundary
+    _sanitize_analysis_descriptions(data)
 
     # Blueprint v1 (existing)
     try:
