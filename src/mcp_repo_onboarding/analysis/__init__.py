@@ -6,7 +6,7 @@ from .extractors import (
     extract_shell_scripts,
     extract_tox_commands,
 )
-from .onboarding_blueprint import build_onboarding_blueprint_v1, render_blueprint_to_markdown
+from .onboarding_blueprint_legacy import build_onboarding_blueprint_v1, render_blueprint_to_markdown
 from .scanning import scan_repo_files
 from .structs import IgnoreMatcher
 

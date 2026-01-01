@@ -1,5 +1,5 @@
 
-=== Evaluation Started: Thu Jan  1 14:07:06 GMT 2026 ===
+=== Evaluation Started: Thu Jan  1 23:21:31 GMT 2026 ===
 === Running evaluation for: searxng Paper2Code imgix-python wagtail connexion ===
 Logging to: evaluation_results.log
 
@@ -7,75 +7,75 @@ Logging to: evaluation_results.log
 YOLO mode is enabled. All tool calls will be automatically approved.
 Loaded cached credentials.
 [STARTUP] StartupProfiler.flush() called with 9 phases
-[STARTUP] Recording metric for phase: cli_startup duration: 1433.624488
-[STARTUP] Recording metric for phase: load_settings duration: 2.9591519999999036
-[STARTUP] Recording metric for phase: migrate_settings duration: 1.8889859999999317
-[STARTUP] Recording metric for phase: parse_arguments duration: 25.618675000000167
-[STARTUP] Recording metric for phase: load_cli_config duration: 72.97904200000039
-[STARTUP] Recording metric for phase: initialize_app duration: 1321.8782659999997
-[STARTUP] Recording metric for phase: authenticate duration: 1257.8263109999998
-[STARTUP] Recording metric for phase: discover_tools duration: 5.915118999999777
-[STARTUP] Recording metric for phase: initialize_mcp_clients duration: 849.6554320000005
+[STARTUP] Recording metric for phase: cli_startup duration: 1949.4066239999997
+[STARTUP] Recording metric for phase: load_settings duration: 2.2521350000001803
+[STARTUP] Recording metric for phase: migrate_settings duration: 1.6163470000001325
+[STARTUP] Recording metric for phase: parse_arguments duration: 22.130385000000388
+[STARTUP] Recording metric for phase: load_cli_config duration: 76.83088499999985
+[STARTUP] Recording metric for phase: initialize_app duration: 1838.8627969999998
+[STARTUP] Recording metric for phase: authenticate duration: 1460.104495
+[STARTUP] Recording metric for phase: discover_tools duration: 6.114980000000287
+[STARTUP] Recording metric for phase: initialize_mcp_clients duration: 1114.0275780000002
 Token usage: unknown
 Waiting 30 seconds for rate limits...
 === Running gemini for Paper2Code ===
 YOLO mode is enabled. All tool calls will be automatically approved.
 Loaded cached credentials.
 [STARTUP] StartupProfiler.flush() called with 9 phases
-[STARTUP] Recording metric for phase: cli_startup duration: 1015.0168389999999
-[STARTUP] Recording metric for phase: load_settings duration: 2.072747000000163
-[STARTUP] Recording metric for phase: migrate_settings duration: 2.1053389999997307
-[STARTUP] Recording metric for phase: parse_arguments duration: 21.837721999999758
-[STARTUP] Recording metric for phase: load_cli_config duration: 56.866161999999804
-[STARTUP] Recording metric for phase: initialize_app duration: 924.2147439999994
-[STARTUP] Recording metric for phase: authenticate duration: 804.8758240000002
-[STARTUP] Recording metric for phase: discover_tools duration: 7.496979999999894
-[STARTUP] Recording metric for phase: initialize_mcp_clients duration: 2479.5311599999995
+[STARTUP] Recording metric for phase: cli_startup duration: 1151.446625
+[STARTUP] Recording metric for phase: load_settings duration: 1.93071400000008
+[STARTUP] Recording metric for phase: migrate_settings duration: 1.9945630000001984
+[STARTUP] Recording metric for phase: parse_arguments duration: 18.97441600000002
+[STARTUP] Recording metric for phase: load_cli_config duration: 58.07030799999984
+[STARTUP] Recording metric for phase: initialize_app duration: 1050.6206970000003
+[STARTUP] Recording metric for phase: authenticate duration: 802.364955
+[STARTUP] Recording metric for phase: discover_tools duration: 4.577777999999853
+[STARTUP] Recording metric for phase: initialize_mcp_clients duration: 1019.1144449999997
 Token usage: unknown
 Waiting 30 seconds for rate limits...
 === Running gemini for imgix-python ===
 YOLO mode is enabled. All tool calls will be automatically approved.
 Loaded cached credentials.
 [STARTUP] StartupProfiler.flush() called with 9 phases
-[STARTUP] Recording metric for phase: cli_startup duration: 1044.4897800000003
-[STARTUP] Recording metric for phase: load_settings duration: 2.289400999999998
-[STARTUP] Recording metric for phase: migrate_settings duration: 1.4093880000000354
-[STARTUP] Recording metric for phase: parse_arguments duration: 21.902262999999948
-[STARTUP] Recording metric for phase: load_cli_config duration: 42.95405500000015
-[STARTUP] Recording metric for phase: initialize_app duration: 967.2656929999998
-[STARTUP] Recording metric for phase: authenticate duration: 795.9488409999999
-[STARTUP] Recording metric for phase: discover_tools duration: 6.901436000000103
-[STARTUP] Recording metric for phase: initialize_mcp_clients duration: 1546.8752999999997
+[STARTUP] Recording metric for phase: cli_startup duration: 1393.9463060000003
+[STARTUP] Recording metric for phase: load_settings duration: 2.3821530000000166
+[STARTUP] Recording metric for phase: migrate_settings duration: 2.7248280000003433
+[STARTUP] Recording metric for phase: parse_arguments duration: 22.994478000000072
+[STARTUP] Recording metric for phase: load_cli_config duration: 47.19986599999993
+[STARTUP] Recording metric for phase: initialize_app duration: 1305.327347
+[STARTUP] Recording metric for phase: authenticate duration: 1144.0301949999998
+[STARTUP] Recording metric for phase: discover_tools duration: 6.219538999999713
+[STARTUP] Recording metric for phase: initialize_mcp_clients duration: 1288.7104060000001
 Token usage: unknown
 Waiting 30 seconds for rate limits...
 === Running gemini for wagtail ===
 YOLO mode is enabled. All tool calls will be automatically approved.
 Loaded cached credentials.
 [STARTUP] StartupProfiler.flush() called with 9 phases
-[STARTUP] Recording metric for phase: cli_startup duration: 1073.07233
-[STARTUP] Recording metric for phase: load_settings duration: 2.901274000000285
-[STARTUP] Recording metric for phase: migrate_settings duration: 1.6585519999998724
-[STARTUP] Recording metric for phase: parse_arguments duration: 44.76086400000031
-[STARTUP] Recording metric for phase: load_cli_config duration: 74.30294800000001
-[STARTUP] Recording metric for phase: initialize_app duration: 939.681165
-[STARTUP] Recording metric for phase: authenticate duration: 793.5254569999997
-[STARTUP] Recording metric for phase: discover_tools duration: 10.697440999999344
-[STARTUP] Recording metric for phase: initialize_mcp_clients duration: 1220.9360860000006
+[STARTUP] Recording metric for phase: cli_startup duration: 1301.818828
+[STARTUP] Recording metric for phase: load_settings duration: 2.3858009999999013
+[STARTUP] Recording metric for phase: migrate_settings duration: 1.5162030000001323
+[STARTUP] Recording metric for phase: parse_arguments duration: 21.570256000000427
+[STARTUP] Recording metric for phase: load_cli_config duration: 57.820444999999836
+[STARTUP] Recording metric for phase: initialize_app duration: 1210.7400869999997
+[STARTUP] Recording metric for phase: authenticate duration: 1156.355148
+[STARTUP] Recording metric for phase: discover_tools duration: 7.776143999999931
+[STARTUP] Recording metric for phase: initialize_mcp_clients duration: 1081.447459
 Token usage: unknown
 Waiting 30 seconds for rate limits...
 === Running gemini for connexion ===
 YOLO mode is enabled. All tool calls will be automatically approved.
 Loaded cached credentials.
 [STARTUP] StartupProfiler.flush() called with 9 phases
-[STARTUP] Recording metric for phase: cli_startup duration: 896.1135290000002
-[STARTUP] Recording metric for phase: load_settings duration: 2.206047000000126
-[STARTUP] Recording metric for phase: migrate_settings duration: 1.3341209999998682
-[STARTUP] Recording metric for phase: parse_arguments duration: 20.82672199999979
-[STARTUP] Recording metric for phase: load_cli_config duration: 44.02371600000015
-[STARTUP] Recording metric for phase: initialize_app duration: 820.6295009999999
-[STARTUP] Recording metric for phase: authenticate duration: 751.4521909999999
-[STARTUP] Recording metric for phase: discover_tools duration: 5.155612999999903
-[STARTUP] Recording metric for phase: initialize_mcp_clients duration: 1005.4859529999999
+[STARTUP] Recording metric for phase: cli_startup duration: 1266.3216790000001
+[STARTUP] Recording metric for phase: load_settings duration: 6.529751000000033
+[STARTUP] Recording metric for phase: migrate_settings duration: 7.0330119999998715
+[STARTUP] Recording metric for phase: parse_arguments duration: 31.982758000000103
+[STARTUP] Recording metric for phase: load_cli_config duration: 64.95867700000008
+[STARTUP] Recording metric for phase: initialize_app duration: 1141.314637
+[STARTUP] Recording metric for phase: authenticate duration: 817.735486
+[STARTUP] Recording metric for phase: discover_tools duration: 5.445905000000039
+[STARTUP] Recording metric for phase: initialize_mcp_clients duration: 1419.7378769999996
 Token usage: unknown
 Waiting 30 seconds for rate limits...
 
@@ -290,34 +290,51 @@ Validation passed for /home/rogermt/wagtail/ONBOARDING.md.
 # ONBOARDING.md
 
 ## Overview
-Repo path: (unknown)
+Repo path: /home/rogermt/connexion
 
 ## Environment setup
-No Python version pin detected.
-(Generic suggestion)
-* `python3 -m venv .venv` (Create virtual environment.)
-* `source .venv/bin/activate` (Activate virtual environment.)
+Python version: 3.12
 
 ## Install dependencies
-No explicit commands detected.
+* `pip install .` (Install the project package.)
 
 ## Run / develop locally
 No explicit commands detected.
 
 ## Run tests
-No explicit commands detected.
+* `tox` (Run tests via tox.)
 
 ## Lint / format
-No explicit commands detected.
+* `tox -e flake8` (Run flake8 linting via tox.)
+
+## Analyzer notes
+* docs list truncated to 10 entries (total=34)
+* Frameworks detected (from analyzer): Flask. (Flask support detected via pyproject.toml (Poetry) dependency key 'flask' (optional).)
 
 ## Dependency files detected
-No dependency files detected.
+* pyproject.toml (Project configuration and dependency management (PEP 518/621).)
+* examples/frameworks/requirements.txt (Python dependency manifest.)
+* examples/jwt/requirements.txt (Python dependency manifest.)
+* examples/sqlalchemy/requirements.txt (Python dependency manifest.)
 
 ## Useful configuration files
-No useful configuration files detected.
+* .pre-commit-config.yaml (Pre-commit hooks configuration (code quality automation).)
+* tox.ini (Test environment orchestrator (tox).)
+* .github/workflows/pipeline.yml (CI/CD automation workflow.)
+* .github/workflows/release.yml (CI/CD automation workflow.)
 
 ## Useful docs
-No useful docs detected.
+* LICENSE
+* README.md
+* docs/cli.rst
+* docs/context.rst
+* docs/cookbook.rst
+* docs/exceptions.rst
+* docs/index.rst
+* docs/lifespan.rst
+* docs/middleware.rst
+* docs/quickstart.rst
+
 --- Validating ONBOARDING.md for connexion ---
 Validation passed for /home/rogermt/connexion/ONBOARDING.md.
 

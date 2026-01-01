@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from mcp_repo_onboarding.analysis.onboarding_blueprint import (
+from mcp_repo_onboarding.analysis.onboarding_blueprint_legacy import (
     build_onboarding_blueprint_v1,
     render_blueprint_to_markdown,
 )
