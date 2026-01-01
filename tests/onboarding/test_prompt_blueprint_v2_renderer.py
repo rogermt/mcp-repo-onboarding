@@ -3,7 +3,7 @@ from __future__ import annotations
 from mcp_repo_onboarding.resources import load_mcp_prompt
 
 
-def test_prompt_is_v2_first_renderer():
+def test_prompt_is_v2_first_renderer() -> None:
     prompt = load_mcp_prompt()
 
     # Must clearly prioritize v2 markdown verbatim rendering

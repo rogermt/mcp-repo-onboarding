@@ -2,7 +2,7 @@ import sys
 from pathlib import Path
 
 # Add the directory containing validate_onboarding.py to sys.path
-sys.path.append(str(Path(__file__).parent.parent / "scripts"))
+sys.path.append(str(Path(__file__).parent.parent.parent / "scripts"))
 
 from validate_onboarding import validate_onboarding
 
