@@ -28,6 +28,14 @@ When verifying output, ensure no files from `tests/fixtures/` appear in the list
 
 **NO EXCEPTIONS.** Do not write logic without a red test first.
 
+## ⚠️ CRITICAL: Never Write to `evaluation_results.log`
+
+**NEVER modify or write to `evaluation_results.log`.** This file is read-only from the agent's perspective:
+- Run `uv run python scripts/validate_onboarding.py` to verify output
+- Show the output to the user
+- Do NOT write results to the file
+- User updates the file manually or via their own processes
+
 ## ⚠️ CRITICAL: Trust the Plan and Documentation
 
 **FOLLOW THE PLAN.** Do NOT deviate or second-guess:
