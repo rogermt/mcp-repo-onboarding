@@ -117,6 +117,19 @@ class RepoAnalysisScriptGroup(BaseModel):
     other: list[CommandInfo] = Field(default_factory=list)
 
 
+class ToolingEvidence(BaseModel):
+    """Evidence for detected non-Python tooling (Phase 8 - #81).
+
+    Static detection only. Reports evidence files — does NOT suggest commands.
+    Used for neutral "other tooling detected" signals in mixed-language repos.
+    """
+
+    name: str  # e.g., "Node.js", "Go", "Rust", "Docker"
+    evidenceFiles: list[str] = Field(default_factory=list)
+    confidence: Literal["detected", "inferred"] = "detected"
+    note: str | None = None
+
+
 class RepoAnalysis(BaseModel):
     """Top-level analysis result for a repository."""
 
@@ -133,6 +146,7 @@ class RepoAnalysis(BaseModel):
     notebooks: list[str] = Field(default_factory=list)
     gitInfo: GitInfo | None = None
     notes: list[str] = Field(default_factory=list)
+    otherTooling: list[ToolingEvidence] = Field(default_factory=list)  # Phase 8 - #81
 
 
 class OnboardingDocument(BaseModel):
