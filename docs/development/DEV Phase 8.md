@@ -224,14 +224,14 @@ Acceptance criteria:
 
 Phase 8 is complete when:
 
-- [ ] **Determinism is proven**: stable sort + regression tests merged (**#79**).
-- [ ] `prioritization.py` uses a registry pattern and preserves scoring contract (**#77**).
-- [ ] Classification is centralized; dependency/config boundaries are enforced structurally (**#78**).
-- [ ] Tests are reorganized and remain green (**#73**).
+- [x] **Determinism is proven**: stable sort + regression tests merged (**#79**).
+- [x] `prioritization.py` uses a registry pattern and preserves scoring contract (**#77**).
+- [x] Classification is centralized; dependency/config boundaries are enforced structurally (**#78**).
+- [ ] Tests are reorganized and remain green (**#72**).
 - [ ] `EffectiveConfig` seam exists; defaults produce identical output; safety ignores cannot be bypassed (**#80**).
 - [ ] Neutral tooling signal plumbing exists; Node detection remains command-free and non-inferential (**#81**, **#12**).
-- [ ] Backups are archived and gitignored (**#74**).
-- [ ] Extension packaging works without changing analyzer semantics (**#75**).
+- [x] Backups are archived and gitignored (**#74**).
+- [x] Extension packaging works without changing analyzer semantics (**#75**).
 - [ ] Full evaluation suite continues to pass validator rules V1–V8 with zero regressions.
 
 ---
