@@ -14,6 +14,7 @@ from ..config import (
     SAFETY_IGNORES,
 )
 from ..describers import FILE_DESCRIBER_REGISTRY
+from ..effective_config import EffectiveConfig
 from ..schema import (
     ConfigFileInfo,
     DocInfo,
@@ -60,11 +61,11 @@ def _setup_ignore_matcher(root: Path) -> IgnoreMatcher:
     )
 
 
-def _perform_targeted_scan(root: Path, safety_ignores: list[str]) -> list[str]:
+def _perform_targeted_scan(root: Path, safety_ignores: list[str] | tuple[str, ...]) -> list[str]:
     targeted_files = []
     # Targeted scan should bypass .gitignore but respect safety ignores
     safety_only_ignore = IgnoreMatcher(
-        repo_root=root, safety_ignores=safety_ignores, gitignore_patterns=[]
+        repo_root=root, safety_ignores=list(safety_ignores), gitignore_patterns=[]
     )
 
     for pattern in [
@@ -313,23 +314,31 @@ def _infer_python_environment(
     return None
 
 
-def analyze_repo(repo_path: str, max_files: int = DEFAULT_MAX_FILES) -> RepoAnalysis:
+def analyze_repo(
+    repo_path: str,
+    max_files: int = DEFAULT_MAX_FILES,
+    effective_config: EffectiveConfig | None = None,
+) -> RepoAnalysis:
     """
     Analyze the repository and return a structured report.
 
     Args:
         repo_path: Path to the repository to analyze.
         max_files: Maximum files to scan (default: DEFAULT_MAX_FILES).
+        effective_config: Config overrides (default: None uses defaults).
 
     Returns:
         RepoAnalysis object containing collected metadata.
     """
+    if effective_config is None:
+        effective_config = EffectiveConfig()
+
     root = Path(repo_path).resolve()
 
     ignore = _setup_ignore_matcher(root)
 
     # 1. Targeted scan
-    targeted_files = _perform_targeted_scan(root, SAFETY_IGNORES)
+    targeted_files = _perform_targeted_scan(root, effective_config.safety_ignores)
 
     # 2. Broad scan
     all_other_files, py_files = scan_repo_files(root, ignore, max_files)

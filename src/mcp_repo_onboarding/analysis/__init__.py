@@ -1,4 +1,5 @@
 from ..config import SAFETY_IGNORES
+from ..effective_config import EffectiveConfig
 from .core import analyze_repo
 from .extractors import (
     detect_workflow_python_version,
@@ -11,6 +12,7 @@ from .structs import IgnoreMatcher
 
 __all__ = [
     "analyze_repo",
+    "EffectiveConfig",
     "extract_makefile_commands",
     "extract_shell_scripts",
     "extract_tox_commands",
