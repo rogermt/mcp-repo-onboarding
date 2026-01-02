@@ -24,6 +24,7 @@ from ..schema import (
     RepoAnalysis,
     RepoAnalysisScriptGroup,
     TestSetup,
+    ToolingEvidence,
 )
 from .catalog import is_dependency_file
 from .extractors import (
@@ -39,6 +40,7 @@ from .notebook_hygiene import precommit_has_notebook_hygiene
 from .prioritization import get_config_priority, get_dep_priority, get_doc_priority
 from .scanning import scan_repo_files
 from .structs import IgnoreMatcher
+from .tooling import detect_other_tooling
 
 logger = logging.getLogger(__name__)
 
@@ -384,6 +386,17 @@ def analyze_repo(
     if notebooks_field:
         notes.append("Notebook-centric repo detected; core logic may reside in Jupyter notebooks.")
 
+    # 9. Other tooling detection (Phase 8 - #81)
+    other_tooling_detections = detect_other_tooling(all_files)
+    other_tooling = [
+        ToolingEvidence(
+            name=d.name,
+            evidenceFiles=list(d.evidence_files),
+            note=d.note,
+        )
+        for d in other_tooling_detections
+    ]
+
     logger.info(f"Analyzed repo at {root}: {len(all_files)} files found.")
 
     return RepoAnalysis(
@@ -397,6 +410,7 @@ def analyze_repo(
         notebooks=notebooks_field,
         projectLayout=ProjectLayout(),
         testSetup=TestSetup(),
+        otherTooling=other_tooling,
     )
 
 
