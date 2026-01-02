@@ -10,10 +10,10 @@ from .context import Context
 from .registry import get_section_registry
 
 
-def compile_blueprint_v2(ctx: Context) -> dict[str, Any]:
+def compile_blueprint(ctx: Context) -> dict[str, Any]:
     """Compile a blueprint from context using the registry.
 
-    Produces output identical to v2 reference.
+    Produces output identical to v2 format.
     """
     registry = get_section_registry()
 
@@ -23,7 +23,7 @@ def compile_blueprint_v2(ctx: Context) -> dict[str, Any]:
             sections.append(spec.build(ctx))
 
     blueprint: dict[str, Any] = {
-        "format": "onboarding_blueprint_v2",
+        "format": "onboarding_blueprint_v2",  # API contract - keep this
         "render": {"mode": "verbatim", "markdown": ""},
         "sections": sections,
     }

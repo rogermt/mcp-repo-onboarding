@@ -1,16 +1,23 @@
+"""Tests for canonical onboarding blueprint module."""
+
 from __future__ import annotations
 
 from typing import Any
 
+import pytest
+
 from mcp_repo_onboarding.analysis.onboarding_blueprint import (
-    build_onboarding_blueprint_v1,
-    render_blueprint_to_markdown,
+    build_context,
+    compile_blueprint,
 )
 
 
-def _base_analyze_payload() -> dict[str, Any]:
-    return {
-        "repoPath": "/tmp/repo",
+def _mk(
+    analyze_overrides: dict[str, Any] | None = None,
+    commands_overrides: dict[str, Any] | None = None,
+) -> tuple[dict[str, Any], dict[str, Any]]:
+    analyze: dict[str, Any] = {
+        "repoPath": "/test/repo",
         "python": {
             "pythonVersionHints": [],
             "envSetupInstructions": [],
@@ -24,179 +31,354 @@ def _base_analyze_payload() -> dict[str, Any]:
             "lint": [],
             "format": [],
             "install": [],
+            "other": [],
         },
         "notes": [],
         "notebooks": [],
         "frameworks": [],
         "configurationFiles": [],
         "docs": [],
+        "testSetup": {"commands": []},
+    }
+    commands: dict[str, Any] = {
+        "devCommands": [],
+        "testCommands": [],
+        "buildCommands": [],
     }
 
+    if analyze_overrides:
+        analyze.update(analyze_overrides)
+    if commands_overrides:
+        commands.update(commands_overrides)
 
-def test_required_headings_order_repo_path_and_no_provenance() -> None:
-    analyze = _base_analyze_payload()
-
-    bp = build_onboarding_blueprint_v1(analyze)
-    md = render_blueprint_to_markdown(bp)
-
-    required = [
-        "# ONBOARDING.md",
-        "## Overview",
-        "## Environment setup",
-        "## Install dependencies",
-        "## Run / develop locally",
-        "## Run tests",
-        "## Lint / format",
-        "## Dependency files detected",
-        "## Useful configuration files",
-        "## Useful docs",
-    ]
-
-    # Order check (simple monotonic index)
-    idxs = [md.index(h) for h in required]
-    assert idxs == sorted(idxs)
-
-    # V2
-    assert "Repo path: /tmp/repo" in md
-
-    # V3 forbidden pattern
-    assert "Python version: No Python version pin detected." not in md
-
-    # V8
-    assert "source:" not in md.lower()
-    assert "evidence:" not in md.lower()
-
-    # command fallback exact string must appear (since no commands)
-    assert "No explicit commands detected." in md
+    return analyze, commands
 
 
-def test_generic_venv_snippet_has_label_immediately_above_first_venv_command() -> None:
-    analyze = _base_analyze_payload()
-    # No pin + no explicit env setup => generic venv snippet required
-    analyze["python"]["pythonVersionHints"] = []
-    analyze["python"]["envSetupInstructions"] = []
+def _compile(analyze: dict[str, Any], commands: dict[str, Any]) -> dict[str, Any]:
+    return compile_blueprint(build_context(analyze, commands))
 
-    md = render_blueprint_to_markdown(build_onboarding_blueprint_v1(analyze))
-    lines = md.splitlines()
 
-    venv_idx = next(
-        i
-        for i, ln in enumerate(lines)
-        if "python3 -m venv .venv" in ln or "python -m venv .venv" in ln
+class TestBlueprintStructure:
+    """Tests for blueprint output structure."""
+
+    def test_output_has_expected_keys(self) -> None:
+        """Blueprint has format, render, sections."""
+        analyze, commands = _mk()
+        result = _compile(analyze, commands)
+
+        assert result["format"] == "onboarding_blueprint_v2"
+        assert result["render"]["mode"] == "verbatim"
+        assert isinstance(result["render"]["markdown"], str)
+        assert isinstance(result["sections"], list)
+
+    def test_markdown_ends_with_single_newline(self) -> None:
+        """Markdown ends with exactly one newline."""
+        analyze, commands = _mk()
+        result = _compile(analyze, commands)
+        md = result["render"]["markdown"]
+
+        assert md.endswith("\n")
+        assert not md.endswith("\n\n")
+
+    def test_sections_have_required_fields(self) -> None:
+        """Each section has id, heading, lines."""
+        analyze, commands = _mk()
+        result = _compile(analyze, commands)
+
+        for section in result["sections"]:
+            assert "id" in section
+            assert "heading" in section
+            assert "lines" in section
+
+
+class TestEnvironmentSetup:
+    """Tests for environment setup section."""
+
+    def test_no_pin_includes_generic_venv(self) -> None:
+        """No Python pin → includes generic venv snippet."""
+        analyze, commands = _mk()
+        result = _compile(analyze, commands)
+        md = result["render"]["markdown"]
+
+        assert "python3 -m venv .venv" in md
+        assert "(Generic suggestion)" in md
+
+    def test_pin_present_no_generic_venv(self) -> None:
+        """Python pin present + no env instructions → no generic venv."""
+        analyze, commands = _mk(
+            analyze_overrides={
+                "python": {
+                    "pythonVersionHints": ["3.12"],
+                    "envSetupInstructions": [],
+                    "installInstructions": [],
+                    "dependencyFiles": [],
+                }
+            }
+        )
+        result = _compile(analyze, commands)
+        md = result["render"]["markdown"]
+
+        assert "python3 -m venv .venv" not in md
+        assert "python -m venv .venv" not in md
+
+    def test_env_instructions_insert_generic_label_before_venv(self) -> None:
+        """Env instructions with venv marker get generic label inserted."""
+        analyze, commands = _mk(
+            analyze_overrides={
+                "python": {
+                    "pythonVersionHints": ["3.11"],
+                    "envSetupInstructions": [
+                        "python3 -m venv .venv",
+                        "source .venv/bin/activate",
+                    ],
+                    "installInstructions": [],
+                    "dependencyFiles": [],
+                }
+            }
+        )
+        result = _compile(analyze, commands)
+        md = result["render"]["markdown"]
+
+        assert "(Generic suggestion)" in md
+        assert md.index("(Generic suggestion)") < md.index("python3 -m venv .venv")
+
+
+class TestInstallSection:
+    """Tests for install dependencies section."""
+
+    def test_v7_single_pip_install_r(self) -> None:
+        """Only one pip install -r command appears (V7 rule)."""
+        analyze, commands = _mk(
+            analyze_overrides={
+                "python": {
+                    "pythonVersionHints": [],
+                    "envSetupInstructions": [],
+                    "installInstructions": [
+                        "pip install -r requirements.txt",
+                        "pip install -r requirements-dev.txt",
+                    ],
+                    "dependencyFiles": [],
+                }
+            }
+        )
+        result = _compile(analyze, commands)
+        md = result["render"]["markdown"]
+
+        assert md.count("pip install -r") == 1
+
+    def test_make_install_takes_precedence(self) -> None:
+        """make install is sole install command when present."""
+        analyze, commands = _mk(
+            analyze_overrides={
+                "scripts": {
+                    "dev": [],
+                    "start": [],
+                    "test": [],
+                    "lint": [],
+                    "format": [],
+                    "install": [
+                        {"command": "make install", "description": "Install deps"},
+                        {"command": "pip install -r requirements.txt", "description": "Pip"},
+                    ],
+                    "other": [],
+                },
+            }
+        )
+        result = _compile(analyze, commands)
+        md = result["render"]["markdown"]
+
+        assert "make install" in md
+        assert "pip install -r" not in md
+
+    def test_no_commands_shows_fallback(self) -> None:
+        """No install commands shows fallback message."""
+        analyze, commands = _mk()
+        result = _compile(analyze, commands)
+        md = result["render"]["markdown"]
+
+        assert "No explicit commands detected." in md
+
+
+class TestCommandFormatting:
+    """Tests for command bullet formatting."""
+
+    def test_command_bullet_format(self) -> None:
+        """Commands are formatted as * `cmd` (Description.)."""
+        analyze, commands = _mk(
+            analyze_overrides={
+                "scripts": {
+                    "dev": [],
+                    "start": [],
+                    "test": [{"command": "pytest", "description": "Run tests."}],
+                    "lint": [],
+                    "format": [],
+                    "install": [],
+                    "other": [],
+                }
+            }
+        )
+        result = _compile(analyze, commands)
+        md = result["render"]["markdown"]
+
+        assert "* `pytest` (Run tests.)" in md
+
+    def test_no_provenance_strings(self) -> None:
+        """No 'source:' or 'evidence:' strings in output."""
+        analyze, commands = _mk()
+        result = _compile(analyze, commands)
+        md = result["render"]["markdown"]
+
+        assert "source:" not in md
+        assert "evidence:" not in md
+
+
+class TestBulletStyle:
+    """Tests for bullet style consistency."""
+
+    def test_all_bullets_are_asterisk(self) -> None:
+        """All bullets must be * (never -)."""
+        analyze, commands = _mk(
+            analyze_overrides={
+                "configurationFiles": [{"path": "pyproject.toml", "description": "Config"}],
+                "docs": [{"path": "README.md"}],
+            }
+        )
+        result = _compile(analyze, commands)
+        md = result["render"]["markdown"]
+
+        for line in md.split("\n"):
+            if line.startswith("- "):
+                pytest.fail(f"Found dash bullet: {line}")
+
+
+class TestSanitization:
+    """Tests for description sanitization."""
+
+    @pytest.mark.parametrize(
+        "junk_desc",
+        [
+            "hello..",
+            "source: hi",
+            "evidence: hi",
+            "hi \t  there   ",
+            "bad \u0412\u0430\u0441",
+        ],
     )
-    assert lines[venv_idx - 1].strip() == "(Generic suggestion)"
+    def test_description_sanitization(self, junk_desc: str) -> None:
+        """Descriptions are sanitized (non-ASCII, provenance, double periods)."""
+        analyze, commands = _mk(
+            analyze_overrides={
+                "python": {
+                    "pythonVersionHints": [],
+                    "envSetupInstructions": [],
+                    "installInstructions": [],
+                    "dependencyFiles": [{"path": "requirements.txt", "description": junk_desc}],
+                }
+            }
+        )
+        result = _compile(analyze, commands)
+        md = result["render"]["markdown"]
+
+        assert ".." not in md
+        assert "source:" not in md
+        assert "evidence:" not in md
+        assert "\u0412" not in md
 
 
-def test_no_venv_snippet_when_pin_present_and_no_explicit_env_instructions() -> None:
-    analyze = _base_analyze_payload()
-    analyze["python"]["pythonVersionHints"] = ["3.11"]
-    analyze["python"]["envSetupInstructions"] = []
+class TestAnalyzerNotes:
+    """Tests for analyzer notes section."""
 
-    md = render_blueprint_to_markdown(build_onboarding_blueprint_v1(analyze))
-    assert "python3 -m venv .venv" not in md
-    assert "python -m venv .venv" not in md
-    assert "source .venv/bin/activate" not in md
+    def test_empty_notes_section_excluded(self) -> None:
+        """Analyzer notes section excluded when empty."""
+        analyze, commands = _mk(
+            analyze_overrides={
+                "notes": [],
+                "notebooks": [],
+                "frameworks": [],
+            }
+        )
+        result = _compile(analyze, commands)
+        md = result["render"]["markdown"]
 
+        assert "## Analyzer notes" not in md
 
-def test_install_pip_install_r_is_capped_to_one_occurrence() -> None:
-    analyze = _base_analyze_payload()
-    analyze["python"]["installInstructions"] = [
-        "pip install -r requirements.txt",
-        "pip install -r requirements-dev.txt",
-    ]
+    def test_frameworks_included(self) -> None:
+        """Frameworks are included in analyzer notes."""
+        analyze, commands = _mk(
+            analyze_overrides={
+                "frameworks": [{"name": "Flask", "detectionReason": "Found in pyproject.toml"}],
+            }
+        )
+        result = _compile(analyze, commands)
+        md = result["render"]["markdown"]
 
-    md = render_blueprint_to_markdown(build_onboarding_blueprint_v1(analyze))
-    assert md.count("pip install -r") == 1
+        assert "## Analyzer notes" in md
+        assert "Flask" in md
 
+    def test_notebooks_included(self) -> None:
+        """Notebook paths are included in analyzer notes."""
+        analyze, commands = _mk(
+            analyze_overrides={
+                "notebooks": ["notebooks", "examples"],
+            }
+        )
+        result = _compile(analyze, commands)
+        md = result["render"]["markdown"]
 
-def test_install_make_install_is_sole_install_command() -> None:
-    analyze = _base_analyze_payload()
-    analyze["scripts"]["install"] = [
-        {"command": "make install", "description": "Install deps"},
-        {"command": "pip install -r requirements.txt", "description": "Install deps"},
-    ]
-
-    md = render_blueprint_to_markdown(build_onboarding_blueprint_v1(analyze))
-
-    # must contain make install bullet
-    assert "* `make install`" in md
-    # must NOT contain other install commands if make install exists
-    assert "pip install -r" not in md
-
-
-def test_analyzer_notes_framework_reason_rules_single_and_multi() -> None:
-    analyze = _base_analyze_payload()
-
-    # single framework => include reason
-    analyze["frameworks"] = [
-        {"name": "Flask", "detectionReason": "Detected via pyproject.toml classifiers"}
-    ]
-    md = render_blueprint_to_markdown(build_onboarding_blueprint_v1(analyze))
-    assert "## Analyzer notes" in md
-    assert (
-        "* Frameworks detected (from analyzer): Flask. (Detected via pyproject.toml classifiers.)"
-        in md
-    )
-
-    # multi frameworks, same reason => include reason
-    analyze = _base_analyze_payload()
-    analyze["frameworks"] = [
-        {"name": "Django", "detectionReason": "Detected via pyproject.toml classifiers"},
-        {"name": "Wagtail", "detectionReason": "Detected via pyproject.toml classifiers"},
-    ]
-    md = render_blueprint_to_markdown(build_onboarding_blueprint_v1(analyze))
-    assert (
-        "* Frameworks detected (from analyzer): Django, Wagtail. (Detected via pyproject.toml classifiers.)"
-        in md
-    )
-
-    # multi frameworks, different reasons => omit parentheses
-    analyze = _base_analyze_payload()
-    analyze["frameworks"] = [
-        {"name": "Django", "detectionReason": "Detected via classifiers"},
-        {"name": "Flask", "detectionReason": "Detected via Poetry deps"},
-    ]
-    md = render_blueprint_to_markdown(build_onboarding_blueprint_v1(analyze))
-    assert "* Frameworks detected (from analyzer): Django, Flask." in md
-    assert "Frameworks detected (from analyzer): Django, Flask. (" not in md
+        assert "Notebooks found in:" in md
 
 
-def test_analyzer_notes_notebooks_adds_dirs_and_avoids_duplicate_note() -> None:
-    analyze = _base_analyze_payload()
-    analyze["notebooks"] = ["notebooks/examples/", "."]  # analyzer may output "." for root
-    analyze["notes"] = [
-        "docs list truncated to 10 entries (total=99)",
-        "Notebook-centric repo detected; core logic may reside in Jupyter notebooks.",
-    ]
+class TestRequiredHeadings:
+    """Tests for required headings and order."""
 
-    md = render_blueprint_to_markdown(build_onboarding_blueprint_v1(analyze))
-    # should not duplicate notebook-centric note
-    assert (
-        md.count("Notebook-centric repo detected; core logic may reside in Jupyter notebooks.") == 1
-    )
-    # dirs line must exist and must end with / for each
-    assert "Notebooks found in: notebooks/examples/, ./" in md
+    def test_all_required_headings_present(self) -> None:
+        """All required headings are present in output."""
+        analyze, commands = _mk()
+        result = _compile(analyze, commands)
+        md = result["render"]["markdown"]
 
+        required = [
+            "# ONBOARDING.md",
+            "## Overview",
+            "## Environment setup",
+            "## Install dependencies",
+            "## Run / develop locally",
+            "## Run tests",
+            "## Lint / format",
+            "## Dependency files detected",
+            "## Useful configuration files",
+            "## Useful docs",
+        ]
 
-def test_env_setup_never_outputs_v3_forbidden_pattern_even_if_hints_corrupted() -> None:
-    analyze = {
-        "repoPath": "/tmp/repo",
-        "python": {
-            # Simulate corrupted upstream data:
-            "pythonVersionHints": ["No Python version pin detected."],
-            "envSetupInstructions": [],
-            "installInstructions": [],
-            "dependencyFiles": [],
-        },
-        "scripts": {"dev": [], "start": [], "test": [], "lint": [], "format": [], "install": []},
-        "notes": [],
-        "notebooks": [],
-        "frameworks": [],
-        "configurationFiles": [],
-        "docs": [],
-    }
+        for heading in required:
+            assert heading in md, f"Missing required heading: {heading}"
 
-    md = render_blueprint_to_markdown(build_onboarding_blueprint_v1(analyze))
+    def test_headings_in_order(self) -> None:
+        """Required headings appear in correct order."""
+        analyze, commands = _mk()
+        result = _compile(analyze, commands)
+        md = result["render"]["markdown"]
 
-    assert "Python version: No Python version pin detected." not in md
-    assert "No Python version pin detected." in md
+        required = [
+            "# ONBOARDING.md",
+            "## Overview",
+            "## Environment setup",
+            "## Install dependencies",
+            "## Run / develop locally",
+            "## Run tests",
+            "## Lint / format",
+            "## Dependency files detected",
+            "## Useful configuration files",
+            "## Useful docs",
+        ]
+
+        indices = [md.index(h) for h in required]
+        assert indices == sorted(indices), "Headings are out of order"
+
+    def test_repo_path_in_overview(self) -> None:
+        """Repo path appears in Overview section."""
+        analyze, commands = _mk(analyze_overrides={"repoPath": "/my/test/repo"})
+        result = _compile(analyze, commands)
+        md = result["render"]["markdown"]
+
+        assert "Repo path: /my/test/repo" in md

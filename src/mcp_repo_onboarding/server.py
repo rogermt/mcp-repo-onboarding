@@ -8,8 +8,7 @@ from mcp.server.fastmcp import FastMCP
 
 from . import configure_logging
 from .analysis import analyze_repo as analysis_mod_analyze_repo
-from .analysis.onboarding_blueprint import build_context as build_blueprint_v2_context
-from .analysis.onboarding_blueprint import build_onboarding_blueprint_v1, compile_blueprint_v2
+from .analysis.onboarding_blueprint import build_context, compile_blueprint
 from .config import DEFAULT_MAX_FILES
 from .onboarding import read_onboarding as read_onboarding_svc
 from .onboarding import write_onboarding as write_onboarding_svc
@@ -208,19 +207,13 @@ def analyze_repo(
     # Sanitize descriptions at the MCP boundary
     _sanitize_analysis_descriptions(data)
 
-    # Blueprint v1 (existing)
-    try:
-        data["onboarding_blueprint_v1"] = build_onboarding_blueprint_v1(data)
-    except Exception as e:
-        logger.warning(f"Failed to build onboarding blueprint v1: {e}")
-
-    # Blueprint v2 (new)
+    # Build onboarding blueprint
     try:
         commands_payload = _derive_run_and_test_commands_dict(analysis)
-        ctx = build_blueprint_v2_context(data, commands_payload)
-        data["onboarding_blueprint_v2"] = compile_blueprint_v2(ctx)
+        ctx = build_context(data, commands_payload)
+        data["onboarding_blueprint"] = compile_blueprint(ctx)
     except Exception as e:
-        logger.warning(f"Failed to build onboarding blueprint v2: {e}")
+        logger.warning(f"Failed to build onboarding blueprint: {e}")
 
     return json.dumps(data, indent=2)
 
