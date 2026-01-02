@@ -62,3 +62,40 @@ uv run mypy src/mcp_repo_onboarding --ignore-missing-imports
 - Use **Type Hints** everywhere.
 - Use **Pydantic** for all data structures (do not use raw dicts for API outputs).
 - Use `pathlib` for all file paths.
+
+---
+
+## Issue #87 Status — Blueprint Refactoring (Registry Engine)
+
+### PR1: COMPLETE ✓
+**Branch:** `feat/issue-87-pr1` (commit `80f09b3`)
+**Status:** Tests GREEN, linters pass, pushed to remote.
+
+**Deliverables:**
+- `onboarding_blueprint_reference.py` — frozen v2 snapshot (baseline for equivalence tests)
+- `onboarding_blueprint_engine/` package — registry-driven compilation engine
+  - `context.py` — minimal Context (matches v2 exactly)
+  - `specs.py` — SectionSpec data class
+  - `registry.py` — all section builders (verbatim from v2) + registry list in order
+  - `compile.py` — blueprint compiler and renderer (verbatim from v2)
+  - `__init__.py` — engine API exports
+- `onboarding_blueprint.py` (canonical) — versionless entrypoint, engine-backed
+- `tests/onboarding/test_blueprint_engine_equivalence.py` — 6 synthetic equivalence tests
+- `tests/onboarding/test_onboarding_blueprint_canonical_module.py` — 5 canonical module tests
+
+**Test Results:** 11/11 passed
+**Engine Output:** Byte-for-byte identical to reference v2 for all test cases.
+
+### PR2: COMPLETE ✓
+**Branch:** `feat/issue-87-pr2` (commit `57bff2e`)
+**Status:** Tests GREEN, linters pass, ready for merge.
+
+**Deliverables:**
+- `onboarding_blueprint_legacy.py` — frozen v1 implementation (preserved for backward compatibility)
+- Updated `onboarding_blueprint.py` — canonical module re-exports v2 from engine + v1 from legacy
+- Updated `src/mcp_repo_onboarding/server.py` — production imports from canonical module
+- Updated `tests/onboarding/test_onboarding_blueprint_v2.py` — import from canonical module
+- Updated `pyproject.toml` — added `onboarding_blueprint_legacy.py` to ruff per-file-ignores
+
+**Test Results:** 207 passed, 1 skipped
+**All Linters:** ✓ ruff check, ✓ ruff format, ✓ mypy

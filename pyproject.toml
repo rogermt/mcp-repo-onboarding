@@ -102,6 +102,7 @@ max-complexity = 10
 "src/mcp_repo_onboarding/analysis/frameworks.py" = ["PLR0912", "C901"]  # Framework detection has multiple branches
 "src/mcp_repo_onboarding/analysis/install_commands.py" = ["PLR2004", "PLR0911", "C901"]  # Magic numbers, returns, command descriptions
 "src/mcp_repo_onboarding/analysis/onboarding_blueprint.py" = ["C901", "PLR0912"]  # Environment and notes rendering
+"src/mcp_repo_onboarding/analysis/onboarding_blueprint_legacy.py" = ["C901", "PLR0912"]  # v1 frozen copy; legacy environment and notes rendering
 "src/mcp_repo_onboarding/analysis/onboarding_blueprint_v2.py" = ["PLR2004", "C901", "PLR0912"]  # ASCII constants, notes rendering
 "src/mcp_repo_onboarding/analysis/prioritization.py" = ["PLR2004", "PLR1714"]  # Score constants and comparisons
 "src/mcp_repo_onboarding/analysis/scanning.py" = ["C901", "PLR0912"]  # File scanning and filtering logic
