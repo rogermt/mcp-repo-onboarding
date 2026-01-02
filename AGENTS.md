@@ -57,10 +57,26 @@ This file is managed by the user only:
 
 ## Build & Run Commands
 - **Sync Dependencies:** `uv sync`
-- **Run Tests:** `uv run pytest`
+- **Run Tests with Coverage:** `uv run pytest --cov=src/mcp_repo_onboarding --cov-report=term-missing`
+- **Run Tests (no coverage):** `uv run pytest`
 - **Run Server (Local):** `uv run mcp-repo-onboarding`
 - **Lint/Format:** `uv run ruff check .`
 - **Type Check:** `uv run mypy src/mcp_repo_onboarding --ignore-missing-imports`
+
+## ⚠️ MANDATORY: Run All Tests WITH Coverage After Every Change
+
+**ALL test execution MUST include coverage reporting:**
+
+```bash
+uv run pytest --cov=src/mcp_repo_onboarding --cov-report=term-missing
+```
+
+**Acceptance criteria:**
+- Minimum 80% coverage required (`fail-under=80` in pyproject.toml)
+- All tests must PASS
+- No uncovered critical code paths
+
+**DO NOT verify tests without coverage.** You WILL cause work delays and must report full coverage results.
 
 ## ⚠️ MANDATORY: Run Linters After Every Edit
 
