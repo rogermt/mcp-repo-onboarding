@@ -225,3 +225,61 @@ def test_no_non_ascii_garbage_in_rendered_markdown() -> None:
     md = bp["render"]["markdown"]
     assert "Вас" not in md
     assert ".." not in md
+
+
+def test_analyzer_notes_framework_reason_rules() -> None:
+    # single framework => include reason
+    analyze = _mk_analyze()
+    analyze["frameworks"] = [
+        {"name": "Flask", "detectionReason": "Detected via pyproject.toml classifiers"}
+    ]
+    bp = _bp(analyze, _mk_cmds())
+    md = bp["render"]["markdown"]
+    assert "## Analyzer notes" in md
+    assert (
+        "* Frameworks detected (from analyzer): Flask. (Detected via pyproject.toml classifiers.)"
+        in md
+    )
+
+    # multi frameworks, same reason => include reason
+    analyze = _mk_analyze()
+    analyze["frameworks"] = [
+        {"name": "Django", "detectionReason": "Detected via pyproject.toml classifiers"},
+        {"name": "Wagtail", "detectionReason": "Detected via pyproject.toml classifiers"},
+    ]
+    bp = _bp(analyze, _mk_cmds())
+    md = bp["render"]["markdown"]
+    assert (
+        "* Frameworks detected (from analyzer): Django, Wagtail. (Detected via pyproject.toml classifiers.)"
+        in md
+    )
+
+    # multi frameworks, different reasons => omit parentheses
+    analyze = _mk_analyze()
+    analyze["frameworks"] = [
+        {"name": "Django", "detectionReason": "Detected via classifiers"},
+        {"name": "Flask", "detectionReason": "Detected via Poetry deps"},
+    ]
+    bp = _bp(analyze, _mk_cmds())
+    md = bp["render"]["markdown"]
+    assert "* Frameworks detected (from analyzer): Django, Flask." in md
+    assert "Frameworks detected (from analyzer): Django, Flask. (" not in md
+
+
+def test_analyzer_notes_notebooks() -> None:
+    analyze = _mk_analyze()
+    analyze["notebooks"] = ["notebooks/examples/", "."]
+    analyze["notes"] = [
+        "docs list truncated to 10 entries",
+        "Notebook-centric repo detected; core logic may reside in Jupyter notebooks.",
+    ]
+
+    bp = _bp(analyze, _mk_cmds())
+    md = bp["render"]["markdown"]
+
+    # should not duplicate notebook-centric note if already present in notes
+    assert (
+        md.count("Notebook-centric repo detected; core logic may reside in Jupyter notebooks.") == 1
+    )
+    # dirs line must exist and must end with / for each
+    assert "Notebooks found in: notebooks/examples/, ./" in md

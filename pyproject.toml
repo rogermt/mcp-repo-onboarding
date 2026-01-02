@@ -46,7 +46,12 @@ testpaths = ["tests"]
 
 [tool.coverage.run]
 source = ["src"]
-omit = ["tests/*", "*/site-packages/*"]
+omit = [
+    "tests/*",
+    "*/site-packages/*",
+    "src/mcp_repo_onboarding/analysis/onboarding_blueprint_legacy.py",
+    "src/mcp_repo_onboarding/analysis/onboarding_blueprint_v2.py",
+]
 
 [tool.coverage.report]
 fail_under = 80

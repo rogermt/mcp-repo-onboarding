@@ -194,3 +194,93 @@ def test_equivalence_sanitization_double_periods() -> None:
 
     assert ref_blueprint["render"]["markdown"] == engine_blueprint["render"]["markdown"]
     assert ref_blueprint["sections"] == engine_blueprint["sections"]
+
+
+def test_equivalence_analyzer_notes_frameworks() -> None:
+    """Analyzer notes: framework detection logic."""
+    analyze: dict[str, Any] = {
+        "repoPath": ".",
+        "python": {"pythonVersionHints": [], "envSetupInstructions": []},
+        "scripts": {},
+        "configurationFiles": [],
+        "dependencyFiles": [],
+        "docs": [],
+        "notes": [],
+        "notebooks": [],
+        "frameworks": [
+            {"name": "Django", "detectionReason": "Detected via classifiers"},
+            {"name": "Flask", "detectionReason": "Detected via Poetry deps"},
+        ],
+    }
+    commands: dict[str, Any] = {}
+
+    ref_ctx = ref_build_context(analyze, commands)
+    engine_ctx = engine_build_context(analyze, commands)
+
+    ref_blueprint = ref_compile_blueprint_v2(ref_ctx)
+    engine_blueprint = engine_compile_blueprint_v2(engine_ctx)
+
+    assert ref_blueprint["render"]["markdown"] == engine_blueprint["render"]["markdown"]
+    assert ref_blueprint["sections"] == engine_blueprint["sections"]
+    assert "Django, Flask" in engine_blueprint["render"]["markdown"]
+
+
+def test_equivalence_analyzer_notes_notebooks() -> None:
+    """Analyzer notes: notebook detection logic."""
+    analyze: dict[str, Any] = {
+        "repoPath": ".",
+        "python": {"pythonVersionHints": [], "envSetupInstructions": []},
+        "scripts": {},
+        "configurationFiles": [],
+        "dependencyFiles": [],
+        "docs": [],
+        "notes": [],
+        "notebooks": ["notebooks/examples/", "."],
+        "frameworks": [],
+    }
+    commands: dict[str, Any] = {}
+
+    ref_ctx = ref_build_context(analyze, commands)
+    engine_ctx = engine_build_context(analyze, commands)
+
+    ref_blueprint = ref_compile_blueprint_v2(ref_ctx)
+    engine_blueprint = engine_compile_blueprint_v2(engine_ctx)
+
+    assert ref_blueprint["render"]["markdown"] == engine_blueprint["render"]["markdown"]
+    assert ref_blueprint["sections"] == engine_blueprint["sections"]
+    assert "Notebooks found in: notebooks/examples/, ./" in engine_blueprint["render"]["markdown"]
+
+
+def test_equivalence_make_install_precedence() -> None:
+    """`make install` takes precedence over other install commands."""
+    analyze: dict[str, Any] = {
+        "repoPath": ".",
+        "python": {
+            "pythonVersionHints": [],
+            "envSetupInstructions": [],
+        },
+        "scripts": {
+            "install": [
+                {"command": "make install", "description": "Install deps"},
+                {"command": "pip install -r requirements.txt", "description": "Pip"},
+            ]
+        },
+        "configurationFiles": [],
+        "dependencyFiles": [],
+        "docs": [],
+        "notes": [],
+        "notebooks": [],
+        "frameworks": [],
+    }
+    commands: dict[str, Any] = {}
+
+    ref_ctx = ref_build_context(analyze, commands)
+    engine_ctx = engine_build_context(analyze, commands)
+
+    ref_blueprint = ref_compile_blueprint_v2(ref_ctx)
+    engine_blueprint = engine_compile_blueprint_v2(engine_ctx)
+
+    assert ref_blueprint["render"]["markdown"] == engine_blueprint["render"]["markdown"]
+    assert ref_blueprint["sections"] == engine_blueprint["sections"]
+    assert "* `make install`" in engine_blueprint["render"]["markdown"]
+    assert "pip install" not in engine_blueprint["render"]["markdown"]

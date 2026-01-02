@@ -28,6 +28,17 @@ When verifying output, ensure no files from `tests/fixtures/` appear in the list
 
 **NO EXCEPTIONS.** Do not write logic without a red test first.
 
+## ⚠️ CRITICAL: Trust the Plan and Documentation
+
+**FOLLOW THE PLAN.** Do NOT deviate or second-guess:
+- If AGENTS.md or approved plan says master is clean → **trust it. Do not "check" old commits.**
+- If a plan specifies test structure → **follow it exactly. Do not restore old commits thinking things are broken.**
+- **Always read the current documentation first.** Do not assume state based on suspicion.
+- If status is documented (e.g., "Phase 7 COMPLETE"), do not undo or redo it.
+- **Fetch from origin before making assumptions about branch state.**
+
+**DO NOT:** Pull old commits, revert clean work, or reorganize things that are already correct just because you're unsure.
+
 ## Key Project Artifacts
 - **Validator:** `scripts/validate_onboarding.py` (Must be used to verify any generated `ONBOARDING.md`).
 - **Requirements:** `docs/development/REQUIREMENTS.md` (The canonical spec).
