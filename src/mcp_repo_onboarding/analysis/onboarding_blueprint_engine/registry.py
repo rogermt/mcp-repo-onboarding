@@ -240,6 +240,37 @@ def _lint_format_lines(ctx: Context) -> list[str]:
     return [_format_cmd(c) for c in cmds] if cmds else [NO_COMMANDS]
 
 
+def _other_tooling_lines(ctx: Context) -> list[str]:
+    """Build other tooling section lines.
+
+    Neutral detection only — no commands suggested.
+    """
+    tooling = ctx.analyze.get("otherTooling")
+    if not isinstance(tooling, list) or not tooling:
+        return []
+
+    lines: list[str] = []
+    for t in tooling:
+        if not isinstance(t, dict):
+            continue
+        name = t.get("name")
+        if not name:
+            continue
+
+        evidence = t.get("evidenceFiles", [])
+        if evidence:
+            # Sort for determinism, limit to 3 files
+            sorted_evidence = sorted(evidence)[:3]  # noqa: PLR2004
+            files_str = ", ".join(sorted_evidence)
+            if len(evidence) > 3:  # noqa: PLR2004
+                files_str += f" +{len(evidence) - 3} more"
+            lines.append(f"{BULLET}{name} ({files_str})")
+        else:
+            lines.append(f"{BULLET}{name}")
+
+    return lines
+
+
 def _analyzer_notes_lines(ctx: Context) -> list[str]:  # noqa: C901, PLR0912
     notes = ctx.analyze.get("notes")
     notebooks = ctx.analyze.get("notebooks")
@@ -432,28 +463,35 @@ def get_section_registry() -> list[SectionSpec]:
             build_lines=_lint_format_lines,
         ),
         SectionSpec(
+            section_id="other_tooling",
+            heading="## Other tooling detected",
+            order=7,
+            build_lines=_other_tooling_lines,
+            include_if=lambda ctx: bool(_other_tooling_lines(ctx)),
+        ),
+        SectionSpec(
             section_id="analyzer_notes",
             heading="## Analyzer notes",
-            order=7,
+            order=8,
             build_lines=_analyzer_notes_lines,
             include_if=lambda ctx: bool(_analyzer_notes_lines(ctx)),
         ),
         SectionSpec(
             section_id="deps",
             heading="## Dependency files detected",
-            order=8,
+            order=9,
             build_lines=_dep_lines,
         ),
         SectionSpec(
             section_id="config",
             heading="## Useful configuration files",
-            order=9,
+            order=10,
             build_lines=_config_lines,
         ),
         SectionSpec(
             section_id="docs",
             heading="## Useful docs",
-            order=10,
+            order=11,
             build_lines=_docs_lines,
         ),
     ]
