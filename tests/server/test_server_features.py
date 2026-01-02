@@ -45,8 +45,8 @@ async def test_tool_content() -> None:
     assert get_onboarding_template() == expected
 
 
-def test_analyze_repo_includes_blueprint_v2(tmp_path: pytest.TempPathFactory) -> None:
-    """Verify that analyze_repo includes onboarding_blueprint_v2 in output."""
+def test_analyze_repo_includes_blueprint(tmp_path: pytest.TempPathFactory) -> None:
+    """Verify that analyze_repo includes onboarding_blueprint in output."""
     import os
 
     from mcp_repo_onboarding.server import analyze_repo
@@ -61,8 +61,8 @@ def test_analyze_repo_includes_blueprint_v2(tmp_path: pytest.TempPathFactory) ->
         result = analyze_repo()
         data = json.loads(result)
 
-        assert "onboarding_blueprint_v2" in data
-        bp = data["onboarding_blueprint_v2"]
+        assert "onboarding_blueprint" in data
+        bp = data["onboarding_blueprint"]
         assert bp["format"] == "onboarding_blueprint_v2"
         assert bp["render"]["mode"] == "verbatim"
         assert isinstance(bp["render"]["markdown"], str)

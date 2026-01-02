@@ -110,3 +110,33 @@ uv run mypy src/mcp_repo_onboarding --ignore-missing-imports
 
 **Test Results:** 207 passed, 1 skipped
 **All Linters:** ✓ ruff check, ✓ ruff format, ✓ mypy
+### PR3: COMPLETE ✓
+**Branch:** `feat/issue-87-pr3` (commit `db9d92e`)
+**Status:** Tests GREEN, linters pass, evaluation 5/5 PASSED. Ready for merge.
+
+**Deliverables:**
+- DELETED `onboarding_blueprint_legacy.py` (v1 preserved, no longer exported from core)
+- DELETED `onboarding_blueprint_reference.py` (frozen v2 baseline, equivalence gate removed)
+- DELETED `onboarding_blueprint_v2.py` (compatibility shim no longer needed)
+- Updated `onboarding_blueprint.py` — canonical module now v2 engine-backed only (no v1)
+- Updated `onboarding_blueprint_engine/compile.py` — function renamed `compile_blueprint` (was `compile_blueprint_v2`)
+- Updated `server.py` — output key is now `onboarding_blueprint` (not `_v1` or `_v2`)
+- Updated `analysis/__init__.py` — removed blueprint exports entirely
+- Replaced equivalence tests with direct behavior tests (23 test cases)
+- Updated server test to verify new output key
+- Format string remains `"onboarding_blueprint_v2"` (API contract preserved)
+
+**Test Results:** 197 passed
+**All Linters:** ✓ ruff check, ✓ ruff format, ✓ mypy
+**Files Deleted:** 8 (legacy, reference, v2 shim, 4 old tests)
+**Net Change:** -2124 lines (deleted bloat), +433 lines (new tests, canonical code)
+
+**Acceptance Criteria (Final Gate):**
+- [x] Evaluation tests: 5/5 passing (run `scripts/validate_onboarding.py`)
+- [x] No MCP output drift
+- [x] Format string contract preserved (`"onboarding_blueprint_v2"`)
+- [x] Output key is `onboarding_blueprint` (not `_v1` or `_v2`)
+- [x] All files with `_v1`, `_v2`, `_legacy`, `_reference` deleted from `src/`
+- [x] All unit tests pass (197/197)
+- [x] All linters pass
+- [x] Ready for merge to `master`
