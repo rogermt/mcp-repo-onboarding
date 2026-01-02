@@ -8,9 +8,8 @@ from mcp.server.fastmcp import FastMCP
 
 from . import configure_logging
 from .analysis import analyze_repo as analysis_mod_analyze_repo
-from .analysis.onboarding_blueprint import build_onboarding_blueprint_v1
-from .analysis.onboarding_blueprint_v2 import build_context as build_blueprint_v2_context
-from .analysis.onboarding_blueprint_v2 import compile_blueprint_v2
+from .analysis.onboarding_blueprint import build_context as build_blueprint_v2_context
+from .analysis.onboarding_blueprint import build_onboarding_blueprint_v1, compile_blueprint_v2
 from .config import DEFAULT_MAX_FILES
 from .onboarding import read_onboarding as read_onboarding_svc
 from .onboarding import write_onboarding as write_onboarding_svc

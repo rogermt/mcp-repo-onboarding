@@ -4,7 +4,7 @@ from typing import Any
 
 import pytest
 
-from mcp_repo_onboarding.analysis.onboarding_blueprint_v2 import (
+from mcp_repo_onboarding.analysis.onboarding_blueprint import (
     build_context,
     compile_blueprint_v2,
     render_blueprint_to_markdown,

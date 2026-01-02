@@ -97,18 +97,16 @@ uv run mypy src/mcp_repo_onboarding --ignore-missing-imports
 **Test Results:** 11/11 passed
 **Engine Output:** Byte-for-byte identical to reference v2 for all test cases.
 
-### PR2: PENDING
-**Next Steps:**
-1. Create `feat/issue-87-pr2` from `feat/issue-87-pr1`
-2. Update production imports across `src/` and `tests/` to use canonical module
-3. Create optional v2 compat shim (if needed)
-4. Update existing v2 tests (if needed)
-5. Run full test suite
-6. Commit, push, ready for merge
+### PR2: COMPLETE ✓
+**Branch:** `feat/issue-87-pr2` (commit `57bff2e`)
+**Status:** Tests GREEN, linters pass, ready for merge.
 
-**Reference Plan:** See `/scratch/blueprint_approved_pln.md` (section 6, File Checklist)
+**Deliverables:**
+- `onboarding_blueprint_legacy.py` — frozen v1 implementation (preserved for backward compatibility)
+- Updated `onboarding_blueprint.py` — canonical module re-exports v2 from engine + v1 from legacy
+- Updated `src/mcp_repo_onboarding/server.py` — production imports from canonical module
+- Updated `tests/onboarding/test_onboarding_blueprint_v2.py` — import from canonical module
+- Updated `pyproject.toml` — added `onboarding_blueprint_legacy.py` to ruff per-file-ignores
 
-**Test Directory Structure:** STRICT enforcement
-- ✓ Tests ONLY in subdirectories: `tests/analysis/`, `tests/integration/`, `tests/onboarding/`, `tests/server/`
-- ✗ Never in root `tests/` directory
-- ✓ Subdirectories created as needed during PR2
+**Test Results:** 207 passed, 1 skipped
+**All Linters:** ✓ ruff check, ✓ ruff format, ✓ mypy
