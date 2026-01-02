@@ -6,6 +6,12 @@ from pathlib import Path
 import pytest
 
 
+@pytest.fixture(scope="session")
+def fixtures_dir(pytestconfig: pytest.Config) -> Path:
+    """Return the path to tests/fixtures directory."""
+    return Path(pytestconfig.rootpath) / "tests" / "fixtures"
+
+
 @pytest.fixture
 def fixtures_root() -> Path:
     """Returns the path to the static fixtures directory."""

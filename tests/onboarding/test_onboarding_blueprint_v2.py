@@ -54,7 +54,9 @@ def _mk_cmds(overrides: dict[str, Any] | None = None) -> dict[str, Any]:
 
 def _bp(analyze: dict[str, Any], cmds: dict[str, Any]) -> dict[str, Any]:
     ctx = build_context(analyze, cmds)
-    return compile_blueprint_v2(ctx)
+    bp = compile_blueprint_v2(ctx)
+    assert isinstance(bp, dict)
+    return bp
 
 
 def test_shape_and_format() -> None:

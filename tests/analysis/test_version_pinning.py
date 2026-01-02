@@ -5,11 +5,6 @@ import pytest
 from mcp_repo_onboarding.analysis.core import analyze_repo
 
 
-@pytest.fixture
-def fixtures_dir() -> Path:
-    return Path(__file__).parent / "fixtures"
-
-
 def test_python_pin_range_rejection(fixtures_dir: Path) -> None:
     """Verify that version ranges like >=3.10 are rejected and hints are empty."""
     repo_path = fixtures_dir / "python-pin-range"
