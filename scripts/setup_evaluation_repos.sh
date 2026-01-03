@@ -3,7 +3,7 @@
 # Source B-prompt.txt path from the current working directory
 
 # Target repositories (relative to your home directory)
-REPOS=("searxng" "imgix-python" "Paper2Code" "wagtail" "connexion")
+REPOS=("searxng" "imgix-python" "Paper2Code" "wagtail" "connexion" "DeepCode" "gradio-bbox")
 
 echo "Starting updates for specified repositories..."
 echo ""

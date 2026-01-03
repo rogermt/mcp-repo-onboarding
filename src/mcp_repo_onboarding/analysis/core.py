@@ -34,7 +34,7 @@ from .extractors import (
     extract_shell_scripts,
     extract_tox_commands,
 )
-from .frameworks import detect_frameworks_from_pyproject
+from .frameworks import detect_frameworks
 from .install_commands import merge_python_install_instructions_into_scripts
 from .notebook_hygiene import precommit_has_notebook_hygiene
 from .prioritization import get_config_priority, get_dep_priority, get_doc_priority
@@ -358,8 +358,8 @@ def analyze_repo(
     # 6. Extract Scripts
     scripts = _aggregate_scripts(root, configs, all_files)
 
-    # Framework detection (cheap, deterministic): pyproject classifiers
-    frameworks = detect_frameworks_from_pyproject(root)
+    # Framework detection (cheap, deterministic): pyproject classifiers and requirements
+    frameworks = detect_frameworks(root, dep_files=dep_files)
 
     # 7. Infer Python Env
     python_info = _infer_python_environment(root, py_files, dep_files)

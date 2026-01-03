@@ -12,6 +12,7 @@ REPOS=(
     "DeepCode|https://github.com/rogermt/DeepCode.git|main"
     "wagtail|https://github.com/wagtail/wagtail.git|main"
     "connexion|https://github.com/spec-first/connexion.git|main"
+    "gradio-bbox|https://github.com/chencn2020/gradio-bbox.git|main"
 )
 
 echo "Starting teardown and re-cloning of repositories in ${BASE_DIR}..."
