@@ -105,6 +105,39 @@ def _is_safe_description(line: str) -> bool:
     return True
 
 
+def _fallback_script_description(script_rel_path: str) -> str:
+    """
+    Deterministic fallback descriptions for repo scripts when no safe header
+    description is available.
+
+    Goal: avoid "(No description provided by analyzer.)" for common helper scripts
+    while staying neutral and non-prescriptive.
+    """
+    name = Path(script_rel_path).name.lower()
+
+    # Helper/utility scripts: common names seen in real repos
+    helper_names = {
+        "helper.sh",
+        "helpers.sh",
+        "util.sh",
+        "utils.sh",
+        "common.sh",
+        "shared.sh",
+    }
+    helper_prefixes = ("helper", "helpers", "util", "utils", "common", "shared")
+
+    if (
+        name in helper_names
+        or name.startswith(helper_prefixes)
+        or "helper" in name
+        or "util" in name
+    ):
+        return "Helper script used by other repo scripts."
+
+    # Default generic fallback (existing behavior)
+    return "Run repo script entrypoint."
+
+
 def extract_shell_scripts(all_files: list[str], repo_root: Path) -> dict[str, list[CommandInfo]]:
     """
     Find and analyze shell scripts in the scripts/ directory.
@@ -144,6 +177,11 @@ def extract_shell_scripts(all_files: list[str], repo_root: Path) -> dict[str, li
             logger.debug(f"Could not read script {script}: {e}")
             pass
 
+        # If no safe header description was found, add deterministic fallback.
+        # This prevents blueprint from printing "No description provided by analyzer."
+        if description is None:
+            description = _fallback_script_description(script)
+
         cmd_info = CommandInfo(
             command=command_str,
             source=script,
@@ -152,7 +190,12 @@ def extract_shell_scripts(all_files: list[str], repo_root: Path) -> dict[str, li
             confidence="derived",
         )
 
-        if description is None and "bash scripts/" in COMMAND_DESCRIBER_REGISTRY:
+        # Allow registry describer to enrich only when we are using the generic fallback.
+        # Helper scripts keep their more specific helper description.
+        if (
+            cmd_info.description == "Run repo script entrypoint."
+            and "bash scripts/" in COMMAND_DESCRIBER_REGISTRY
+        ):
             cmd_info = COMMAND_DESCRIBER_REGISTRY["bash scripts/"].describe(cmd_info)
 
         if "test" in name:
