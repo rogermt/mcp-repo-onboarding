@@ -1,3 +1,5 @@
+"""Tests for Flask detection via Poetry dependencies (Poetry detector registry)."""
+
 from __future__ import annotations
 
 from collections.abc import Callable
