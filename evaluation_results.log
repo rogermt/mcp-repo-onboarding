@@ -1,6 +1,82 @@
-
-=== Running evaluation for: gradio-bbox ===
+=== Evaluation Started: Fri Jan  2 20:41:29 GMT 2026 ===
+=== Running evaluation for: searxng Paper2Code imgix-python wagtail connexion gradio-bbox ===
 Logging to: evaluation_results.log
+
+=== Running gemini for searxng ===
+YOLO mode is enabled. All tool calls will be automatically approved.
+Loaded cached credentials.
+[STARTUP] StartupProfiler.flush() called with 9 phases
+[STARTUP] Recording metric for phase: cli_startup duration: 1716.615722999999
+[STARTUP] Recording metric for phase: load_settings duration: 9.457570999999007
+[STARTUP] Recording metric for phase: migrate_settings duration: 2.8388759999998
+[STARTUP] Recording metric for phase: parse_arguments duration: 59.433672999999544
+[STARTUP] Recording metric for phase: load_cli_config duration: 103.76060999999936
+[STARTUP] Recording metric for phase: initialize_app duration: 1501.203517
+[STARTUP] Recording metric for phase: authenticate duration: 1232.2786090000009
+[STARTUP] Recording metric for phase: discover_tools duration: 27.588509999999587
+[STARTUP] Recording metric for phase: initialize_mcp_clients duration: 9518.126824
+Token usage: unknown
+Waiting 30 seconds for rate limits...
+=== Running gemini for Paper2Code ===
+YOLO mode is enabled. All tool calls will be automatically approved.
+Loaded cached credentials.
+[STARTUP] StartupProfiler.flush() called with 9 phases
+[STARTUP] Recording metric for phase: cli_startup duration: 1189.7309490000007
+[STARTUP] Recording metric for phase: load_settings duration: 9.292038999999932
+[STARTUP] Recording metric for phase: migrate_settings duration: 4.280566999999792
+[STARTUP] Recording metric for phase: parse_arguments duration: 45.056720000000496
+[STARTUP] Recording metric for phase: load_cli_config duration: 79.11833099999967
+[STARTUP] Recording metric for phase: initialize_app duration: 1035.8542780000007
+[STARTUP] Recording metric for phase: authenticate duration: 900.8743060000015
+[STARTUP] Recording metric for phase: discover_tools duration: 10.467968000000837
+[STARTUP] Recording metric for phase: initialize_mcp_clients duration: 1680.4006020000015
+Token usage: unknown
+Waiting 30 seconds for rate limits...
+=== Running gemini for imgix-python ===
+YOLO mode is enabled. All tool calls will be automatically approved.
+Loaded cached credentials.
+[STARTUP] StartupProfiler.flush() called with 9 phases
+[STARTUP] Recording metric for phase: cli_startup duration: 1623.198453
+[STARTUP] Recording metric for phase: load_settings duration: 8.086048999999548
+[STARTUP] Recording metric for phase: migrate_settings duration: 2.1708529999996244
+[STARTUP] Recording metric for phase: parse_arguments duration: 28.216035999999804
+[STARTUP] Recording metric for phase: load_cli_config duration: 55.169010999999955
+[STARTUP] Recording metric for phase: initialize_app duration: 1462.1598280000007
+[STARTUP] Recording metric for phase: authenticate duration: 1343.9470109999993
+[STARTUP] Recording metric for phase: discover_tools duration: 9.311641000000236
+[STARTUP] Recording metric for phase: initialize_mcp_clients duration: 8729.646914
+Token usage: unknown
+Waiting 30 seconds for rate limits...
+=== Running gemini for wagtail ===
+YOLO mode is enabled. All tool calls will be automatically approved.
+Loaded cached credentials.
+[STARTUP] StartupProfiler.flush() called with 9 phases
+[STARTUP] Recording metric for phase: cli_startup duration: 1079.2786659999992
+[STARTUP] Recording metric for phase: load_settings duration: 13.694602000000486
+[STARTUP] Recording metric for phase: migrate_settings duration: 3.105615999999827
+[STARTUP] Recording metric for phase: parse_arguments duration: 35.00860199999988
+[STARTUP] Recording metric for phase: load_cli_config duration: 107.82800000000043
+[STARTUP] Recording metric for phase: initialize_app duration: 897.3049099999998
+[STARTUP] Recording metric for phase: authenticate duration: 707.8529779999999
+[STARTUP] Recording metric for phase: discover_tools duration: 11.940432999999757
+[STARTUP] Recording metric for phase: initialize_mcp_clients duration: 2967.3206229999996
+Token usage: unknown
+Waiting 30 seconds for rate limits...
+=== Running gemini for connexion ===
+YOLO mode is enabled. All tool calls will be automatically approved.
+Loaded cached credentials.
+[STARTUP] StartupProfiler.flush() called with 9 phases
+[STARTUP] Recording metric for phase: cli_startup duration: 922.5063999999998
+[STARTUP] Recording metric for phase: load_settings duration: 7.160331000000042
+[STARTUP] Recording metric for phase: migrate_settings duration: 2.0365139999998974
+[STARTUP] Recording metric for phase: parse_arguments duration: 25.761861999999837
+[STARTUP] Recording metric for phase: load_cli_config duration: 67.5833560000001
+[STARTUP] Recording metric for phase: initialize_app duration: 809.4650589999997
+[STARTUP] Recording metric for phase: authenticate duration: 715.1535430000004
+[STARTUP] Recording metric for phase: discover_tools duration: 19.52454200000011
+[STARTUP] Recording metric for phase: initialize_mcp_clients duration: 1568.2260889999998
+Token usage: unknown
+Waiting 30 seconds for rate limits...
 
 === Running gemini for gradio-bbox ===
 YOLO mode is enabled. All tool calls will be automatically approved.
@@ -17,6 +93,265 @@ Loaded cached credentials.
 [STARTUP] Recording metric for phase: initialize_mcp_clients duration: 2138.025778
 Token usage: unknown
 Waiting 30 seconds for rate limits...
+
+=== Showing ONBOARDING.md for searxng ===
+=== Repo: searxng ===
+# ONBOARDING.md
+
+## Overview
+Repo path: /home/rogermt/searxng
+
+## Environment setup
+Python version: 3.14
+
+## Install dependencies
+* `make install` (Install dependencies via Makefile target.)
+
+## Run / develop locally
+* `make run` (Run the application via Makefile target.)
+
+## Run tests
+* `make test` (Run the test suite via Makefile target.)
+
+## Lint / format
+* `make format` (Run formatting via Makefile target.)
+
+## Analyzer notes
+* docs list truncated to 10 entries (total=174)
+
+## Dependency files detected
+* requirements.txt (Python dependency manifest.)
+* requirements-dev.txt (Python dependency manifest.)
+* requirements-server.txt (Python dependency manifest.)
+* setup.py (Packaging/build configuration (setuptools).)
+
+## Useful configuration files
+* Makefile (Primary task runner for development and build orchestration.)
+* .github/workflows/checker.yml (CI/CD automation workflow.)
+* .github/workflows/container.yml (CI/CD automation workflow.)
+* .github/workflows/data-update.yml (CI/CD automation workflow.)
+* .github/workflows/documentation.yml (CI/CD automation workflow.)
+* .github/workflows/integration.yml (CI/CD automation workflow.)
+* .github/workflows/l10n.yml (CI/CD automation workflow.)
+
+## Useful docs
+* CONTRIBUTING.rst
+* LICENSE
+* README.rst
+* SECURITY.md
+* docs/index.rst
+* docs/own-instance.rst
+* docs/dev/quickstart.rst
+* docs/admin/installation-apache.rst
+* docs/admin/installation-docker.rst
+* docs/admin/installation-granian.rst
+
+--- Validating ONBOARDING.md for searxng ---
+Validation passed for /home/rogermt/searxng/ONBOARDING.md.
+
+=== Showing ONBOARDING.md for Paper2Code ===
+=== Repo: Paper2Code ===
+# ONBOARDING.md
+
+## Overview
+Repo path: /home/rogermt/Paper2Code
+
+## Environment setup
+No Python version pin detected.
+(Generic suggestion)
+* `python3 -m venv .venv` (Create virtual environment.)
+* `source .venv/bin/activate` (Activate virtual environment.)
+
+## Install dependencies
+* `pip install -r requirements.txt` (Install dependencies from requirements.txt.)
+
+## Run / develop locally
+* `bash scripts/run.sh` (Run repo script entrypoint.)
+* `bash scripts/run_latex.sh` (Run repo script entrypoint.)
+* `bash scripts/run_latex_llm.sh` (Run repo script entrypoint.)
+* `bash scripts/run_litellm.sh` (Run repo script entrypoint.)
+* `bash scripts/run_llm.sh` (Run repo script entrypoint.)
+
+## Run tests
+No explicit commands detected.
+
+## Lint / format
+No explicit commands detected.
+
+## Analyzer notes
+* Notebook-centric repo detected; core logic may reside in Jupyter notebooks.
+* Notebooks found in: notebooks/examples/
+
+## Dependency files detected
+* requirements.txt (Python dependency manifest.)
+
+## Useful configuration files
+* .pre-commit-config.yaml (Pre-commit config for cleaning Jupyter notebooks (e.g. stripping outputs) for cleaner diffs.)
+
+## Useful docs
+* CONTRIBUTING.md
+* LICENSE
+* README.md
+* data/paper2code/README.md
+* notebooks/README.md
+
+--- Validating ONBOARDING.md for Paper2Code ---
+Validation passed for /home/rogermt/Paper2Code/ONBOARDING.md.
+
+=== Showing ONBOARDING.md for imgix-python ===
+=== Repo: imgix-python ===
+# ONBOARDING.md
+
+## Overview
+Repo path: /home/rogermt/imgix-python
+
+## Environment setup
+No Python version pin detected.
+(Generic suggestion)
+* `python3 -m venv .venv` (Create virtual environment.)
+* `source .venv/bin/activate` (Activate virtual environment.)
+
+## Install dependencies
+* `pip install -e .` (Install the project in editable mode.)
+
+## Run / develop locally
+No explicit commands detected.
+
+## Run tests
+* `tox` (Run tests via tox.)
+
+## Lint / format
+* `tox -e flake8` (Run flake8 linting via tox.)
+
+## Dependency files detected
+* setup.cfg (Packaging/build configuration (setuptools).)
+* setup.py (Packaging/build configuration (setuptools).)
+
+## Useful configuration files
+* tox.ini (Test environment orchestrator (tox).)
+* .github/workflows/add-issue-to-project.yml (CI/CD automation workflow.)
+* .github/workflows/add-pr-to-project.yml (CI/CD automation workflow.)
+
+## Useful docs
+* CONTRIBUTING.md
+* LICENSE
+* README.md
+
+--- Validating ONBOARDING.md for imgix-python ---
+Validation passed for /home/rogermt/imgix-python/ONBOARDING.md.
+
+=== Showing ONBOARDING.md for wagtail ===
+=== Repo: wagtail ===
+# ONBOARDING.md
+
+## Overview
+Repo path: /home/rogermt/wagtail
+
+## Environment setup
+No Python version pin detected.
+(Generic suggestion)
+* `python3 -m venv .venv` (Create virtual environment.)
+* `source .venv/bin/activate` (Activate virtual environment.)
+
+## Install dependencies
+* `pip install .` (Install the project package.)
+
+## Run / develop locally
+* `bash scripts/fetch-translations.sh` (Delete old translation files (except "en" which is the source translation).)
+* `bash scripts/rebuild-translation-sources.sh` (Delete old translation sources.)
+
+## Run tests
+* `make test` (Run the test suite via Makefile target.)
+* `bash scripts/latest.sh` (Run repo script entrypoint.)
+* `tox` (Run tests via tox.)
+
+## Lint / format
+* `make lint` (Run linting via Makefile target.)
+* `make format` (Run formatting via Makefile target.)
+
+## Analyzer notes
+* docs list truncated to 10 entries (total=366)
+* Frameworks detected (from analyzer): Django, Wagtail. (Detected via pyproject.toml classifiers.)
+
+## Dependency files detected
+* pyproject.toml (Project configuration and dependency management (PEP 518/621).)
+* wagtail/project_template/requirements.txt (Python dependency manifest.)
+* setup.py (Packaging/build configuration (setuptools).)
+
+## Useful configuration files
+* Makefile (Primary task runner for development and build orchestration.)
+* .pre-commit-config.yaml (Pre-commit hooks configuration (code quality automation).)
+* tox.ini (Test environment orchestrator (tox).)
+* .github/workflows/codeql-analysis.yml (CI/CD automation workflow.)
+* .github/workflows/test.yml (CI/CD automation workflow.)
+
+## Useful docs
+* LICENSE
+* README.md
+* docs/README.md
+* docs/index.rst
+* docs/spelling_wordlist.txt
+* docs/support.md
+* docs/advanced_topics/third_party_tutorials.md
+* docs/getting_started/quick_install.md
+* docs/getting_started/tutorial.md
+* docs/tutorial/add_search.md
+
+--- Validating ONBOARDING.md for wagtail ---
+Validation passed for /home/rogermt/wagtail/ONBOARDING.md.
+
+=== Showing ONBOARDING.md for connexion ===
+=== Repo: connexion ===
+# ONBOARDING.md
+
+## Overview
+Repo path: /home/rogermt/connexion
+
+## Environment setup
+Python version: 3.12
+
+## Install dependencies
+* `pip install .` (Install the project package.)
+
+## Run / develop locally
+No explicit commands detected.
+
+## Run tests
+* `tox` (Run tests via tox.)
+
+## Lint / format
+* `tox -e flake8` (Run flake8 linting via tox.)
+
+## Analyzer notes
+* docs list truncated to 10 entries (total=34)
+* Frameworks detected (from analyzer): Flask. (Flask support detected via pyproject.toml (Poetry) dependency key 'flask' (optional).)
+
+## Dependency files detected
+* pyproject.toml (Project configuration and dependency management (PEP 518/621).)
+* examples/frameworks/requirements.txt (Python dependency manifest.)
+* examples/jwt/requirements.txt (Python dependency manifest.)
+* examples/sqlalchemy/requirements.txt (Python dependency manifest.)
+
+## Useful configuration files
+* .pre-commit-config.yaml (Pre-commit hooks configuration (code quality automation).)
+* tox.ini (Test environment orchestrator (tox).)
+* .github/workflows/pipeline.yml (CI/CD automation workflow.)
+* .github/workflows/release.yml (CI/CD automation workflow.)
+
+## Useful docs
+* LICENSE
+* README.md
+* docs/cli.rst
+* docs/context.rst
+* docs/cookbook.rst
+* docs/exceptions.rst
+* docs/index.rst
+* docs/lifespan.rst
+* docs/middleware.rst
+* docs/quickstart.rst
+
+--- Validating ONBOARDING.md for connexion ---
+Validation passed for /home/rogermt/connexion/ONBOARDING.md.
 
 === Showing ONBOARDING.md for gradio-bbox ===
 === Repo: gradio-bbox ===
@@ -62,7 +397,7 @@ No explicit commands detected.
 ## Analyzer notes
 * docs list truncated to 10 entries (total=41)
 * Notebook-centric repo detected; core logic may reside in Jupyter notebooks.
-* Notebooks found in: demo/Echocardiogram-Segmentation/, demo/altair_plot/, demo/animeganv2/, demo/annotatedimage_component/, demo/audio_component/, demo/audio_debugger/, demo/autocomplete/, demo/automatic-speech-recognition/, demo/bar_plot/, demo/barplot_component/, demo/blocks_chained_events/, demo/blocks_component_shortcut/, demo/blocks_essay/, demo/blocks_essay_update/, demo/blocks_flag/, demo/blocks_flashcards/, demo/blocks_flipper/, demo/blocks_form/, demo/blocks_gpt/, demo/blocks_hello/, demo/blocks_inputs/, demo/blocks_interpretation/, demo/blocks_joined/, demo/blocks_js_methods/, demo/blocks_kinematics/, demo/blocks_kitchen_sink/, demo/blocks_layout/, demo/blocks_mask/, demo/blocks_multiple_event_triggers/, demo/blocks_neural_instrument_coding/, demo/blocks_outputs/, demo/blocks_page_load/, demo/blocks_plug/, demo/blocks_random_slider/, demo/blocks_scroll/, demo/blocks_simple_squares/, demo/blocks_speech_text_sentiment/, demo/blocks_static/, demo/blocks_style/, demo/blocks_textbox_max_lines/, demo/blocks_update/, demo/blocks_webcam/, demo/blocks_xray/, demo/bokeh_plot/, demo/button_component/, demo/calculator/, demo/calculator_blocks/, demo/calculator_blocks_cached/, demo/calculator_list_and_dict/, demo/calculator_live/, demo/cancel_events/, demo/change_vs_input/, demo/chatbot_component/, demo/chatbot_dialogpt/, demo/chatbot_multimodal/, demo/chatbot_simple/, demo/chatbot_streaming/, demo/checkbox_component/, demo/checkboxgroup_component/, demo/chicago-bikeshare-dashboard/, demo/clear_components/, demo/clearbutton_component/, demo/clustering/, demo/code/, demo/code_component/, demo/color_generator/, demo/color_picker/, demo/colorpicker_component/, demo/concurrency_with_queue/, demo/concurrency_without_queue/, demo/count_generator/, demo/dashboard/, demo/dataframe_block-ui-test/, demo/dataframe_component/, demo/dataframe_datatype/, demo/dataset/, demo/dataset_component/, demo/depth_estimation/, demo/diff_texts/, demo/diffusers_with_batching/, demo/digit_classifier/, demo/dropdown_component/, demo/english_translator/, demo/event_trigger/, demo/examples_component/, demo/fake_diffusion/, demo/fake_diffusion_with_gif/, demo/fake_gan/, demo/fake_gan_2/, demo/fake_gan_no_input/, demo/file_component/, demo/filter_records/, demo/fraud_detector/, demo/gallery_component/, demo/gallery_selections/, demo/gender_sentence_custom_interpretation/, demo/gender_sentence_default_interpretation/, demo/generate_english_german/, demo/generate_tone/, demo/gif_maker/, demo/gpt2_xl/, demo/gpt2_xl_unified/, demo/hangman/, demo/hello_blocks/, demo/hello_login/, demo/hello_world/, demo/hello_world_2/, demo/hello_world_3/, demo/highlightedtext_component/, demo/html_component/, demo/image_classification/, demo/image_classifier/, demo/image_classifier_2/, demo/image_classifier_interface_load/, demo/image_classifier_interpretation/, demo/image_component/, demo/image_mod/, demo/image_mod_default_image/, demo/image_segmentation/, demo/image_selections/, demo/input_output/, demo/interface_parallel/, demo/interface_parallel_load/, demo/interface_random_slider/, demo/interface_series/, demo/interface_series_load/, demo/interpretation_component/, demo/json_component/, demo/kitchen_sink/, demo/label_component/, demo/latex/, demo/leaderboard/, demo/line_plot/, demo/lineplot_component/, demo/live_dashboard/, demo/live_with_vars/, demo/longest_word/, demo/main_note/, demo/map_airbnb/, demo/markdown_component/, demo/markdown_example/, demo/matrix_transpose/, demo/model3D/, demo/model3d_component/, demo/musical_instrument_identification/, demo/native_plots/, demo/neon-tts-plugin-coqui/, demo/ner_pipeline/, demo/no_input/, demo/number_component/, demo/outbreak_forecast/, demo/pictionary/, demo/plot_component/, demo/progress/, demo/progress_component/, demo/progress_simple/, demo/question-answering/, demo/radio_component/, demo/request_ip_headers/, demo/reverse_audio/, demo/reversible_flow/, demo/rows_and_columns/, demo/sales_projections/, demo/same-person-or-different/, demo/save_file_no_output/, demo/scatter_plot/, demo/scatterplot_component/, demo/sentiment_analysis/, demo/sepia_filter/, demo/sine_curve/, demo/slider_component/, demo/slider_release/, demo/sound_alert/, demo/spectogram/, demo/stable-diffusion/, demo/state_component/, demo/stock_forecast/, demo/stream_audio/, demo/stream_frames/, demo/streaming_wav2vec/, demo/stt_or_tts/, demo/tax_calculator/, demo/text_analysis/, demo/text_generation/, demo/textbox_component/, demo/theme_builder/, demo/theme_extended_step_1/, demo/theme_extended_step_2/, demo/theme_extended_step_3/, demo/theme_extended_step_4/, demo/theme_new_step_1/, demo/theme_new_step_2/, demo/theme_new_step_3/, demo/theme_soft/, demo/tictactoe/, demo/timeseries-forecasting-with-prophet/, demo/timeseries_component/, demo/titanic_survival/, demo/translation/, demo/unified_demo_text_generation/, demo/unispeech-speaker-verification/, demo/upload_button/, demo/uploadbutton_component/, demo/variable_outputs/, demo/video_component/, demo/video_identity/, demo/video_subtitle/, demo/waveform/, demo/webcam/, demo/white_noise_vid_not_playable/, demo/xgboost-income-prediction-with-explainability/, demo/zip_files/, demo/zip_to_json/
+* Notebooks found in: demo/Echocardiogram-Segmentation/, demo/altair_plot/, demo/animeganv2/, demo/annotatedimage_component/, demo/audio_component/, demo/audio_debugger/, demo/autocomplete/, demo/automatic-speech-recognition/, demo/bar_plot/, demo/barplot_component/, demo/blocks_chained_events/, demo/blocks_component_shortcut/, demo/blocks_essay/, demo/blocks_essay_update/, demo/blocks_flag/, demo/blocks_flashcards/, demo/blocks_flipper/, demo/blocks_form/, demo/blocks_gpt/, demo/blocks_hello/, demo/blocks_inputs/, demo/blocks_interpretation/, demo/blocks_joined/, demo/blocks_js_methods/, demo/blocks_kinematics/, demo/blocks_kitchen_sink/, demo/blocks_layout/, demo/blocks_mask/, demo/blocks_multiple_event_triggers/, demo/blocks_neural_instrument_coding/, demo/blocks_outputs/, demo/blocks_page_load/, demo/blocks_plug/, demo/blocks_random_slider/, demo/blocks_scroll/, demo/blocks_simple_squares/, demo/blocks_speech_text_sentiment/, demo/blocks_static/, demo/blocks_style/, demo/blocks_textbox_max_lines/, demo/blocks_update/, demo/blocks_webcam/, demo/blocks_xray/, demo/bokeh_plot/, demo/button_component/, demo/calculator/, demo/calculator_blocks/, demo/calculator_blocks_cached/, demo/calculator_list_and_dict/, demo/calculator_live/, demo/cancel_events/, demo/change_vs_input/, demo/chatbot_component/, demo/chatbot_dialogpt/, demo/chatbot_multimodal/, demo/chatbot_simple/, demo/chatbot_streaming/, demo/checkbox_component/, demo/checkboxgroup_component/, demo/chicago-bikeshare-dashboard/, demo/clear_components/, demo/clearbutton_component/, demo/clustering/, demo/code/, demo/code_component/, demo/color_generator/, demo/color_picker/, demo/colorpicker_component/, demo/concurrency_with_queue/, demo/concurrency_without_queue/, demo/count_generator/, demo/dashboard/, demo/dataframe_block-ui-test/, demo/dataframe_component/, demo/dataframe_datatype/, demo/dataset/, demo/dataset_component/, demo/depth_estimation/, demo/diff_texts/, demo/diffusers_with_batching/, demo/digit_clas... [truncated]
 * Frameworks detected (from analyzer): FastAPI, Gradio.
 
 ## Dependency files detected
