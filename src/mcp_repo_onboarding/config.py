@@ -160,6 +160,9 @@ DOC_HUMAN_EXTENSIONS: Final[set[str]] = {
     ".adoc",
 }
 
+# Maximum number of evidence files to display for other tooling detections
+MAX_EVIDENCE_FILES_DISPLAYED: Final[int] = 3
+
 # Mapping of tool keys and build backend identifiers to package manager names
 KNOWN_PACKAGE_MANAGERS: Final[dict[str, str]] = {
     "poetry": "poetry",

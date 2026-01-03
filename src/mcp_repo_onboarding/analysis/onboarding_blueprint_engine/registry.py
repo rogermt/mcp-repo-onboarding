@@ -9,6 +9,7 @@ from __future__ import annotations
 from collections.abc import Iterable
 from typing import Any
 
+from ...config import MAX_EVIDENCE_FILES_DISPLAYED
 from .context import Context
 from .specs import SectionSpec
 
@@ -244,15 +245,17 @@ def _lint_format_lines(ctx: Context) -> list[str]:
 
 
 def _other_tooling_lines(ctx: Context) -> list[str]:
-    """Build other tooling section lines.
+    """
+    Build other tooling section lines (Phase 9 - Issue #110).
 
-    Neutral detection only — no commands suggested.
+    Evidence-only, deterministically sorted, and truncated.
     """
     tooling = ctx.analyze.get("otherTooling")
     if not isinstance(tooling, list) or not tooling:
         return []
 
     lines: list[str] = []
+
     for t in tooling:
         if not isinstance(t, dict):
             continue
@@ -261,13 +264,24 @@ def _other_tooling_lines(ctx: Context) -> list[str]:
             continue
 
         evidence = t.get("evidenceFiles", [])
+
         if evidence:
-            # Sort for determinism, limit to 3 files
-            sorted_evidence = sorted(evidence)[:3]  # noqa: PLR2004
-            files_str = ", ".join(sorted_evidence)
-            if len(evidence) > 3:  # noqa: PLR2004
-                files_str += f" +{len(evidence) - 3} more"
+            # Sort deterministically
+            sorted_evidence = sorted(evidence)
+
+            # Truncate display
+            shown = sorted_evidence[:MAX_EVIDENCE_FILES_DISPLAYED]
+
+            files_str = ", ".join(shown)
+
+            # Append truncation note if needed
+            if len(sorted_evidence) > MAX_EVIDENCE_FILES_DISPLAYED:
+                files_str += (
+                    f"; truncated to {MAX_EVIDENCE_FILES_DISPLAYED} of {len(sorted_evidence)}"
+                )
+
             lines.append(f"{BULLET}{name} ({files_str})")
+
         else:
             lines.append(f"{BULLET}{name}")
 
