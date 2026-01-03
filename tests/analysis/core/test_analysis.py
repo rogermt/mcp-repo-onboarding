@@ -309,6 +309,22 @@ echo "running tests"
     assert test_cmd.description == "Run repo script entrypoint."
 
 
+def test_helper_script_gets_specific_fallback_description(temp_repo: Callable[[str], Path]) -> None:
+    repo_path = temp_repo("repo-with-scripts")
+
+    helpers = repo_path / "scripts" / "helpers.sh"
+    helpers.write_text(
+        "#!/bin/bash\n# -------- IGNORE ME --------\necho 'hi'\n",
+        encoding="utf-8",
+    )
+
+    analysis = analyze_repo(str(repo_path))
+
+    helper_cmd = next((c for c in (analysis.scripts.dev or []) if c.name == "helpers.sh"), None)
+    assert helper_cmd is not None
+    assert helper_cmd.description == "Helper script used by other repo scripts."
+
+
 def test_command_source_always_populated(temp_repo: Callable[[str], Path]) -> None:
     # Test Makefile
     repo_path = temp_repo("makefile-with-recipes")
