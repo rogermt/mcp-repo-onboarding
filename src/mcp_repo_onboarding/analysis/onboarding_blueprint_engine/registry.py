@@ -22,6 +22,9 @@ NO_DOCS = "No useful docs detected."
 
 NOTEBOOK_CENTRIC = "Notebook-centric repo detected; core logic may reside in Jupyter notebooks."
 
+# How many notebook directories to print in ONBOARDING.md (deterministic cap).
+MAX_NOTEBOOK_DIRS = 20
+
 GENERIC_LABEL = "(Generic suggestion)"
 GENERIC_VENV_LINES = [
     GENERIC_LABEL,
@@ -304,7 +307,15 @@ def _analyzer_notes_lines(ctx: Context) -> list[str]:  # noqa: C901, PLR0912
     if nb_dirs:
         if NOTEBOOK_CENTRIC not in note_strs:
             out.append(f"{BULLET}{NOTEBOOK_CENTRIC}")
-        out.append(f"{BULLET}Notebooks found in: {', '.join(nb_dirs)}")
+
+        total = len(nb_dirs)
+        if total > MAX_NOTEBOOK_DIRS:
+            out.append(
+                f"{BULLET}notebooks list truncated to {MAX_NOTEBOOK_DIRS} entries (total={total})"
+            )
+
+        shown = nb_dirs[:MAX_NOTEBOOK_DIRS]
+        out.append(f"{BULLET}Notebooks found in: {', '.join(shown)}")
 
     fw: list[dict[str, Any]] = []
     if isinstance(frameworks, list):
