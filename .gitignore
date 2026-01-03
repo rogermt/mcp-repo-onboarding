@@ -49,3 +49,4 @@ htmlcov/
 scratch/
 *.gitingest.txt
 error.log
+evaluation_results.log
