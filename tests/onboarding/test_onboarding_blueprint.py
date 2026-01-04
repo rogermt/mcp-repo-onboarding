@@ -295,6 +295,13 @@ class TestAnalyzerNotes:
                 "notes": [],
                 "notebooks": [],
                 "frameworks": [],
+                "python": {
+                    "pythonVersionHints": ["3.11"],
+                    "envSetupInstructions": [],
+                    "installInstructions": [],
+                    "dependencyFiles": [{"path": "requirements.txt", "type": "requirements.txt"}],
+                    "packageManagers": ["pip"],
+                },
             }
         )
         result = _compile(analyze, commands)

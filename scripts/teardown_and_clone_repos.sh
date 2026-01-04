@@ -13,6 +13,7 @@ REPOS=(
     "wagtail|https://github.com/wagtail/wagtail.git|main"
     "connexion|https://github.com/spec-first/connexion.git|main"
     "gradio-bbox|https://github.com/chencn2020/gradio-bbox.git|main"
+    "nanobanana|https://github.com/gemini-cli-extensions/nanobanana.git|main"
 )
 
 echo "Starting teardown and re-cloning of repositories in ${BASE_DIR}..."

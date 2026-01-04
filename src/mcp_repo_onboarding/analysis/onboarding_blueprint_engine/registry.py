@@ -23,6 +23,11 @@ NO_DOCS = "No useful docs detected."
 
 NOTEBOOK_CENTRIC = "Notebook-centric repo detected; core logic may reside in Jupyter notebooks."
 
+# Phase 9: Python-only scope note
+PYTHON_ONLY_SCOPE_NOTE = (
+    "Python tooling not detected; this release generates Python-focused onboarding only."
+)
+
 # How many notebook directories to print in ONBOARDING.md (deterministic cap).
 MAX_NOTEBOOK_DIRS = 20
 
@@ -149,6 +154,26 @@ def _normalize_env_instruction(s: str) -> str:
     if st.startswith("`") and st.endswith("`"):
         return st
     return f"`{st}`"
+
+
+def _python_evidence_present(ctx: Context) -> bool:
+    py = ctx.analyze.get("python")
+    if not isinstance(py, dict):
+        return False
+
+    # Treat an empty python dict as "not detected"
+    for k in (
+        "dependencyFiles",
+        "pythonVersionHints",
+        "installInstructions",
+        "envSetupInstructions",
+        "packageManagers",
+    ):
+        v = py.get(k)
+        if isinstance(v, list) and len(v) > 0:
+            return True
+
+    return False
 
 
 # Section builders (copied from v2, verbatim)
@@ -295,6 +320,10 @@ def _analyzer_notes_lines(ctx: Context) -> list[str]:  # noqa: C901, PLR0912
 
     out: list[str] = []
     note_strs: list[str] = []
+
+    # Phase 9: Python-only scope message when Python evidence is absent/weak
+    if not _python_evidence_present(ctx):
+        out.append(f"{BULLET}{PYTHON_ONLY_SCOPE_NOTE}")
 
     if isinstance(notes, list):
         for n in notes:
