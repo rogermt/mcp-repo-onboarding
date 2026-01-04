@@ -85,6 +85,10 @@ def _is_safe_description(line: str) -> bool:
     """Check if a comment line is a safe, non-command-like description."""
     line = line.strip()
 
+    # Empty comment is not a description
+    if not line:
+        return False
+
     if "export" in line or "=" in line:
         return False
 
@@ -105,18 +109,13 @@ def _is_safe_description(line: str) -> bool:
     return True
 
 
-def _fallback_script_description(script_rel_path: str) -> str:
-    """
-    Deterministic fallback descriptions for repo scripts when no safe header
-    description is available.
+_HELPER_SCRIPT_DESC = "Helper script used by other repo scripts."
 
-    Goal: avoid "(No description provided by analyzer.)" for common helper scripts
-    while staying neutral and non-prescriptive.
-    """
+
+def _is_helper_script(script_rel_path: str) -> bool:
     name = Path(script_rel_path).name.lower()
 
-    # Helper/utility scripts: common names seen in real repos
-    helper_names = {
+    helper_exact = {
         "helper.sh",
         "helpers.sh",
         "util.sh",
@@ -126,15 +125,22 @@ def _fallback_script_description(script_rel_path: str) -> str:
     }
     helper_prefixes = ("helper", "helpers", "util", "utils", "common", "shared")
 
-    if (
-        name in helper_names
+    return (
+        name in helper_exact
         or name.startswith(helper_prefixes)
-        or "helper" in name
-        or "util" in name
-    ):
-        return "Helper script used by other repo scripts."
+        or "helpers" in name
+        or "utils" in name
+    )
 
-    # Default generic fallback (existing behavior)
+
+def _fallback_script_description(script_rel_path: str) -> str:
+    """
+    Deterministic fallback descriptions for repo scripts when no safe header
+    description is available.
+    """
+    if _is_helper_script(script_rel_path):
+        return _HELPER_SCRIPT_DESC
+
     return "Run repo script entrypoint."
 
 
@@ -177,10 +183,19 @@ def extract_shell_scripts(all_files: list[str], repo_root: Path) -> dict[str, li
             logger.debug(f"Could not read script {script}: {e}")
             pass
 
-        # If no safe header description was found, add deterministic fallback.
-        # This prevents blueprint from printing "No description provided by analyzer."
-        if description is None:
-            description = _fallback_script_description(script)
+        # Helper scripts should always be described neutrally as helpers,
+        # even if they contain "safe" header comments. They are typically not
+        # direct user entrypoints.
+        if _is_helper_script(script):
+            description = _HELPER_SCRIPT_DESC
+        else:
+            # Normalize empty to None
+            if description is not None and not description.strip():
+                description = None
+
+            # Deterministic fallback if no safe header description was found
+            if description is None:
+                description = _fallback_script_description(script)
 
         cmd_info = CommandInfo(
             command=command_str,

@@ -346,3 +346,55 @@ def test_command_source_always_populated(temp_repo: Callable[[str], Path]) -> No
     for cmd in (analysis.scripts.dev or []) + (analysis.scripts.test or []):
         assert cmd.source is not None
         assert "scripts/" in cmd.source
+
+
+def test_helper_script_blank_comment_does_not_become_empty_description(
+    temp_repo: Callable[[str], Path],
+) -> None:
+    repo_path = temp_repo("repo-with-scripts")
+
+    helpers = repo_path / "scripts" / "helpers.sh"
+    helpers.write_text(
+        "#!/bin/bash\n"
+        "#\n"  # blank comment line (previously could be misclassified as a description)
+        "echo 'hi'\n",
+        encoding="utf-8",
+    )
+
+    analysis = analyze_repo(str(repo_path))
+
+    helper_cmd = next((c for c in (analysis.scripts.dev or []) if c.name == "helpers.sh"), None)
+    assert helper_cmd is not None
+    assert helper_cmd.description == "Helper script used by other repo scripts."
+
+
+def test_helper_script_forces_neutral_helper_description(temp_repo: Callable[[str], Path]) -> None:
+    repo_path = temp_repo("repo-with-scripts")
+
+    helpers = repo_path / "scripts" / "helpers.sh"
+    helpers.write_text(
+        "#!/bin/bash\n# Tell the user what programs to install for a specific task.\necho 'hi'\n",
+        encoding="utf-8",
+    )
+
+    analysis = analyze_repo(str(repo_path))
+    helper_cmd = next((c for c in (analysis.scripts.dev or []) if c.name == "helpers.sh"), None)
+
+    assert helper_cmd is not None
+    assert helper_cmd.description == "Helper script used by other repo scripts."
+
+
+def test_non_helper_script_keeps_safe_header_description(temp_repo: Callable[[str], Path]) -> None:
+    repo_path = temp_repo("repo-with-scripts")
+
+    run = repo_path / "scripts" / "run.sh"
+    run.write_text(
+        "#!/bin/bash\n# Safe description.\necho 'hi'\n",
+        encoding="utf-8",
+    )
+
+    analysis = analyze_repo(str(repo_path))
+    run_cmd = next((c for c in (analysis.scripts.dev or []) if c.name == "run.sh"), None)
+
+    assert run_cmd is not None
+    assert run_cmd.description == "Safe description."
