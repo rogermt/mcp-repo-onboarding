@@ -142,25 +142,25 @@ class PyprojectClassifierDetector(FrameworkDetector):
 
 
 # Registry for Poetry dependency reason strings.
-# Format: (framework_name, dependency_key, reason_template, supports_optional)
-_POETRY_DEP_REGISTRY: list[tuple[str, str, str, bool]] = [
+# Format: (framework_name, dependency_key, reason, optional_reason)
+_POETRY_DEP_REGISTRY: list[tuple[str, str, str, str]] = [
     (
         "Flask",
         "flask",
-        "Detected via pyproject.toml (Poetry) dependency key 'flask'.",
-        True,  # supports optional annotation
+        "Flask support detected via pyproject.toml (Poetry) dependency key 'flask'.",
+        "Flask support detected via pyproject.toml (Poetry) dependency key 'flask' (optional).",
     ),
     (
         "Django",
         "django",
-        "Detected via pyproject.toml (Poetry) dependency key 'django'.",
-        True,
+        "Django support detected via pyproject.toml (Poetry) dependency key 'django'.",
+        "Django support detected via pyproject.toml (Poetry) dependency key 'django' (optional).",
     ),
     (
         "FastAPI",
         "fastapi",
-        "Detected via pyproject.toml (Poetry) dependency key 'fastapi'.",
-        True,
+        "FastAPI support detected via pyproject.toml (Poetry) dependency key 'fastapi'.",
+        "FastAPI support detected via pyproject.toml (Poetry) dependency key 'fastapi' (optional).",
     ),
 ]
 
@@ -197,22 +197,21 @@ class PoetryDependencyDetector(FrameworkDetector):
 
         found: dict[str, FrameworkInfo] = {}
 
-        for fw_name, dep_key, template, supports_optional in _POETRY_DEP_REGISTRY:
-            if dep_key in poetry_deps:
-                is_optional = isinstance(poetry_deps[dep_key], dict) and bool(
-                    poetry_deps[dep_key].get("optional")
-                )
+        for fw_name, dep_key, reason, optional_reason in _POETRY_DEP_REGISTRY:
+            if dep_key not in poetry_deps:
+                continue
 
-                reason = template
-                if supports_optional and is_optional:
-                    reason += " (optional)"
+            dep_val = poetry_deps.get(dep_key)
+            is_optional = isinstance(dep_val, dict) and bool(dep_val.get("optional") is True)
 
-                found[fw_name] = FrameworkInfo(
-                    name=fw_name,
-                    detectionReason=reason,
-                    keySymbols=[f"tool.poetry.dependencies.{dep_key}"],
-                    evidencePath="pyproject.toml",
-                )
+            detection_reason = optional_reason if is_optional else reason
+
+            found[fw_name] = FrameworkInfo(
+                name=fw_name,
+                detectionReason=detection_reason,
+                keySymbols=[f"tool.poetry.dependencies.{dep_key}"],
+                evidencePath="pyproject.toml",
+            )
 
         return [found[k] for k in sorted(found.keys())]
 
