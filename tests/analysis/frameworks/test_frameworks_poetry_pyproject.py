@@ -39,8 +39,7 @@ build-backend = "poetry.core.masonry.api"
     assert fw["Flask"].evidencePath == "pyproject.toml"
     assert fw["Flask"].keySymbols == ["tool.poetry.dependencies.flask"]
     # optional=true in Poetry deps should be reflected in the detection reason (neutral, non-prescriptive)
-    reason = fw["Flask"].detectionReason
-    assert "pyproject.toml" in reason
-    assert "Poetry" in reason
-    assert "dependency key 'flask'" in reason
-    assert "(optional)" in reason
+    expected = (
+        "Flask support detected via pyproject.toml (Poetry) dependency key 'flask' (optional)."
+    )
+    assert fw["Flask"].detectionReason == expected
