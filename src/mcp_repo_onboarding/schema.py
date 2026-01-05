@@ -134,6 +134,7 @@ class RepoAnalysis(BaseModel):
     """Top-level analysis result for a repository."""
 
     repoPath: str
+    primaryTooling: str | None = None  # Phase 10 scaffolding (#124)
     languages: list[LanguageStat] = Field(default_factory=list)
     python: PythonInfo | None = None
     projectLayout: ProjectLayout = Field(default_factory=ProjectLayout)
