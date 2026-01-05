@@ -5,10 +5,11 @@ from typing import Any
 from mcp_repo_onboarding.analysis.onboarding_blueprint import build_context, compile_blueprint
 
 
-def _base_analyze() -> dict[str, Any]:
+def _mk_node_only_analyze() -> dict[str, Any]:
+    # Minimal payload to replicate nanobanana-like "no python" case.
     return {
         "repoPath": "/test/repo",
-        "python": None,  # important for "Python not detected"
+        "python": None,  # <- key condition
         "scripts": {
             "dev": [],
             "start": [],
@@ -24,23 +25,26 @@ def _base_analyze() -> dict[str, Any]:
         "configurationFiles": [],
         "docs": [],
         "testSetup": {"commands": []},
-        # Optional: show that other tooling can exist, but we still do not suggest commands
+        # Optional: show other tooling exists (still no commands should be suggested)
         "otherTooling": [
-            {"name": "Node.js", "evidenceFiles": ["package.json", "yarn.lock"]},
+            {
+                "name": "Node.js",
+                "evidenceFiles": ["package.json", "yarn.lock"],
+                "confidence": "detected",
+            }
         ],
     }
 
 
-def _base_commands() -> dict[str, Any]:
+def _mk_commands() -> dict[str, Any]:
     return {"devCommands": [], "testCommands": [], "buildCommands": []}
 
 
-def test_python_only_scope_message_shown_when_python_not_detected() -> None:
-    analyze = _base_analyze()
-    commands = _base_commands()
+def test_scope_note_for_node_only_repo_is_rendered_in_analyzer_notes() -> None:
+    analyze = _mk_node_only_analyze()
+    md = compile_blueprint(build_context(analyze, _mk_commands()))["render"]["markdown"]
 
-    md = compile_blueprint(build_context(analyze, commands))["render"]["markdown"]
-
+    # This SHOULD fail on current code if analyzer notes is not emitted.
     assert "## Analyzer notes" in md
     assert (
         "* Python tooling not detected; this release generates Python-focused onboarding only."
@@ -53,8 +57,8 @@ def test_python_only_scope_message_shown_when_python_not_detected() -> None:
     assert "pnpm " not in low
 
 
-def test_python_only_scope_message_not_shown_when_python_detected() -> None:
-    analyze = _base_analyze()
+def test_scope_note_absent_when_python_evidence_present() -> None:
+    analyze = _mk_node_only_analyze()
     analyze["python"] = {
         "pythonVersionHints": [],
         "packageManagers": [],
@@ -63,8 +67,7 @@ def test_python_only_scope_message_not_shown_when_python_detected() -> None:
         "installInstructions": [],
     }
 
-    md = compile_blueprint(build_context(analyze, _base_commands()))["render"]["markdown"]
-
+    md = compile_blueprint(build_context(analyze, _mk_commands()))["render"]["markdown"]
     assert (
         "Python tooling not detected; this release generates Python-focused onboarding only."
         not in md
