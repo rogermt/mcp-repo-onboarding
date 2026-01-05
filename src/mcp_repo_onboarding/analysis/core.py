@@ -348,6 +348,9 @@ def analyze_repo(
     # 3. Combine
     all_files = sorted(set(all_other_files + targeted_files))
 
+    # Compute primary tooling (Phase 10 - #124)
+    primary_tooling = _compute_primary_tooling_from_files(all_files)
+
     # 4. Categorize
     docs, configs, dep_files, cat_notes = _categorize_files(root, all_files)
 
@@ -401,6 +404,7 @@ def analyze_repo(
 
     return RepoAnalysis(
         repoPath=str(root),
+        primaryTooling=primary_tooling,
         docs=docs,
         configurationFiles=configs,
         scripts=scripts,
@@ -412,6 +416,59 @@ def analyze_repo(
         testSetup=TestSetup(),
         otherTooling=other_tooling,
     )
+
+
+def _compute_primary_tooling_from_files(all_files: list[str]) -> str:
+    """
+    Deterministic, evidence-only primary tooling computation.
+
+    Values: "Python", "Node.js", or "Unknown".
+    Tie-break: Python wins ties.
+
+    Evidence scoring (data-driven):
+    - Python: pyproject.toml (10), requirements*.txt (6), setup.py/setup.cfg (5), lockfile (8)
+    - Node: package.json (5), lockfile (10), .nvmrc/.node-version (3)
+    """
+    if not all_files:
+        return "Unknown"
+
+    # Normalize to basenames (repo-relative, case-insensitive)
+    basenames: set[str] = {
+        Path(p.replace("\\", "/")).name.lower() for p in all_files if isinstance(p, str)
+    }
+
+    # Evidence patterns with scores
+    python_patterns = [
+        ("pyproject.toml", 10),
+        ("setup.py", 5),
+        ("setup.cfg", 5),
+        ("uv.lock", 8),
+        ("poetry.lock", 8),
+    ]
+
+    node_patterns = [
+        ("package.json", 5),
+        ("package-lock.json", 10),
+        ("pnpm-lock.yaml", 10),
+        ("yarn.lock", 10),
+        ("bun.lockb", 10),
+        (".nvmrc", 3),
+        (".node-version", 3),
+    ]
+
+    python_score = sum(score for pattern, score in python_patterns if pattern in basenames)
+    python_score += (
+        6 if any(n.startswith("requirements") and n.endswith(".txt") for n in basenames) else 0
+    )
+
+    node_score = sum(score for pattern, score in node_patterns if pattern in basenames)
+
+    # Determine primary tooling (tie-break: Python wins)
+    if node_score > python_score:
+        return "Node.js"
+    if python_score > 0 or node_score > 0:
+        return "Python"
+    return "Unknown"
 
 
 def _is_exact_version(v: str) -> bool:
