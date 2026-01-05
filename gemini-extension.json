@@ -1,7 +1,7 @@
 {
   "name": "repo-onboarding",
   "version": "0.1.0",
-  "description": "Analyzes a Python repository to generate ONBOARDING.md.",
+  "description": "Local code repository analyzer (generates & maintain a high‑quality `ONBOARDING.md` guide)",
   "mcpServers": {
     "repo-onboarding": {
       "command": "uv",
