@@ -176,12 +176,16 @@ def _python_evidence_present(ctx: Context) -> bool:
     return False
 
 
+def _primary_tooling(ctx: Context) -> str | None:
+    """Get the primaryTooling field from the analyze dict."""
+    pt = ctx.analyze.get("primaryTooling")
+    return pt if isinstance(pt, str) and pt.strip() else None
+
+
 # Section builders (copied from v2, verbatim)
 
 
 def _env_setup_lines(ctx: Context) -> list[str]:
-    py_obj = ctx.analyze.get("python")
-    python_detected = isinstance(py_obj, dict)
     py = _python_dict(ctx)
     hints = [h for h in (py.get("pythonVersionHints") or []) if isinstance(h, str) and h.strip()]
     env_instr = [
@@ -204,9 +208,12 @@ def _env_setup_lines(ctx: Context) -> list[str]:
         return lines
 
     if not hints:
-        # Phase 10: if Python tooling is not detected, do NOT print Python venv snippet.
-        if not python_detected:
+        # Phase 10: If Python evidence is absent and primary tooling is not Python,
+        # do NOT emit the generic Python venv snippet (avoids misleading Node-primary repos).
+        pt = _primary_tooling(ctx)
+        if pt is not None and pt != "Python" and not _python_evidence_present(ctx):
             return lines
+
         lines.extend(GENERIC_VENV_LINES)
         return lines
 

@@ -47,7 +47,10 @@ def test_node_primary_no_python_evidence_suppresses_venv_snippet() -> None:
 
     md = compile_blueprint(build_context(analyze, _base_commands()))["render"]["markdown"]
 
-    # When python is not detected, venv snippet and label must NOT appear:
+    # Still allowed/expected:
+    assert "No Python version pin detected." in md
+
+    # Must NOT show venv snippet or label:
     assert "(Generic suggestion)" not in md
     assert "python3 -m venv .venv" not in md
     assert "python -m venv .venv" not in md
