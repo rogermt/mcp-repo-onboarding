@@ -8,7 +8,6 @@ from mcp_repo_onboarding.analysis.onboarding_blueprint import build_context, com
 def test_no_venv_snippet_when_python_not_detected() -> None:
     analyze: dict[str, Any] = {
         "repoPath": "/test/repo",
-        "primaryTooling": "Node.js",
         "python": None,
         "scripts": {
             "dev": [],

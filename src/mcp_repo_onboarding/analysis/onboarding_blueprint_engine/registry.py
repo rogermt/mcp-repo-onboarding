@@ -186,6 +186,8 @@ def _primary_tooling(ctx: Context) -> str | None:
 
 
 def _env_setup_lines(ctx: Context) -> list[str]:
+    py_obj = ctx.analyze.get("python")
+    python_detected = isinstance(py_obj, dict)
     py = _python_dict(ctx)
     hints = [h for h in (py.get("pythonVersionHints") or []) if isinstance(h, str) and h.strip()]
     env_instr = [
@@ -208,6 +210,10 @@ def _env_setup_lines(ctx: Context) -> list[str]:
         return lines
 
     if not hints:
+        # Phase 10: if Python tooling is not detected, do NOT print Python venv snippet.
+        if not python_detected:
+            return lines
+
         # Phase 10: If Python evidence is absent and primary tooling is not Python,
         # do NOT emit the generic Python venv snippet (avoids misleading Node-primary repos).
         pt = _primary_tooling(ctx)
