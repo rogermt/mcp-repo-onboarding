@@ -7,6 +7,7 @@ Contains all section builders (copied verbatim from v2).
 from __future__ import annotations
 
 from collections.abc import Iterable
+from pathlib import Path
 from typing import Any
 
 from ...config import MAX_EVIDENCE_FILES_DISPLAYED
@@ -331,6 +332,123 @@ def _other_tooling_lines(ctx: Context) -> list[str]:
     return lines
 
 
+def _primary_tooling_value(ctx: Context) -> str | None:
+    """Get primaryTooling field, or None if absent/empty."""
+    v = ctx.analyze.get("primaryTooling")
+    return v.strip() if isinstance(v, str) and v.strip() else None
+
+
+def _primary_tooling_evidence_summary(ctx: Context, tool: str) -> str | None:  # noqa: C901, PLR0911, PLR0912
+    """
+    Deterministic evidence summary for the Primary tooling note.
+
+    Examples:
+    - Node.js: "package.json present"
+    - Python: "pyproject.toml, poetry.lock present"
+    """
+    tool = tool.strip()
+
+    if tool == "Python":
+        py = ctx.analyze.get("python")
+        if not isinstance(py, dict):
+            return None
+
+        dep_files = py.get("dependencyFiles")
+        if not isinstance(dep_files, list) or not dep_files:
+            return None
+
+        basenames: list[str] = []
+        for f in dep_files:
+            if not isinstance(f, dict):
+                continue
+            p = f.get("path")
+            if isinstance(p, str) and p.strip():
+                basenames.append(Path(p.strip().replace("\\", "/")).name)
+
+        if not basenames:
+            return None
+
+        # Prefer common primary-evidence names in deterministic order
+        prefer = [
+            "pyproject.toml",
+            "poetry.lock",
+            "uv.lock",
+            "requirements.txt",
+            "setup.py",
+            "setup.cfg",
+        ]
+        uniq = set(basenames)
+        chosen = [n for n in prefer if n in uniq]
+        if not chosen:
+            chosen = sorted(uniq)
+
+        shown = chosen[:2]
+        return f"{', '.join(shown)} present"
+
+    if tool == "Node.js":
+        tooling = ctx.analyze.get("otherTooling")
+        if not isinstance(tooling, list):
+            tooling = ctx.analyze.get("otherToolingDetected")
+
+        evidence_paths: list[str] = []
+        if isinstance(tooling, list):
+            for t in tooling:
+                if not isinstance(t, dict):
+                    continue
+                n = t.get("name")
+                if not isinstance(n, str):
+                    continue
+                if n.strip().lower() not in ("node.js", "nodejs", "node"):
+                    continue
+
+                ev = t.get("evidenceFiles")
+                if not isinstance(ev, list):
+                    ev = t.get("evidencePaths")
+
+                if isinstance(ev, list):
+                    for p in ev:
+                        if isinstance(p, str) and p.strip():
+                            evidence_paths.append(p.strip().replace("\\", "/"))
+
+        if not evidence_paths:
+            return None
+
+        basenames = sorted({Path(p).name for p in evidence_paths})
+
+        prefer = [
+            "package.json",
+            "pnpm-lock.yaml",
+            "yarn.lock",
+            "package-lock.json",
+            "npm-shrinkwrap.json",
+            "bun.lockb",
+            ".nvmrc",
+            ".node-version",
+        ]
+        chosen = [n for n in prefer if n in basenames]
+        if not chosen:
+            chosen = basenames
+
+        shown = chosen[:2]
+        if len(shown) == 1:
+            return f"{shown[0]} present"
+        return f"{', '.join(shown)} present"
+
+    return None
+
+
+def _primary_tooling_note_line(ctx: Context) -> str | None:
+    """Generate primary tooling note line, or None if not applicable."""
+    tool = _primary_tooling_value(ctx)
+    if tool is None:
+        return None
+
+    summary = _primary_tooling_evidence_summary(ctx, tool)
+    if summary:
+        return f"Primary tooling: {tool} ({summary})."
+    return f"Primary tooling: {tool}."
+
+
 def _analyzer_notes_lines(ctx: Context) -> list[str]:  # noqa: C901, PLR0912
     notes = ctx.analyze.get("notes")
     notebooks = ctx.analyze.get("notebooks")
@@ -342,6 +460,11 @@ def _analyzer_notes_lines(ctx: Context) -> list[str]:  # noqa: C901, PLR0912
     # Phase 9: Python-only scope message when Python evidence is absent/weak
     if not _python_evidence_present(ctx):
         out.append(f"{BULLET}{PYTHON_ONLY_SCOPE_NOTE}")
+
+    # Phase 10 / #127: Primary tooling note (deterministic, neutral)
+    pt_line = _primary_tooling_note_line(ctx)
+    if pt_line:
+        out.append(f"{BULLET}{pt_line}")
 
     if isinstance(notes, list):
         for n in notes:
