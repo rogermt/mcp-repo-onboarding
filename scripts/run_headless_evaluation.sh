@@ -1,15 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-#!/usr/bin/env bash
-set -euo pipefail
-
 # Phase 10: Node-primary repo fixture (ensure it exists)
 FIXTURE_DIR="evaluation_repos/node-primary-min"
 if [ ! -d "$HOME/$FIXTURE_DIR" ]; then
   echo "INFO: Creating local fixture for $FIXTURE_DIR..."
   mkdir -p "$HOME/$FIXTURE_DIR"
-  # (Optional: copy/ensure package.json and package-lock.json exist as per previous instructions)
   if [ ! -f "$HOME/$FIXTURE_DIR/package.json" ]; then
     echo "{}" > "$HOME/$FIXTURE_DIR/package.json"
   fi
@@ -38,10 +34,14 @@ orig_dir="$PWD"
 LOG_FILE="evaluation_results.log"
 source "$orig_dir/scripts/eval_assertions.sh"
 
+# Model configuration: default to gemini-2.5-flash but allow override via env var
+MODEL="${GEMINI_MODEL:-gemini-2.5-flash}"
+
 {
   echo " "
   echo "=== Evaluation Started: $(date) ==="
   echo "=== Running evaluation for: ${repos[*]} ==="
+  echo "=== Using Model: ${MODEL} ==="
   echo "Logging to: ${LOG_FILE}"
   echo " "
 
@@ -53,7 +53,9 @@ source "$orig_dir/scripts/eval_assertions.sh"
     if [ -d "$repo_abs_path" ]; then
       export REPO_ROOT="$repo_abs_path"
       pushd "$repo_abs_path" > /dev/null
-      gemini -p "$prompt" -m gemini-2.5-flash --yolo
+      
+      gemini -p "$prompt" -m "$MODEL" --yolo
+      
       popd > /dev/null
 
       echo "Waiting 30 seconds for rate limits..."
