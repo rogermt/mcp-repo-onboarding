@@ -3,7 +3,7 @@
 # Source B-prompt.txt path from the current working directory
 
 # Target repositories (relative to your home directory)
-REPOS=("searxng" "imgix-python" "Paper2Code" "wagtail" "connexion" "DeepCode" "gradio-bbox" "nanobanana")
+REPOS=("searxng" "imgix-python" "Paper2Code" "wagtail" "connexion" "DeepCode" "gradio-bbox" "nanobanana" "gemmit" "mcp-repo-onboarding")
 
 echo "Starting updates for specified repositories..."
 echo ""
@@ -38,9 +38,6 @@ for REPO_NAME in "${REPOS[@]}"; do
       ],
       "env": {
         "REPO_ROOT": "${REPO_PATH}"
-      },
-      "tooling": {
-        "disableTools": ["Shell", "run_shell_command", "web_fetch", "google_web_search", "codebase_investigator"]
       }
     }
   }

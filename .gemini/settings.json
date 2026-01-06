@@ -10,9 +10,6 @@
       ],
       "env": {
         "REPO_ROOT": "/home/rogermt/mcp-repo-onboarding"
-      },
-      "tooling": {
-        "disableTools": ["run_shell_command", "web_fetch", "google_web_search"]
       }
     }
   }

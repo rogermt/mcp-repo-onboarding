@@ -354,3 +354,191 @@ Output rule:
 key symbol sources may include:
 - `pyproject.toml` classifiers (preferred when present), e.g. `Framework :: Django`
 - Poetry dependency keys for Poetry-format projects, e.g. `tool.poetry.dependencies.flask`
+
+---
+
+## 9. Phase 10 Analyzer Behavior: Primary Tooling and Node Command Derivation
+
+This section defines **analyzer behavior** only (Phase 10). It does **not** add or modify validator rules.
+Validator rules remain frozen at **V1–V8** (Section 1).
+
+### 9.1 Primary tooling (`RepoAnalysis.primaryTooling`)
+
+The analyzer MUST compute and emit an additive field:
+
+`RepoAnalysis.primaryTooling: "Python" | "Node.js" | "Unknown"`
+
+This is a deterministic, evidence-only classification used to support polyglot repositories.
+
+#### 9.1.1 Evidence-only scoring
+
+The analyzer computes two scores from explicit evidence file presence (after safety ignores):
+
+**Python evidence**
+- `pyproject.toml` → +10
+- `requirements*.txt` → +6
+- `setup.py` or `setup.cfg` → +5
+- `uv.lock` or `poetry.lock` → +8
+
+**Node.js evidence**
+- `package.json` → +5
+- any lockfile (`package-lock.json`, `npm-shrinkwrap.json`, `pnpm-lock.yaml`, `yarn.lock`, `bun.lockb`) → +10
+- `.nvmrc` or `.node-version` → +3
+
+#### Scoring (Evidence-Only)
+The analyzer computes two scores: `python_score` and `node_score` based on explicit file evidence at the repo root or within the directory tree.
+
+| Evidence | Python Score | Node Score |
+|----------|---------------|------------|
+| `pyproject.toml` (root) | +10 | — |
+| `setup.py` (root) | +5 | — |
+| `setup.cfg` (root) | +5 | — |
+| `requirements*.txt` (any) | +6 | — |
+| `uv.lock` (any) | +8 | — |
+| `poetry.lock` (any) | +8 | — |
+| `.py` files (any) | +1 each (capped) | — |
+| `package.json` (root) | — | +5 |
+| `pnpm-lock.yaml` (any) | — | +10 |
+| `yarn.lock` (any) | — | +10 |
+| `bun.lockb` (any) | — | +10 |
+| `package-lock.json` (any) | — | +10 |
+| `npm-shrinkwrap.json` (any) | — | +10 |
+| `.nvmrc` (any) | — | +3 |
+| `.node-version` (any) | — | +3 |
+
+Scoring uses only **file presence** (repo-relative paths). No file contents are required for scoring.
+
+#### 9.1.2 Tie-break rule
+
+- If `node_score > python_score` → `primaryTooling = "Node.js"`
+- If `python_score > node_score` → `primaryTooling = "Python"`
+- If `python_score == 0` and `node_score == 0` → `primaryTooling = "Unknown"`
+- If scores tie (non-zero tie) → `primaryTooling = "Python"` (tie-break)
+
+Determinism:
+- Evidence is computed from the analyzer’s normalized repo-relative POSIX file list.
+- Safety ignores (especially `tests/fixtures/`) apply before scoring.
+
+---
+
+### 9.2 Node.js command derivation (static-only, grounded)
+
+If `primaryTooling == "Node.js"`, the analyzer MAY derive deterministic Node.js commands from explicit evidence and publish them via the existing command surfaces (e.g. `RepoAnalysis.scripts.*`).
+
+This is **static-only**:
+- no subprocess calls
+- no network calls
+- no execution of package managers
+- no inferred commands beyond explicit evidence
+
+#### 9.2.1 package.json discovery and parsing (size-capped)
+
+The analyzer may read `package.json` to extract the `scripts` map.
+
+Rules:
+- Read is size-capped (e.g., 256 KB max).
+- JSON parsing must be failure-safe:
+  - malformed JSON must not crash analysis
+  - malformed JSON yields “no Node commands derived”
+- Deterministic selection when multiple `package.json` files exist:
+  - prefer root `package.json` if present
+  - otherwise choose lexicographically first repo-relative path
+
+#### 9.2.2 Package manager selection (deterministic)
+
+The analyzer must select a package manager deterministically from explicit evidence:
+
+1) `package.json.packageManager` if present and valid:
+   - accepted values (prefix before `@`): `npm`, `pnpm`, `yarn`, `bun`
+
+2) lockfile precedence (preferred to avoid guessing):
+   - `pnpm-lock.yaml` → `pnpm`
+   - `yarn.lock` → `yarn`
+   - `package-lock.json` or `npm-shrinkwrap.json` → `npm`
+   - `bun.lockb` → `bun`
+
+If no valid package manager can be selected, the analyzer must not emit Node commands.
+
+Determinism:
+- Evidence paths are normalized and compared by basename where applicable.
+- Lockfile selection is stable across runs.
+
+#### 9.2.3 Script extraction (evidence-only)
+
+The analyzer may emit commands only for these script keys when explicitly present in `package.json.scripts`:
+
+- `dev`
+- `start`
+- `test`
+- `lint`
+- `format`
+
+If the `scripts` map is missing or empty:
+- the analyzer must not invent `dev/test/lint/format/start` commands.
+
+#### 9.2.4 Deterministic command generation
+
+Derived commands:
+
+**Install**
+- npm:
+  - `npm ci` if a lockfile exists (`package-lock.json` or `npm-shrinkwrap.json`)
+  - otherwise `npm install`
+- pnpm:
+  - `pnpm install`
+- yarn:
+  - `yarn install`
+- bun:
+  - `bun install`
+
+**Scripts**
+- For each supported script key `k` present:
+  - `<pm> run <k>`
+  - Examples:
+    - `pnpm run dev`
+    - `npm run test`
+    - `yarn run lint`
+
+Descriptions must be deterministic and neutral:
+- Install:
+  - `Install dependencies using the detected Node.js package manager.`
+- Script commands:
+  - `Run the '<script>' script from package.json.`
+
+No additional advice (e.g., “install Node 20”) may be emitted unless it is explicit evidence and is surfaced as evidence-only, not as a command.
+
+#### 9.2.5 Interaction with blueprint / validator
+
+This EXTRACT_OUTPUT_RULES section governs analyzer behavior only.
+Blueprint rendering may choose how to surface these commands under the existing required headings,
+but validator rules (V1–V8) remain unchanged.
+
+---
+
+### 9.3 Examples
+
+#### Example A: Node-primary repo (nanobanana-like)
+
+Evidence:
+- `package.json` present
+- `package-lock.json` present
+- no Python dependency manifests
+
+Results:
+- `primaryTooling = "Node.js"`
+- derived install command:
+  - `npm ci`
+- derived scripts (only if present in package.json):
+  - `npm run dev` / `npm run test` / etc.
+
+#### Example B: Python-primary repo with frontend (wagtail-like)
+
+Evidence:
+- `pyproject.toml` present
+- `requirements*.txt` present
+- `client/package-lock.json` present
+
+Results:
+- `primaryTooling = "Python"` (Python score outweighs Node or tie-break)
+- Node commands are not derived unless explicitly enabled and `primaryTooling == "Node.js"`
+- Node presence may still be reported via evidence-only “other tooling detected” signals.
