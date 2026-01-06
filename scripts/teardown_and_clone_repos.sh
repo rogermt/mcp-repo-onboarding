@@ -1,10 +1,8 @@
 #!/bin/bash
+set -euo pipefail
 
-# Define the base directory where repositories are located
 BASE_DIR="/home/rogermt"
 
-# Define repositories and their clone URLs/branches
-# Format: "REPO_NAME|CLONE_URL|BRANCH"
 REPOS=(
     "searxng|https://github.com/searxng/searxng.git|main"
     "imgix-python|https://github.com/imgix/imgix-python.git|main"
@@ -14,41 +12,50 @@ REPOS=(
     "connexion|https://github.com/spec-first/connexion.git|main"
     "gradio-bbox|https://github.com/chencn2020/gradio-bbox.git|main"
     "nanobanana|https://github.com/gemini-cli-extensions/nanobanana.git|main"
+    "gemmit|https://github.com/tcmartin/gemmit.git|main"
 )
 
-echo "Starting teardown and re-cloning of repositories in ${BASE_DIR}..."
-echo ""
+echo "Starting safe teardown and re-cloning..."
 
 for REPO_INFO in "${REPOS[@]}"; do
-    # Parse REPO_INFO into name, URL, and branch using '|' as delimiter
     IFS='|' read -r REPO_NAME CLONE_URL BRANCH <<< "${REPO_INFO}"
-    REPO_PATH="${BASE_DIR}/${REPO_NAME}"
 
-    echo "Processing repository: ${REPO_NAME}"
-
-    # 1. Teardown (delete existing directory)
-    if [ -d "${REPO_PATH}" ]; then
-        echo "  - Deleting existing directory: ${REPO_PATH}"
-        rm -rf "${REPO_PATH}"
-    else
-        echo "  - Directory not found, skipping deletion: ${REPO_PATH}"
+    # Validate repo name
+    if [[ -z "${REPO_NAME}" ]]; then
+        echo "ERROR: Empty REPO_NAME detected. Aborting."
+        exit 1
     fi
 
-    # 2. Clone the repository
-    echo "  - Cloning ${CLONE_URL} (branch: ${BRANCH}) into ${REPO_PATH}"
-    # Check if the branch is "main" to use the default clone, otherwise specify branch
-    if [ "${BRANCH}" == "main" ]; then
+    REPO_PATH="${BASE_DIR}/${REPO_NAME}"
+
+    # Safety checks
+    case "${REPO_PATH}" in
+        "/"|"/home"|"/home/"*"/"|"${BASE_DIR}"|"${BASE_DIR}/")
+            echo "ERROR: Unsafe REPO_PATH '${REPO_PATH}'. Aborting."
+            exit 1
+            ;;
+    esac
+
+    echo "Processing ${REPO_NAME}"
+
+    # Only delete if it's a git repo
+    if [[ -d "${REPO_PATH}" ]]; then
+        if [[ -d "${REPO_PATH}/.git" ]]; then
+            echo "  - Removing existing repo at ${REPO_PATH}"
+            rm -rf "${REPO_PATH}"
+        else
+            echo "  - WARNING: ${REPO_PATH} exists but is NOT a git repo. Skipping deletion."
+        fi
+    fi
+
+    echo "  - Cloning ${CLONE_URL} (branch: ${BRANCH})"
+    if [[ "${BRANCH}" == "main" ]]; then
         git clone "${CLONE_URL}" "${REPO_PATH}"
     else
         git clone -b "${BRANCH}" "${CLONE_URL}" "${REPO_PATH}"
     fi
 
-    if [ $? -eq 0 ]; then
-        echo "  - Successfully cloned ${REPO_NAME}"
-    else
-        echo "  - Error cloning ${REPO_NAME}"
-    fi
     echo ""
 done
 
-echo "Teardown and re-cloning process complete."
+echo "Done."
