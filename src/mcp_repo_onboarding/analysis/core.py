@@ -30,6 +30,7 @@ from .catalog import is_dependency_file
 from .extractors import (
     detect_workflow_python_version,
     extract_makefile_commands,
+    extract_node_package_json_commands,
     extract_pyproject_metadata,
     extract_shell_scripts,
     extract_tox_commands,
@@ -369,6 +370,13 @@ def analyze_repo(
 
     # NEW: mirror python.installInstructions into scripts.install with descriptions
     merge_python_install_instructions_into_scripts(scripts, python_info)
+
+    # Phase 10: Node Commands (Inject if primary)
+    if primary_tooling == "Node.js":
+        node_cmds = extract_node_package_json_commands(root, all_files)
+        for group, cmd_list in node_cmds.items():
+            if group in RepoAnalysisScriptGroup.model_fields:
+                getattr(scripts, group).extend(cmd_list)
 
     # 8. Notebook Detection (P7-01 / Issue #60)
     notebook_dirs = set()
