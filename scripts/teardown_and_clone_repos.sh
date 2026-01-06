@@ -13,6 +13,7 @@ REPOS=(
     "gradio-bbox|https://github.com/chencn2020/gradio-bbox.git|main"
     "nanobanana|https://github.com/gemini-cli-extensions/nanobanana.git|main"
     "gemmit|https://github.com/tcmartin/gemmit.git|main"
+    "gemini-cli|https://github.com/google-gemini/gemini-cli.git|main"
 )
 
 echo "Starting safe teardown and re-cloning..."

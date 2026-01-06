@@ -1,15 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-#!/usr/bin/env bash
-set -euo pipefail
-
 # Phase 10: Node-primary repo fixture (ensure it exists)
 FIXTURE_DIR="evaluation_repos/node-primary-min"
 if [ ! -d "$HOME/$FIXTURE_DIR" ]; then
   echo "INFO: Creating local fixture for $FIXTURE_DIR..."
   mkdir -p "$HOME/$FIXTURE_DIR"
-  # (Optional: copy/ensure package.json and package-lock.json exist as per previous instructions)
   if [ ! -f "$HOME/$FIXTURE_DIR/package.json" ]; then
     echo "{}" > "$HOME/$FIXTURE_DIR/package.json"
   fi
@@ -28,45 +24,33 @@ else
   fi
 fi
 
-# Step 0: Setup target repositories (sync settings and prompts)
-echo "=== Setting up evaluation repositories ==="
-bash scripts/setup_evaluation_repos.sh
-echo " "
+# Configuration
+orig_dir="$PWD"
+LOG_FILE="validation_results.log"
+source "$orig_dir/scripts/eval_assertions.sh"
+
+# Step 0: Setup target repositories (optional, ensures settings.json is fresh if running against real repos)
+# NOTE: If you are only validating generated files and want to skip setup, comment this out.
+# However, for the Phase 10 fixture, we keep it.
+if [ -f "scripts/setup_evaluation_repos.sh" ]; then
+  echo "=== Setting up evaluation repositories ==="
+  bash scripts/setup_evaluation_repos.sh
+  echo " "
+fi
 
 export prompt="/generate_onboarding"
-orig_dir="$PWD"
-LOG_FILE="evaluation_results.log"
-source "$orig_dir/scripts/eval_assertions.sh"
 
 {
   echo " "
-  echo "=== Evaluation Started: $(date) ==="
-  echo "=== Running evaluation for: ${repos[*]} ==="
+  echo "=== Validation Started: $(date) ==="
+  echo "=== Validating ONBOARDING.md for: ${repos[*]} ==="
   echo "Logging to: ${LOG_FILE}"
   echo " "
 
-  # First loop: run gemini in each repo directory (fine)
-  for repo in "${repos[@]}"; do
-    echo "=== Running gemini for $repo ==="
-    repo_abs_path="$HOME/$repo"
-
-    if [ -d "$repo_abs_path" ]; then
-      export REPO_ROOT="$repo_abs_path"
-      pushd "$repo_abs_path" > /dev/null
-      gemini -p "$prompt" -m gemini-2.5-flash --yolo
-      popd > /dev/null
-
-      echo "Waiting 30 seconds for rate limits..."
-      sleep 30
-    else
-      echo "Directory $repo_abs_path does not exist; skipping gemini for $repo"
-    fi
-  done
-
-  # Second loop: print + validate
   validator_script="$orig_dir/scripts/validate_onboarding.py"
   validation_failures=0
 
+  # Loop: show + validate (no gemini, no sleep)
   for repo in "${repos[@]}"; do
     echo " "
     echo "=== Showing ONBOARDING.md for $repo ==="
@@ -83,13 +67,13 @@ source "$orig_dir/scripts/eval_assertions.sh"
 
       # IMPORTANT:
       # Use uv project from *this* repo (mcp-repo-onboarding), not the target repo.
-      # This prevents uv from creating .venv inside $HOME/$repo.
       if ! uv run --project "$orig_dir" python "$validator_script" "$onboarding_path"; then
         echo "ERROR: Validation failed for $repo"
         validation_failures=$((validation_failures + 1))
       else
         echo "Validation passed for $repo"
 
+        # Phase 10 / #128: Node-primary specific assertions for node-primary-min
         if [ "$repo" = "node-primary-min" ]; then
           if ! assert_node_primary_min "$onboarding_path"; then
             validation_failures=$((validation_failures + 1))
@@ -113,6 +97,6 @@ source "$orig_dir/scripts/eval_assertions.sh"
   fi
 
   echo " "
-  echo "=== Evaluation complete ==="
+  echo "=== Validation complete ==="
   echo " "
 } 2>&1 | tee "${LOG_FILE}"

@@ -1,6 +1,9 @@
+import json
 import logging
 import re
 import tomllib
+from abc import ABC, abstractmethod
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
@@ -336,3 +339,216 @@ def extract_pyproject_metadata(repo_root: Path, pyproject_path: str) -> dict[str
         logger.warning(f"Failed to parse pyproject.toml at {pyproject_path}: {e}")
 
     return metadata
+
+
+_NODE_PKG_JSON_MAX_BYTES = 256_000
+
+
+def _norm_rel(path: str) -> str:
+    return path.replace("\\", "/").lstrip("/")
+
+
+def _read_text_capped(path: Path, max_bytes: int) -> str | None:
+    try:
+        if not path.is_file():
+            return None
+        if path.stat().st_size > max_bytes:
+            return None
+        return path.read_text(encoding="utf-8", errors="ignore")
+    except OSError:
+        return None
+
+
+@dataclass
+class PMContext:
+    """Context for package manager detection."""
+
+    all_files: list[str]
+    file_names: set[str]  # basename lookup
+    pkg_dir: str  # directory of the active package.json
+    package_json_data: dict[str, Any]
+
+
+class PackageManagerStrategy(ABC):
+    """Strategy for detecting and using a Node.js package manager."""
+
+    @property
+    @abstractmethod
+    def name(self) -> str:
+        pass
+
+    @abstractmethod
+    def detect(self, ctx: PMContext) -> bool:
+        """Return True if this package manager is detected."""
+
+    @abstractmethod
+    def get_install_command(self, has_lockfile: bool) -> str:
+        """Return the install command (e.g. 'npm ci', 'yarn install')."""
+
+    def get_run_command(self, script_name: str) -> str:
+        """Return the run command (default: 'pm run script')."""
+        return f"{self.name} run {script_name}"
+
+
+class NpmStrategy(PackageManagerStrategy):
+    """Strategy for npm (checks package-lock.json or npm-shrinkwrap.json)."""
+
+    @property
+    def name(self) -> str:
+        return "npm"
+
+    def detect(self, ctx: PMContext) -> bool:
+        return self._has_lockfile(ctx, ("package-lock.json", "npm-shrinkwrap.json"))
+
+    def get_install_command(self, has_lockfile: bool) -> str:
+        return "npm ci" if has_lockfile else "npm install"
+
+    def _has_lockfile(self, ctx: PMContext, filenames: tuple[str, ...]) -> bool:
+        # 1. Local dir match
+        prefix = ctx.pkg_dir.rstrip("/") + "/" if ctx.pkg_dir else ""
+        for name in filenames:
+            expected = f"{prefix}{name}"
+            if any(_norm_rel(f) == expected for f in ctx.all_files):
+                return True
+        # 2. Global fallback
+        return any(name in ctx.file_names for name in filenames)
+
+
+class LockfileBasedStrategy(PackageManagerStrategy):
+    """Generic strategy for lockfile-based PMs (yarn, pnpm, bun)."""
+
+    def __init__(self, pm_name: str, lockfile: str, install_cmd: str) -> None:
+        self._pm_name = pm_name
+        self._lockfile = lockfile
+        self._install_cmd = install_cmd
+
+    @property
+    def name(self) -> str:
+        return self._pm_name
+
+    def detect(self, ctx: PMContext) -> bool:
+        # 1. Local dir
+        prefix = ctx.pkg_dir.rstrip("/") + "/" if ctx.pkg_dir else ""
+        expected = f"{prefix}{self._lockfile}"
+        if any(_norm_rel(f) == expected for f in ctx.all_files):
+            return True
+        # 2. Global fallback
+        return self._lockfile in ctx.file_names
+
+    def get_install_command(self, has_lockfile: bool) -> str:
+        return self._install_cmd
+
+
+# Registry of strategies in priority order
+_PM_STRATEGIES: list[PackageManagerStrategy] = [
+    LockfileBasedStrategy("pnpm", "pnpm-lock.yaml", "pnpm install"),
+    LockfileBasedStrategy("yarn", "yarn.lock", "yarn install"),
+    LockfileBasedStrategy("bun", "bun.lockb", "bun install"),
+    NpmStrategy(),  # npm is last (default/fallback behavior)
+]
+
+
+def _select_node_package_manager(ctx: PMContext) -> tuple[PackageManagerStrategy | None, bool]:
+    """
+    Select best strategy. Returns (strategy, has_lockfile).
+    """
+    # 1. Explicit packageManager field (highest priority)
+    pm_field = ctx.package_json_data.get("packageManager")
+    if isinstance(pm_field, str) and pm_field.strip():
+        name = pm_field.split("@", 1)[0].strip().lower()
+        # Find matching strategy by name
+        for strategy in _PM_STRATEGIES:
+            if strategy.name == name:
+                # Trust the field, check lockfile for 'npm ci' behavior
+                has_lock = strategy.detect(ctx)
+                return strategy, has_lock
+
+    # 2. Lockfile detection
+    for strategy in _PM_STRATEGIES:
+        if strategy.detect(ctx):
+            return strategy, True
+
+    return None, False
+
+
+def extract_node_package_json_commands(
+    repo_root: Path,
+    all_files: list[str],
+) -> dict[str, list[CommandInfo]]:
+    """
+    Extract deterministic Node.js commands from package.json + lockfiles.
+    """
+    root = repo_root.resolve()
+    norm = [_norm_rel(p) for p in all_files if isinstance(p, str)]
+    names = {Path(p).name for p in norm}
+
+    pkg_candidates = [p for p in norm if Path(p).name == "package.json"]
+    if not pkg_candidates:
+        return {}
+
+    # Deterministic selection: root preferred, else alphabetical
+    pkg_rel = "package.json" if "package.json" in pkg_candidates else sorted(pkg_candidates)[0]
+    pkg_dir = str(Path(pkg_rel).parent).replace("\\", "/")
+    if pkg_dir == ".":
+        pkg_dir = ""
+
+    pkg_abs = (root / pkg_rel).resolve()
+    raw = _read_text_capped(pkg_abs, _NODE_PKG_JSON_MAX_BYTES)
+    if raw is None:
+        return {}
+
+    try:
+        data = json.loads(raw)
+    except Exception:
+        return {}
+
+    if not isinstance(data, dict):
+        return {}
+
+    # Build Context
+    ctx = PMContext(all_files=norm, file_names=names, pkg_dir=pkg_dir, package_json_data=data)
+
+    # Select Strategy
+    strategy, has_lockfile = _select_node_package_manager(ctx)
+    if not strategy:
+        return {}
+
+    scripts = data.get("scripts")
+    if not isinstance(scripts, dict):
+        scripts = {}
+
+    out: dict[str, list[CommandInfo]] = {
+        "install": [],
+        "dev": [],
+        "start": [],
+        "test": [],
+        "lint": [],
+        "format": [],
+    }
+
+    # Install Command
+    install_cmd = strategy.get_install_command(has_lockfile)
+    if install_cmd:
+        out["install"].append(
+            CommandInfo(
+                command=install_cmd,
+                source=f"{pkg_rel}:lockfile",
+                description="Install dependencies using the detected Node.js package manager.",
+                confidence="derived",
+            )
+        )
+
+    # Script Commands
+    wanted = ("dev", "start", "test", "lint", "format")
+    for key in wanted:
+        if key in scripts:
+            out[key].append(
+                CommandInfo(
+                    command=strategy.get_run_command(key),
+                    source=f"{pkg_rel}:scripts.{key}",
+                    description=f"Run the '{key}' script from package.json.",
+                    confidence="derived",
+                )
+            )
+
+    return {k: v for (k, v) in out.items() if v}

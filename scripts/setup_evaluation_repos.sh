@@ -1,30 +1,77 @@
 #!/bin/bash
+set -euo pipefail
 
-# Source B-prompt.txt path from the current working directory
+# ------------------------------------------------------------------------------
+# Phase 10 eval repo: deterministic Node-primary minimal repo
+# ------------------------------------------------------------------------------
+NODE_REPO_NAME="node-primary-min"
+NODE_REPO_PATH="$HOME/$NODE_REPO_NAME"
 
+mkdir -p "$NODE_REPO_PATH"
+
+# Minimal Node-primary evidence (no Python evidence)
+cat > "$NODE_REPO_PATH/package.json" <<'JSON'
+{
+  "name": "node-primary-min",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "node -e \"console.log('dev')\"",
+    "start": "node -e \"console.log('start')\"",
+    "test": "node -e \"console.log('test')\"",
+    "lint": "node -e \"console.log('lint')\"",
+    "format": "node -e \"console.log('format')\""
+  }
+}
+JSON
+
+# Lockfile to force npm selection and npm ci
+cat > "$NODE_REPO_PATH/package-lock.json" <<'JSON'
+{}
+JSON
+
+# Minimal docs so docs section is non-trivial
+cat > "$NODE_REPO_PATH/README.md" <<'MD'
+# node-primary-min
+
+Deterministic Node-primary repository used for evaluation.
+MD
+
+cat > "$NODE_REPO_PATH/LICENSE" <<'TXT'
+MIT License
+TXT
+
+# ------------------------------------------------------------------------------
 # Target repositories (relative to your home directory)
-REPOS=("searxng" "imgix-python" "Paper2Code" "wagtail" "connexion" "DeepCode" "gradio-bbox" "nanobanana" "gemmit" "mcp-repo-onboarding")
+# ------------------------------------------------------------------------------
+REPOS=(
+  "searxng"
+  "imgix-python"
+  "Paper2Code"
+  "wagtail"
+  "connexion"
+  "DeepCode"
+  "gradio-bbox"
+  "nanobanana"
+  "gemmit"
+  "gemini-cli"
+  "mcp-repo-onboarding"
+  "node-primary-min"
+)
 
 echo "Starting updates for specified repositories..."
 echo ""
 
 for REPO_NAME in "${REPOS[@]}"; do
-    # Construct the full path to the repository
-    REPO_PATH="/home/rogermt/${REPO_NAME}"
+    REPO_PATH="$HOME/${REPO_NAME}"
     GEMINI_DIR="${REPO_PATH}/.gemini"
     SETTINGS_FILE="${GEMINI_DIR}/settings.json"
 
-    # Corrected destination for B-prompt.txt: inside .gemini folder
-    B_PROMPT_DEST_DIR="${GEMINI_DIR}"
-    B_PROMPT_DEST_FILE="${B_PROMPT_DEST_DIR}/B-prompt.txt"
-
     echo "Processing repository: ${REPO_PATH}"
 
-    # 1. Update .gemini/settings.json
     # Create the .gemini directory if it doesn't exist
     mkdir -p "${GEMINI_DIR}"
 
-    # Construct the JSON content, dynamically setting REPO_ROOT
     JSON_CONTENT=$(cat <<EOF
 {
   "mcpServers": {
@@ -44,7 +91,6 @@ for REPO_NAME in "${REPOS[@]}"; do
 }
 EOF
 )
-    # Write the JSON content to the settings file
     echo "${JSON_CONTENT}" > "${SETTINGS_FILE}"
     echo "  - Updated ${SETTINGS_FILE}"
     echo ""
