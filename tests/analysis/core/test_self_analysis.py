@@ -218,6 +218,11 @@ class TestIgnoreMatcherUnit:
         from mcp_repo_onboarding.analysis.structs import IgnoreMatcher
         from mcp_repo_onboarding.config import SAFETY_IGNORES
 
+        # Create a real fixture path inside repo_root
+        p = tmp_path / "tests" / "fixtures" / "important.txt"
+        p.parent.mkdir(parents=True, exist_ok=True)
+        p.write_text("x", encoding="utf-8")
+
         # Create matcher with gitignore negation pattern
         matcher = IgnoreMatcher(
             repo_root=tmp_path,
@@ -226,4 +231,7 @@ class TestIgnoreMatcherUnit:
         )
 
         # Should still be ignored despite negation attempt
-        assert matcher.is_safety_ignored("tests/fixtures/important.txt")
+        assert matcher.should_ignore(p, is_dir=False) is True
+
+        # Also assert directory form stays ignored
+        assert matcher.should_ignore(p.parent, is_dir=True) is True
