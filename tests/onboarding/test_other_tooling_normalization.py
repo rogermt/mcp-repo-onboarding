@@ -15,9 +15,9 @@ from mcp_repo_onboarding.config import MAX_EVIDENCE_FILES_DISPLAYED
 def test_gradio_bbox_node_tooling_normalized(tmp_path: Path) -> None:
     """
     Simulate gradio-bbox Node.js detection:
-    - Evidence files sorted.
-    - List truncated to 3.
-    - Truncation note present.
+    - Evidence files sorted alphabetically.
+    - List truncated to 3 of 5.
+    - Truncation note present in Other tooling section.
     """
     repo = tmp_path / "repo"
     repo.mkdir()
@@ -41,19 +41,27 @@ def test_gradio_bbox_node_tooling_normalized(tmp_path: Path) -> None:
 
     md = bp["render"]["markdown"]
 
-    # Should have "Other tooling detected" section
+    # Node.js is primary and also appears in Other tooling
     assert "## Other tooling detected" in md
-    assert "Node.js" in md
 
-    # Find the specific line
-    lines = md.split("\n")
+    # Extract Other tooling section
+    other_tooling_start = md.find("## Other tooling detected")
+    other_tooling_end = md.find("##", other_tooling_start + 1)
+    if other_tooling_end < 0:
+        other_tooling_section = md[other_tooling_start:]
+    else:
+        other_tooling_section = md[other_tooling_start:other_tooling_end]
+
+    # Find Node.js line in Other tooling section
+    lines = other_tooling_section.split("\n")
     line = next((line for line in lines if "Node.js" in line), None)
 
     assert line is not None
     # Check sorting (alphabetical by path)
-    # .nvmrc comes first
+    # .nvmrc comes first, then client/js/package-lock.json, then js/.npmrc
     assert ".nvmrc" in line
-    assert line.index(".nvmrc") < line.index("js/.npmrc")
+    assert line.index(".nvmrc") < line.index("client/js/package-lock.json")
+    assert line.index("client/js/package-lock.json") < line.index("js/.npmrc")
 
     # Check truncation: should show 3 of 5
     assert "; truncated to 3 of 5" in line

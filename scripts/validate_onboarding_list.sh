@@ -24,51 +24,33 @@ else
   fi
 fi
 
-# Step 0: Setup target repositories (sync settings and prompts)
-echo "=== Setting up evaluation repositories ==="
-bash scripts/setup_evaluation_repos.sh
-echo " "
-
-export prompt="/generate_onboarding"
+# Configuration
 orig_dir="$PWD"
-LOG_FILE="evaluation_results.log"
+LOG_FILE="validation_results.log"
 source "$orig_dir/scripts/eval_assertions.sh"
 
-# Model configuration: default to gemini-2.5-flash but allow override via env var
-MODEL="${GEMINI_MODEL:-gemini-2.5-flash}"
+# Step 0: Setup target repositories (optional, ensures settings.json is fresh if running against real repos)
+# NOTE: If you are only validating generated files and want to skip setup, comment this out.
+# However, for the Phase 10 fixture, we keep it.
+if [ -f "scripts/setup_evaluation_repos.sh" ]; then
+  echo "=== Setting up evaluation repositories ==="
+  bash scripts/setup_evaluation_repos.sh
+  echo " "
+fi
+
+export prompt="/generate_onboarding"
 
 {
   echo " "
-  echo "=== Evaluation Started: $(date) ==="
-  echo "=== Running evaluation for: ${repos[*]} ==="
-  echo "=== Using Model: ${MODEL} ==="
+  echo "=== Validation Started: $(date) ==="
+  echo "=== Validating ONBOARDING.md for: ${repos[*]} ==="
   echo "Logging to: ${LOG_FILE}"
   echo " "
 
-  # First loop: run gemini in each repo directory (fine)
-  for repo in "${repos[@]}"; do
-    echo "=== Running gemini for $repo ==="
-    repo_abs_path="$HOME/$repo"
-
-    if [ -d "$repo_abs_path" ]; then
-      export REPO_ROOT="$repo_abs_path"
-      pushd "$repo_abs_path" > /dev/null
-      
-      gemini -p "$prompt" -m "$MODEL" --yolo
-      
-      popd > /dev/null
-
-      echo "Waiting 30 seconds for rate limits..."
-      sleep 30
-    else
-      echo "Directory $repo_abs_path does not exist; skipping gemini for $repo"
-    fi
-  done
-
-  # Second loop: print + validate
   validator_script="$orig_dir/scripts/validate_onboarding.py"
   validation_failures=0
 
+  # Loop: show + validate (no gemini, no sleep)
   for repo in "${repos[@]}"; do
     echo " "
     echo "=== Showing ONBOARDING.md for $repo ==="
@@ -85,13 +67,13 @@ MODEL="${GEMINI_MODEL:-gemini-2.5-flash}"
 
       # IMPORTANT:
       # Use uv project from *this* repo (mcp-repo-onboarding), not the target repo.
-      # This prevents uv from creating .venv inside $HOME/$repo.
       if ! uv run --project "$orig_dir" python "$validator_script" "$onboarding_path"; then
         echo "ERROR: Validation failed for $repo"
         validation_failures=$((validation_failures + 1))
       else
         echo "Validation passed for $repo"
 
+        # Phase 10 / #128: Node-primary specific assertions for node-primary-min
         if [ "$repo" = "node-primary-min" ]; then
           if ! assert_node_primary_min "$onboarding_path"; then
             validation_failures=$((validation_failures + 1))
@@ -115,6 +97,6 @@ MODEL="${GEMINI_MODEL:-gemini-2.5-flash}"
   fi
 
   echo " "
-  echo "=== Evaluation complete ==="
+  echo "=== Validation complete ==="
   echo " "
 } 2>&1 | tee "${LOG_FILE}"

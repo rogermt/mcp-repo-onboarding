@@ -199,7 +199,13 @@ def analyze_repo(
             details={"path": path, "repo_root": repo_root},
         ).model_dump_json(exclude_none=True, indent=2)
 
-    analysis = analysis_mod_analyze_repo(str(target), max_files=max_files)
+    # Ensure max_files is an integer (MCP may pass as string)
+    try:
+        max_files_int = int(max_files) if not isinstance(max_files, int) else max_files
+    except (ValueError, TypeError):
+        max_files_int = DEFAULT_MAX_FILES
+
+    analysis = analysis_mod_analyze_repo(str(target), max_files=max_files_int)
     logger.info(f"Analyzed repo at {target}")
 
     data: dict[str, Any] = analysis.model_dump(exclude_none=True)
