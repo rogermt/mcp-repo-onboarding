@@ -15,12 +15,16 @@ Python version: 3.11
 * `bash scripts/run_specific_repos.sh` (Run repo script entrypoint.)
 * `bash scripts/setup_evaluation_repos.sh` (Source B-prompt.txt path from the current working directory.)
 * `bash scripts/teardown_and_clone_repos.sh` (Run repo script entrypoint.)
+* `uv run mcp-repo-onboarding` (Run the MCP server in standalone mode.)
 
 ## Run tests
-No explicit commands detected.
+* `pytest` (Run tests using pytest as configured in pyproject.toml.)
+* `pytest --cov=src` (Run tests with coverage as configured in pyproject.toml.)
 
 ## Lint / format
-No explicit commands detected.
+* `ruff check .` (Check code for linting issues using ruff.)
+* `ruff format .` (Format code using ruff.)
+* `mypy` (Run type checking using mypy.)
 
 ## Analyzer notes
 * Primary tooling: Python (pyproject.toml present).
