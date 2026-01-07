@@ -474,7 +474,9 @@ def _analyzer_notes_lines(ctx: Context) -> list[str]:  # noqa: C901, PLR0912
     note_strs: list[str] = []
 
     # Phase 9: Python-only scope message when Python evidence is absent/weak
-    if not _python_evidence_present(ctx):
+    # Phase 10 / Issue #149: Do NOT show this note for Node-primary repos
+    pt = _primary_tooling_value(ctx)
+    if not _python_evidence_present(ctx) and pt != "Node.js":
         out.append(f"{BULLET}{PYTHON_ONLY_SCOPE_NOTE}")
 
     # Phase 10 / #127: Primary tooling note (deterministic, neutral)

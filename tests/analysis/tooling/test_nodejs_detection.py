@@ -211,3 +211,42 @@ class TestNodeJsBlueprint:
         md = blueprint["render"]["markdown"]
 
         assert "## Other tooling detected" not in md
+
+    def test_blueprint_does_not_emit_python_only_scope_note_for_node_primary(
+        self,
+    ) -> None:
+        """Phase 10 / Issue #149: Node-primary repos should not show Python-only scope note."""
+        from typing import Any
+
+        from mcp_repo_onboarding.analysis.onboarding_blueprint import (
+            build_context,
+            compile_blueprint,
+        )
+
+        analyze: dict[str, Any] = {
+            "repoPath": ".",
+            "primaryTooling": "Node.js",
+            "python": None,  # no Python evidence
+            "scripts": {
+                "install": [{"command": "npm ci", "description": "x"}],
+                "test": [{"command": "npm run test", "description": "x"}],
+            },
+            "otherTooling": [{"name": "Docker", "evidenceFiles": ["Dockerfile"]}],
+            "notes": [],
+            "docs": [],
+            "configurationFiles": [],
+            "frameworks": [],
+            "notebooks": [],
+            "testSetup": {},
+        }
+
+        ctx = build_context(analyze, {})
+        md = compile_blueprint(ctx)["render"]["markdown"]
+
+        # Should NOT show Phase 9 Python-only scope note for Node-primary repos
+        assert (
+            "Python tooling not detected; this release generates Python-focused onboarding only."
+            not in md
+        )
+        # Should show Primary tooling note instead
+        assert "Primary tooling: Node.js" in md

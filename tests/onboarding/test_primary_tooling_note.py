@@ -16,10 +16,10 @@ def _base_commands() -> dict[str, Any]:
 
 def test_primary_tooling_note_order_node_without_python() -> None:
     """
-    Test that primaryTooling note appears in correct order:
-    1. Python-only scope note (if python not detected)
-    2. Primary tooling note
-    3. Other analyzer notes
+    Test that for Node.js primary tooling without Python:
+    - Python-only scope note is NOT emitted (Issue #149)
+    - Primary tooling note appears first
+    - Other analyzer notes follow
     """
     analyze: dict[str, Any] = {
         "repoPath": "/test/repo",
@@ -61,9 +61,9 @@ def test_primary_tooling_note_order_node_without_python() -> None:
         if ln.startswith("* "):
             bullets.append(ln)
 
-    assert (
-        bullets[0]
-        == "* Python tooling not detected; this release generates Python-focused onboarding only."
+    # Python-only scope note should NOT appear for Node.js primary (Issue #149)
+    assert not any("Python tooling not detected" in bullet for bullet in bullets), (
+        "Python-only scope note should not appear for Node.js primary"
     )
-    assert bullets[1] == "* Primary tooling: Node.js (package.json, yarn.lock present)."
-    assert bullets[2] == "* docs list truncated to 10 entries (total=99)"
+    assert bullets[0] == "* Primary tooling: Node.js (package.json, yarn.lock present)."
+    assert bullets[1] == "* docs list truncated to 10 entries (total=99)"
