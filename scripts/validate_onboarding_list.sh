@@ -1,17 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Phase 10: Node-primary repo fixture (ensure it exists)
-FIXTURE_DIR="evaluation_repos/node-primary-min"
-if [ ! -d "$HOME/$FIXTURE_DIR" ]; then
-  echo "INFO: Creating local fixture for $FIXTURE_DIR..."
-  mkdir -p "$HOME/$FIXTURE_DIR"
-  if [ ! -f "$HOME/$FIXTURE_DIR/package.json" ]; then
-    echo "{}" > "$HOME/$FIXTURE_DIR/package.json"
-  fi
-  touch "$HOME/$FIXTURE_DIR/package-lock.json"
-fi
-
 # Read repo list from file if no args provided
 if [ "$#" -gt 0 ]; then
   repos=("$@")
