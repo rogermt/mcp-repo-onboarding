@@ -14,10 +14,10 @@ from mcp_repo_onboarding.config import MAX_EVIDENCE_FILES_DISPLAYED
 
 def test_gradio_bbox_node_tooling_normalized(tmp_path: Path) -> None:
     """
-    Simulate gradio-bbox Node.js detection:
-    - Evidence files sorted alphabetically.
-    - List truncated to 3 of 5.
-    - Truncation note present in Other tooling section.
+    Simulate gradio-bbox Node.js detection (Phase 10 / Issue #146):
+    - Node.js is primary tooling (suppressed from "## Other tooling detected")
+    - Primary tooling appears in "## Analyzer notes" section instead
+    - Evidence files for primary tooling are shown in primary tooling note
     """
     repo = tmp_path / "repo"
     repo.mkdir()
@@ -41,30 +41,16 @@ def test_gradio_bbox_node_tooling_normalized(tmp_path: Path) -> None:
 
     md = bp["render"]["markdown"]
 
-    # Node.js is primary and also appears in Other tooling
-    assert "## Other tooling detected" in md
+    # Phase 10 / Issue #146: Primary tooling is suppressed from "## Other tooling detected"
+    # (no duplication with "## Analyzer notes" section)
+    assert "## Other tooling detected" not in md, (
+        "## Other tooling detected should not appear when only primary tooling "
+        "(which is suppressed) would be shown"
+    )
 
-    # Extract Other tooling section
-    other_tooling_start = md.find("## Other tooling detected")
-    other_tooling_end = md.find("##", other_tooling_start + 1)
-    if other_tooling_end < 0:
-        other_tooling_section = md[other_tooling_start:]
-    else:
-        other_tooling_section = md[other_tooling_start:other_tooling_end]
-
-    # Find Node.js line in Other tooling section
-    lines = other_tooling_section.split("\n")
-    line = next((line for line in lines if "Node.js" in line), None)
-
-    assert line is not None
-    # Check sorting (alphabetical by path)
-    # .nvmrc comes first, then client/js/package-lock.json, then js/.npmrc
-    assert ".nvmrc" in line
-    assert line.index(".nvmrc") < line.index("client/js/package-lock.json")
-    assert line.index("client/js/package-lock.json") < line.index("js/.npmrc")
-
-    # Check truncation: should show 3 of 5
-    assert "; truncated to 3 of 5" in line
+    # Primary tooling should appear in ## Analyzer notes instead
+    assert "## Analyzer notes" in md
+    assert "Primary tooling: Node.js" in md
 
 
 def test_truncation_note_applies_only_when_needed(tmp_path: Path) -> None:
