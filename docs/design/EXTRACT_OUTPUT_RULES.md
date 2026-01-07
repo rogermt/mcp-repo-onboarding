@@ -32,6 +32,7 @@ Project stance: **High-Signal Scout**
 ## 1. ONBOARDING.md Validator Contract (V1–V8)
 
 These are deterministic rules enforced by `docs/evaluation/validate_onboarding.py`. If violated, validation fails and the evaluation run fails.
+These V-rules define only the hard fail conditions; the blueprint may include additional optional sections that the validator tolerates.
 
 ### V1 — Required headings must exist (exact)
 
@@ -50,6 +51,17 @@ These are deterministic rules enforced by `docs/evaluation/validate_onboarding.p
 
 Notes:
 - `## Analyzer notes` is optional and must only appear if notes are present (see V6).
+
+Additional optional headings (validator-tolerated)
+- The validator enforces only the required headings above; it does not fail on additional headings.
+- The blueprint may emit additional optional sections for UX as long as:
+  - all required headings still exist exactly once and in the required order, and
+  - provenance strings are not printed in standard mode (V8).
+
+Currently supported optional heading:
+- `## Other tooling detected`
+  - Purpose: evidence-only "other ecosystem" signals (e.g., Node.js, Docker).
+  - Placement in the standard blueprint: after `## Lint / format` and before `## Analyzer notes` (if present).
 
 Fail if:
 - a heading is missing
