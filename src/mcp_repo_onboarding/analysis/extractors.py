@@ -443,8 +443,8 @@ class LockfileBasedStrategy(PackageManagerStrategy):
 _PM_STRATEGIES: list[PackageManagerStrategy] = [
     LockfileBasedStrategy("pnpm", "pnpm-lock.yaml", "pnpm install"),
     LockfileBasedStrategy("yarn", "yarn.lock", "yarn install"),
+    NpmStrategy(),  # npm outranks bun when package-lock/shrinkwrap exist
     LockfileBasedStrategy("bun", "bun.lockb", "bun install"),
-    NpmStrategy(),  # npm is last (default/fallback behavior)
 ]
 
 

@@ -103,6 +103,24 @@ def test_node_commands_with_scripts_bun(tmp_path: Path) -> None:
     assert out["dev"][0].command == "bun run dev"
 
 
+def test_node_commands_lockfile_precedence_npm_over_bun(tmp_path: Path) -> None:
+    """When both package-lock.json and bun.lockb exist, npm must be selected (per Phase 10)."""
+    repo = tmp_path / "repo"
+    repo.mkdir()
+
+    pkg = {"scripts": {"test": "echo test"}}
+    (repo / "package.json").write_text(json.dumps(pkg), encoding="utf-8")
+    (repo / "package-lock.json").write_text("{}", encoding="utf-8")
+    (repo / "bun.lockb").write_text("", encoding="utf-8")
+
+    out = extract_node_package_json_commands(
+        repo, all_files=["package.json", "package-lock.json", "bun.lockb"]
+    )
+
+    assert out["install"][0].command == "npm ci"
+    assert out["test"][0].command == "npm run test"
+
+
 def test_node_commands_package_manager_field_priority(tmp_path: Path) -> None:
     """packageManager field in package.json takes precedence over lockfiles."""
     repo = tmp_path / "repo"
