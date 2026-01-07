@@ -290,9 +290,9 @@ def _lint_format_lines(ctx: Context) -> list[str]:
 
 def _other_tooling_lines(ctx: Context) -> list[str]:
     """
-    Build other tooling section lines (Phase 9 - Issue #110).
+    Build other tooling section lines (Phase 9 - Issue #110, Phase 10 - Issue #146).
 
-    Evidence-only, deterministically sorted, and truncated.
+    Evidence-only, deterministically sorted, truncated, and suppresses primary tooling.
     """
     tooling = ctx.analyze.get("otherTooling")
     if not isinstance(tooling, list) or not tooling:
@@ -300,6 +300,11 @@ def _other_tooling_lines(ctx: Context) -> list[str]:
 
     lines: list[str] = []
 
+    # Phase 10 / Issue #146: Get primary tooling to suppress from this section
+    primary = _primary_tooling(ctx)
+
+    # Filter and collect valid tooling items
+    valid_tooling: list[dict[str, Any]] = []
     for t in tooling:
         if not isinstance(t, dict):
             continue
@@ -307,10 +312,21 @@ def _other_tooling_lines(ctx: Context) -> list[str]:
         if not name:
             continue
 
+        # Phase 10: Suppress primary tooling from "Other tooling detected" section
+        if primary and name == primary:
+            continue
+
+        valid_tooling.append(t)
+
+    # Phase 10: Deterministic sort by tooling name
+    valid_tooling.sort(key=lambda x: x.get("name", ""))
+
+    for t in valid_tooling:
+        name = t.get("name")  # Known valid from filter above
         evidence = t.get("evidenceFiles", [])
 
         if evidence:
-            # Sort deterministically
+            # Phase 10: Sort evidence files deterministically (lexicographically)
             sorted_evidence = sorted(evidence)
 
             # Truncate display
