@@ -236,6 +236,10 @@ def _env_setup_lines(ctx: Context) -> list[str]:
         pt = _primary_tooling(ctx)
         if pt == "Node.js":
             lines.append(_node_version_pin_line(ctx))
+        elif pt == "Unknown" or (pt is None and not _python_evidence_present(ctx)):
+            # Issue #166: For Unknown primary tooling or missing detection with no Python evidence,
+            # use neutral messaging instead of Python-specific.
+            lines.append("No Python/Node.js version pin detected.")
         else:
             lines.append("No Python version pin detected.")
 
