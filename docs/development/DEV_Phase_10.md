@@ -135,8 +135,8 @@ No version inference beyond evidence presence.
 * `## Analyzer notes` (optional)
   * Add:
     * `* Primary tooling: Node.js (package.json present).`
-    * Retain Python-only scope message for repos where Python tooling not detected:
-      `* Python tooling not detected; this release generates Python-focused onboarding only.`
+    * For repos where primaryTooling is Unknown (neither Python nor Node.js) and Python not detected, show scope note:
+      `* Python/Node.js tooling not detected; this release generates onboarding for Python and Node.js repos only.`
   * Keep existing notes/truncations/framework lines.
 
 ---

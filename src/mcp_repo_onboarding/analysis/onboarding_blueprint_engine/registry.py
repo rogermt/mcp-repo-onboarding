@@ -24,10 +24,8 @@ NO_DOCS = "No useful docs detected."
 
 NOTEBOOK_CENTRIC = "Notebook-centric repo detected; core logic may reside in Jupyter notebooks."
 
-# Phase 9: Python-only scope note
-PYTHON_ONLY_SCOPE_NOTE = (
-    "Python tooling not detected; this release generates Python-focused onboarding only."
-)
+# Phase 10: Scope note for repos outside supported primary ecosystems
+PYTHON_NODE_SCOPE_NOTE = "Python/Node.js tooling not detected; this release generates onboarding for Python and Node.js repos only."
 
 # How many notebook directories to print in ONBOARDING.md (deterministic cap).
 MAX_NOTEBOOK_DIRS = 20
@@ -512,11 +510,11 @@ def _analyzer_notes_lines(ctx: Context) -> list[str]:  # noqa: C901, PLR0912
     out: list[str] = []
     note_strs: list[str] = []
 
-    # Phase 9: Python-only scope message when Python evidence is absent/weak
-    # Phase 10 / Issue #149: Do NOT show this note for Node-primary repos
+    # Phase 10: If primary tooling is Unknown (neither Python nor Node.js),
+    # emit a scope note that correctly reflects supported ecosystems.
     pt = _primary_tooling_value(ctx)
-    if not _python_evidence_present(ctx) and pt != "Node.js":
-        out.append(f"{BULLET}{PYTHON_ONLY_SCOPE_NOTE}")
+    if pt in (None, "Unknown") and not _python_evidence_present(ctx):
+        out.append(f"{BULLET}{PYTHON_NODE_SCOPE_NOTE}")
 
     # Phase 10 / #127: Primary tooling note (deterministic, neutral)
     pt_line = _primary_tooling_note_line(ctx)
