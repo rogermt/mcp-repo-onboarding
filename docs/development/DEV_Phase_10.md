@@ -118,9 +118,15 @@ No version inference beyond evidence presence.
 
 ### 3) ONBOARDING.md behavior for Node-primary repos (under existing headings)
 * `## Environment setup`
-  * Still prints `No Python version pin detected.` if no hint is known.
-  * **Does NOT print Python venv snippet** when:
-    * `primaryTooling == "Node.js"` AND Python evidence not detected.
+  * Node-primary repos should not present Python-first environment messaging by default.
+  * If `primaryTooling == "Node.js"`, the blueprint prints a Node.js version pin message:
+    * If `.nvmrc` and/or `.node-version` are present (evidence-only), print:
+      * `Node version pin file detected: <.nvmrc/.node-version/...>.`
+    * Otherwise print:
+      * `No Node.js version pin file detected.`
+  * **Does NOT print Python venv snippet** when Node is primary.
+  * Python version hints may still be printed when explicitly detected (e.g., from CI),
+    but Node-primary messaging should remain Node-first.
   * May include neutral Node evidence in Analyzer notes (recommended), not here.
 * `## Install dependencies`
   * Node-primary: include grounded Node install command if available; else fallback exact `No explicit commands detected.`
