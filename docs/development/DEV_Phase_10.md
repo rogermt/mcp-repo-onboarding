@@ -6,7 +6,7 @@
   * framework detection improvements (Streamlit/Gradio evidence‑based)
   * “Other tooling detected” evidence-only
   * caps/truncation formatting for notebooks and tooling evidence
-  * Python-only scope message when Python not detected
+  * Python-only scope message when Python not detected (Phase 9 behavior)
 * Phase 10 expands to support **Node-primary / non‑Python‑primary repos** while keeping the current validator contract **V1–V8** unchanged.
 
 Critical constraint:
@@ -53,8 +53,12 @@ V1 requires these headings and order:
 9. `## Useful configuration files`
 10. `## Useful docs`
 
-Phase 10 will keep the headings exactly the same.
-Node-primary support will be implemented as **different content inside the same sections**, not different headings.
+Phase 10 keeps the **required** headings exactly the same (V1–V8 remain unchanged).
+Node-primary support is implemented as different content inside the existing required sections.
+
+Optional headings may be emitted by the blueprint for UX (validator-tolerated), including:
+- `## Analyzer notes` (only if non-empty)
+- `## Other tooling detected`
 
 ---
 

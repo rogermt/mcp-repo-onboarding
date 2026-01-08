@@ -15,7 +15,7 @@ Project stance: **High-Signal Scout**
 ## 0. Sources of truth and anti-drift rule
 
 ### Validator contract (Phase 6)
-- Enforced by: `docs/evaluation/validate_onboarding.py`
+- Enforced by: `scripts/validate_onboarding.py`
 - The rules V1–V8 below define what is considered a valid `ONBOARDING.md`.
 
 ### Analyzer behavior (Phase 7)
@@ -24,14 +24,14 @@ Project stance: **High-Signal Scout**
 
 ### Anti-drift rule
 - Do **not** invent new “V-rules” for ranking or heuristics.
-- V-rules are **validator** rules only (hard fail conditions in `validate_onboarding.py`).
+- V-rules are **validator** rules only (hard fail conditions in `scripts/validate_onboarding.py`).
 - Ranking, prioritization, and selection logic belongs only in the analyzer rules in this file.
 
 ---
 
 ## 1. ONBOARDING.md Validator Contract (V1–V8)
 
-These are deterministic rules enforced by `docs/evaluation/validate_onboarding.py`. If violated, validation fails and the evaluation run fails.
+These are deterministic rules enforced by `scripts/validate_onboarding.py`. If violated, validation fails and the evaluation run fails.
 These V-rules define only the hard fail conditions; the blueprint may include additional optional sections that the validator tolerates.
 
 ### V1 — Required headings must exist (exact)
@@ -540,6 +540,12 @@ version-pin messaging by default. Instead:
 
 Additionally, for Node-primary repos the blueprint must not emit a generic Python venv snippet
 unless Python is explicitly the primary tooling (see validator V4 for venv labeling requirements).
+
+If `RepoAnalysis.primaryTooling == "Unknown"` (outside supported Python/Node.js ecosystems),
+the blueprint should avoid Python-first messaging in `## Environment setup`. In the absence of
+explicit Python or Node version pins, print a neutral line such as:
+
+- `No Python/Node.js version pin detected.`
 
 ---
 
