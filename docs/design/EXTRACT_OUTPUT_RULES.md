@@ -525,6 +525,22 @@ This EXTRACT_OUTPUT_RULES section governs analyzer behavior only.
 Blueprint rendering may choose how to surface these commands under the existing required headings,
 but validator rules (V1–V8) remain unchanged.
 
+#### 9.2.6 Node-primary environment setup messaging (blueprint behavior)
+
+While Phase 10 rules in this section primarily define analyzer behavior, the standard blueprint
+is expected to keep ONBOARDING.md messaging consistent with `primaryTooling`.
+
+If `RepoAnalysis.primaryTooling == "Node.js"`, the blueprint should not print Python-first
+version-pin messaging by default. Instead:
+
+- If `.nvmrc` and/or `.node-version` are present (evidence-only), print:
+  - `Node version pin file detected: <.nvmrc/.node-version/...>.`
+- Otherwise print:
+  - `No Node.js version pin file detected.`
+
+Additionally, for Node-primary repos the blueprint must not emit a generic Python venv snippet
+unless Python is explicitly the primary tooling (see validator V4 for venv labeling requirements).
+
 ---
 
 ### 9.3 Examples

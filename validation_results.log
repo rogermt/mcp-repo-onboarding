@@ -1,5 +1,5 @@
  
-=== Validation Started: Tue Jan  6 20:17:13 GMT 2026 ===
+=== Validation Started: Thu Jan  8 00:29:05 GMT 2026 ===
 === Validating ONBOARDING.md for: node-primary-min ===
 Logging to: validation_results.log
  
@@ -15,22 +15,20 @@ Repo path: /home/rogermt/node-primary-min
 No Python version pin detected.
 
 ## Install dependencies
-No explicit commands detected.
+* `npm ci` (Install dependencies using the detected Node.js package manager.)
 
 ## Run / develop locally
-No explicit commands detected.
+* `npm run dev` (Run the 'dev' script from package.json.)
+* `npm run start` (Run the 'start' script from package.json.)
 
 ## Run tests
-No explicit commands detected.
+* `npm run test` (Run the 'test' script from package.json.)
 
 ## Lint / format
-No explicit commands detected.
-
-## Other tooling detected
-* Node.js (package-lock.json, package.json)
+* `npm run lint` (Run the 'lint' script from package.json.)
+* `npm run format` (Run the 'format' script from package.json.)
 
 ## Analyzer notes
-* Python tooling not detected; this release generates Python-focused onboarding only.
 * Primary tooling: Node.js (package.json, package-lock.json present).
 
 ## Dependency files detected
@@ -46,6 +44,7 @@ No useful configuration files detected.
 --- Validating ONBOARDING.md for node-primary-min ---
 Validation passed for /home/rogermt/node-primary-min/ONBOARDING.md.
 Validation passed for node-primary-min
-ERROR: node-primary-min missing `npm ci` in Install dependencies
+Additional assertions passed for node-primary-min
  
-!!! CRITICAL: 1 repo(s) failed validation !!!
+=== Validation complete ===
+ 
