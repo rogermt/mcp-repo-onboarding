@@ -6,7 +6,16 @@ if [ "$#" -gt 0 ]; then
   repos=("$@")
 else
   if [ -f "scripts/eval_repos.list" ]; then
-    mapfile -t < scripts/eval_repos.list repos
+    # Parse eval_repos.list: extract repo names (first field, pipe-delimited)
+    # Skip comments and blank lines
+    repos=()
+    while IFS='|' read -r repo_name _ _ _; do
+      # Skip empty lines and comments
+      [[ -z "$repo_name" || "$repo_name" =~ ^# ]] && continue
+      # Trim whitespace
+      repo_name=$(echo "$repo_name" | xargs)
+      repos+=("$repo_name")
+    done < scripts/eval_repos.list
   else
     echo "ERROR: No repositories provided and scripts/eval_repos.list not found."
     exit 1
