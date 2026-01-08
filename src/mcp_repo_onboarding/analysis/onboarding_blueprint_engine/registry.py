@@ -183,6 +183,41 @@ def _primary_tooling(ctx: Context) -> str | None:
     return pt if isinstance(pt, str) and pt.strip() else None
 
 
+def _node_version_pin_line(ctx: Context) -> str:  # noqa: C901
+    """
+    Evidence-only Node version pin messaging.
+    Grounded in presence of .nvmrc / .node-version (no file reads).
+    """
+    tooling = ctx.analyze.get("otherTooling")
+    evidence_paths: list[str] = []
+
+    if isinstance(tooling, list):
+        for t in tooling:
+            if not isinstance(t, dict):
+                continue
+            name = t.get("name")
+            if not isinstance(name, str) or name.strip() != "Node.js":
+                continue
+            ev = t.get("evidenceFiles")
+            if isinstance(ev, list):
+                for p in ev:
+                    if isinstance(p, str) and p.strip():
+                        evidence_paths.append(p.strip().replace("\\", "/").lstrip("/"))
+
+    basenames = {Path(p).name for p in evidence_paths}
+
+    pins = []
+    if ".nvmrc" in basenames:
+        pins.append(".nvmrc")
+    if ".node-version" in basenames:
+        pins.append(".node-version")
+
+    if pins:
+        pins_str = ", ".join(pins)  # deterministic order as constructed above
+        return f"Node version pin file detected: {pins_str}."
+    return "No Node.js version pin file detected."
+
+
 # Section builders (copied from v2, verbatim)
 
 
@@ -200,7 +235,11 @@ def _env_setup_lines(ctx: Context) -> list[str]:
     if hints:
         lines.append(f"Python version: {hints[0]}")
     else:
-        lines.append("No Python version pin detected.")
+        pt = _primary_tooling(ctx)
+        if pt == "Node.js":
+            lines.append(_node_version_pin_line(ctx))
+        else:
+            lines.append("No Python version pin detected.")
 
     if env_instr:
         bullets = [f"{BULLET}{_normalize_env_instruction(s)}" for s in env_instr]

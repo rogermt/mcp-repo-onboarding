@@ -22,7 +22,8 @@ def _base_commands() -> dict[str, Any]:
 def test_node_primary_no_python_evidence_suppresses_venv_snippet() -> None:
     """
     When primaryTooling is Node.js and python=None (no Python evidence),
-    the venv snippet should NOT appear in the markdown output.
+    the environment setup should show Node.js version pin message (not Python),
+    and venv snippet should NOT appear in the markdown output.
     """
     analyze: dict[str, Any] = {
         "repoPath": "/test/repo",
@@ -47,8 +48,9 @@ def test_node_primary_no_python_evidence_suppresses_venv_snippet() -> None:
 
     md = compile_blueprint(build_context(analyze, _base_commands()))["render"]["markdown"]
 
-    # Still allowed/expected:
-    assert "No Python version pin detected." in md
+    # Node.js-primary repos should show Node version pin message (not Python):
+    assert "No Node.js version pin file detected." in md
+    assert "No Python version pin detected." not in md
 
     # Must NOT show venv snippet or label:
     assert "(Generic suggestion)" not in md
