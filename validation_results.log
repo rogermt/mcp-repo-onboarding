@@ -1,6 +1,6 @@
  
-=== Validation Started: Thu Jan  8 00:29:05 GMT 2026 ===
-=== Validating ONBOARDING.md for: node-primary-min ===
+=== Validation Started: Thu Jan  8 14:42:53 GMT 2026 ===
+=== Validating ONBOARDING.md for: node-primary-min gemini-cli nanobanana purego ===
 Logging to: validation_results.log
  
  
@@ -12,7 +12,7 @@ Logging to: validation_results.log
 Repo path: /home/rogermt/node-primary-min
 
 ## Environment setup
-No Python version pin detected.
+No Node.js version pin file detected.
 
 ## Install dependencies
 * `npm ci` (Install dependencies using the detected Node.js package manager.)
@@ -45,6 +45,167 @@ No useful configuration files detected.
 Validation passed for /home/rogermt/node-primary-min/ONBOARDING.md.
 Validation passed for node-primary-min
 Additional assertions passed for node-primary-min
+ 
+=== Showing ONBOARDING.md for gemini-cli ===
+=== Repo: gemini-cli ===
+# ONBOARDING.md
+
+## Overview
+Repo path: /home/rogermt/gemini-cli
+
+## Environment setup
+Node version pin file detected: .nvmrc.
+
+## Install dependencies
+* `make install` (Install dependencies via Makefile target.)
+
+## Run / develop locally
+* `bash scripts/create_alias.sh` (Run repo script entrypoint.)
+* `make start` (Run the application via Makefile target.)
+* `npm run start` (Run the 'start' script from package.json.)
+
+## Run tests
+* `make test` (Run the test suite via Makefile target.)
+* `npm run test` (Run the 'test' script from package.json.)
+
+## Lint / format
+* `make lint` (Run linting via Makefile target.)
+* `npm run lint` (Run the 'lint' script from package.json.)
+* `make format` (Run formatting via Makefile target.)
+* `npm run format` (Run the 'format' script from package.json.)
+
+## Other tooling detected
+* Docker (Dockerfile)
+
+## Analyzer notes
+* Primary tooling: Node.js (package.json, package-lock.json present).
+* docs list truncated to 10 entries (total=81)
+* configurationFiles list truncated to 15 entries (total=33)
+
+## Dependency files detected
+No dependency files detected.
+
+## Useful configuration files
+* Makefile (Primary task runner for development and build orchestration.)
+* .github/workflows/chained_e2e.yml (CI/CD automation workflow.)
+* .github/workflows/ci.yml (CI/CD automation workflow.)
+* .github/workflows/community-report.yml (CI/CD automation workflow.)
+* .github/workflows/deflake.yml (CI/CD automation workflow.)
+* .github/workflows/docs-page-action.yml (CI/CD automation workflow.)
+* .github/workflows/docs-rebuild.yml (CI/CD automation workflow.)
+* .github/workflows/eval.yml (CI/CD automation workflow.)
+* .github/workflows/gemini-automated-issue-dedup.yml (CI/CD automation workflow.)
+* .github/workflows/gemini-automated-issue-triage.yml (CI/CD automation workflow.)
+* .github/workflows/gemini-automated-pr-size-labeler.yml (CI/CD automation workflow.)
+* .github/workflows/gemini-scheduled-issue-dedup.yml (CI/CD automation workflow.)
+* .github/workflows/gemini-scheduled-issue-triage.yml (CI/CD automation workflow.)
+* .github/workflows/gemini-scheduled-pr-triage.yml (CI/CD automation workflow.)
+* .github/workflows/gemini-scheduled-stale-issue-closer.yml (CI/CD automation workflow.)
+
+## Useful docs
+* CONTRIBUTING.md
+* LICENSE
+* README.md
+* SECURITY.md
+* docs/CONTRIBUTING.md
+* docs/architecture.md
+* docs/faq.md
+* docs/index.md
+* docs/integration-tests.md
+* docs/issue-and-pr-automation.md
+ 
+--- Validating ONBOARDING.md for gemini-cli ---
+Validation passed for /home/rogermt/gemini-cli/ONBOARDING.md.
+Validation passed for gemini-cli
+No additional assertions for gemini-cli
+ 
+=== Showing ONBOARDING.md for nanobanana ===
+=== Repo: nanobanana ===
+# ONBOARDING.md
+
+## Overview
+Repo path: /home/rogermt/nanobanana
+
+## Environment setup
+No Node.js version pin file detected.
+
+## Install dependencies
+* `npm ci` (Install dependencies using the detected Node.js package manager.)
+
+## Run / develop locally
+* `npm run dev` (Run the 'dev' script from package.json.)
+
+## Run tests
+* `npm run test` (Run the 'test' script from package.json.)
+
+## Lint / format
+* `npm run lint` (Run the 'lint' script from package.json.)
+* `npm run format` (Run the 'format' script from package.json.)
+
+## Analyzer notes
+* Primary tooling: Node.js (package.json, package-lock.json present).
+
+## Dependency files detected
+No dependency files detected.
+
+## Useful configuration files
+* .github/workflows/release.yaml (CI/CD automation workflow.)
+
+## Useful docs
+* LICENSE
+* README.md
+* SECURITY.md
+* docs/code-of-conduct.md
+* docs/contributing.md
+ 
+--- Validating ONBOARDING.md for nanobanana ---
+Validation passed for /home/rogermt/nanobanana/ONBOARDING.md.
+Validation passed for nanobanana
+No additional assertions for nanobanana
+ 
+=== Showing ONBOARDING.md for purego ===
+=== Repo: purego ===
+# ONBOARDING.md
+
+## Overview
+Repo path: /home/rogermt/purego
+
+## Environment setup
+No Python/Node.js version pin detected.
+
+## Install dependencies
+No explicit commands detected.
+
+## Run / develop locally
+No explicit commands detected.
+
+## Run tests
+No explicit commands detected.
+
+## Lint / format
+No explicit commands detected.
+
+## Other tooling detected
+* Go (go.mod, go.sum)
+
+## Analyzer notes
+* Python/Node.js tooling not detected; this release generates onboarding for Python and Node.js repos only.
+* Primary tooling: Unknown.
+
+## Dependency files detected
+No dependency files detected.
+
+## Useful configuration files
+* .github/workflows/test.yml (CI/CD automation workflow.)
+
+## Useful docs
+* LICENSE
+* README.md
+ 
+--- Validating ONBOARDING.md for purego ---
+Validation passed for /home/rogermt/purego/ONBOARDING.md.
+Validation passed for purego
+No additional assertions for purego
  
 === Validation complete ===
  

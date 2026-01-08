@@ -143,23 +143,25 @@ class PyprojectClassifierDetector(FrameworkDetector):
 
 # Registry for Poetry dependency reason strings.
 # Format: (framework_name, dependency_key, reason, optional_reason)
+# Note: reason has NO trailing period (blueprint sanitizer adds it).
+#       optional_reason is a complete sentence ending with period after "(optional)".
 _POETRY_DEP_REGISTRY: list[tuple[str, str, str, str]] = [
     (
         "Flask",
         "flask",
-        "Flask support detected via pyproject.toml (Poetry) dependency key 'flask'.",
+        "Flask support detected via pyproject.toml (Poetry) dependency key 'flask'",
         "Flask support detected via pyproject.toml (Poetry) dependency key 'flask' (optional).",
     ),
     (
         "Django",
         "django",
-        "Django support detected via pyproject.toml (Poetry) dependency key 'django'.",
+        "Django support detected via pyproject.toml (Poetry) dependency key 'django'",
         "Django support detected via pyproject.toml (Poetry) dependency key 'django' (optional).",
     ),
     (
         "FastAPI",
         "fastapi",
-        "FastAPI support detected via pyproject.toml (Poetry) dependency key 'fastapi'.",
+        "FastAPI support detected via pyproject.toml (Poetry) dependency key 'fastapi'",
         "FastAPI support detected via pyproject.toml (Poetry) dependency key 'fastapi' (optional).",
     ),
 ]
