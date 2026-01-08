@@ -1,12 +1,15 @@
-searxng
-Paper2Code
-imgix-python
-wagtail
-connexion
-DeepCode
-gradio-bbox
-nanobanana
-gemmit
-gemini-cli
-mcp-repo-onboarding
-node-primary-min
+# Evaluation repositories - single source of truth
+# Format: repo_name|clone_url|branch|download_flag (Y/N)
+searxng|https://github.com/searxng/searxng.git|main|Y
+Paper2Code|https://github.com/rogermt/Paper2Code.git|feature/litellm-support|Y
+imgix-python|https://github.com/imgix/imgix-python.git|main|Y
+wagtail|https://github.com/wagtail/wagtail.git|main|Y
+connexion|https://github.com/spec-first/connexion.git|main|Y
+DeepCode|https://github.com/rogermt/DeepCode.git|main|Y
+gradio-bbox|https://github.com/chencn2020/gradio-bbox.git|main|Y
+nanobanana|https://github.com/gemini-cli-extensions/nanobanana.git|main|Y
+gemmit|https://github.com/tcmartin/gemmit.git|main|Y
+gemini-cli|https://github.com/google-gemini/gemini-cli.git|main|Y
+mcp-repo-onboarding|https://github.com/rogermt/mcp-repo-onboarding.git|master|N
+node-primary-min|local|local|N
+purego|https://github.com/ebitengine/purego.git|main|Y
